@@ -36,6 +36,7 @@ BASE_URL = "https://api.twitter.com/2/users/by"
 main_bearer_token = config.BEARER_TOKEN
 backup_bearer_token = config.BEARER_TOKEN_V2
 
+
 # API limits
 # https://developer.twitter.com/en/docs/twitter-api/rate-limits#v2-limits
 
@@ -213,6 +214,59 @@ def is_database_empty(session=None):
     return session.query(TwitterAccount).first() is None
 
 
+def process_suspended_user(account, username, error, protected_channel, session):
+    if account:
+        account.mark_as_suspended()
+        account.api_response = error
+        print(f"{username} is Suspended.")
+        session.commit()
+    else:
+        user_data = {
+            'username': username,
+            'protected_channel': protected_channel,
+            'api_response': error
+        }
+        new_account = TwitterAccount(**user_data)
+        new_account.mark_as_suspended()
+        session.add(new_account)
+        session.commit()
+
+
+def process_not_found_user(username, error, protected_channel, session):
+    user_data = {
+        'username': username,
+        'protected_channel': protected_channel,
+        'api_response': error  # Store the error response as the API response
+    }
+    new_account = TwitterAccount(**user_data)
+    new_account.unresolvable = True  # Mark the account as unresolvable
+    session.add(new_account)
+    print(f"{username} not found.")
+    session.commit()
+
+
+def process_active_user(account, user_data, protected_channel, session):
+    user_data['protected_channel'] = protected_channel
+    user_data['api_response'] = json.dumps(user_data, cls=SafeEncoder)
+
+    if account:
+        if not account.suspended and account.username != user_data['username']:
+            print(f"{account.username} changed username to {user_data['username']}")
+            account.username = user_data['username']
+
+        account.update_api_response(user_data)
+    else:
+        create_new_account(user_data, session)
+
+    print(f"{user_data['username']} impersonates {protected_channel}.")
+    session.commit()
+
+
+def print_users(users, status):
+    for user in users:
+        print(f"{user} is {status}.")
+
+
 def all_impersonators(session, filename):
     protected_channel = get_protected_channel_from_filename(filename)
 
@@ -288,7 +342,10 @@ def exponential_backoff_retry(max_retries, base_delay, max_delay):
 
 
 def process_api_response(response, session, protected_channel):
-    processed_data = []  # Create a list to store processed data
+    print("Processing API response...")
+    suspended_accounts = []
+    active_impersonators = []
+    not_found_users = []
 
     if 'errors' in response:
         for error in response['errors']:
@@ -299,48 +356,30 @@ def process_api_response(response, session, protected_channel):
             account = session.query(TwitterAccount).filter_by(username=username).first()
 
             if 'has been suspended' in detail:
-                if account:
-                    account.mark_as_suspended()
-                    account.api_response = error
-                    session.commit()
-                    processed_data.append(f"{username} is Suspended.")
-                else:
-                    user_data = {
-                        'username': username,
-                        'protected_channel': protected_channel,
-                        'api_response': error,
-                    }
-                    new_account = TwitterAccount(**user_data)
-                    new_account.mark_as_suspended()
-                    session.add(new_account)
-                    session.commit()
-                    processed_data.append(f"Added and marked new account {username} as suspended.")
+                process_suspended_user(account, username, error, protected_channel, session)
+                continue
 
-            elif 'could not be found' in detail:
-                if account:
+            # Handling username not found
+            if 'could not be found' in detail:
+                if account and account.twitter_id:
                     url = f"https://api.twitter.com/2/users/{account.twitter_id}"
                     headers = create_headers(main_bearer_token)
                     try:
                         new_user_data = connect_to_endpoint(url, headers)
                         new_username = new_user_data['data']['username']
+                        print(f"Username {username} not found. Updated to {new_username} using Twitter ID.")
                         account.update_username(new_username)
                         account.update_api_response(new_user_data['data'])
                         session.commit()
-                        processed_data.append(f"Username {username} not found. Updated to {new_username} using "
-                                              f"Twitter ID.")
                     except Exception as e:
                         logging.error(f"Could not update username: {e}")
+                        account.unresolvable = True
+                        print(f"{username} could not be updated with existing information, marked as unresolvable.")
+                        session.commit()
                 else:
-                    user_data = {
-                        'username': username,
-                        'protected_channel': protected_channel,
-                        'api_response': error,
-                    }
-                    new_account = TwitterAccount(**user_data)
-                    new_account.unresolvable = True
-                    session.add(new_account)
-                    session.commit()
-                    processed_data.append(f"Added new account {username} with username not found.")
+                    not_found_users.append(username)
+                    process_not_found_user(username, error, protected_channel, session)
+                continue
 
     if 'data' in response:
         for user_data in response['data']:
@@ -349,19 +388,21 @@ def process_api_response(response, session, protected_channel):
             account = session.query(TwitterAccount).filter_by(twitter_id=user_data['id']).first()
 
             if account:
-                if not account.suspended and account.username != user_data['username']:
-                    account.username = user_data['username']
-                    processed_data.append(f"{account.username} changed username to {user_data['username']} trying to "
-                                          f"avoid getting Suspended. Updating Database.")
+                if not account.suspended:
+                    if account.username != user_data['username']:
+                        print(f"{account.username} changed username to {user_data['username']}. Updating Database")
+                        account.username = user_data['username']
 
                 account.update_api_response(user_data)
-                session.commit()
-                processed_data.append(f"{user_data['username']} impersonates {protected_channel}.")
+                active_impersonators.append(f"{user_data['username']} impersonates {protected_channel}.")
             else:
                 create_new_account(user_data, session)
-                session.commit()
+                active_impersonators.append(
+                    f"Added new account {user_data['username']} impersonating {protected_channel}")
 
-    return processed_data  # Return the processed data at the end of the function
+            session.commit()
+
+    return suspended_accounts, active_impersonators, not_found_users
 
 
 def main():
@@ -392,9 +433,11 @@ def main():
 
     user_choice = input("Comma separated Nr or Name. Or type ALL: ").strip()
 
+    # Function to process each choice
     def process_choice(choice):
-        all_processed_data = []  # Collecting all processed data here
-        protected_channel = "unknown channel"  # Initialize with a default value
+        all_suspended_accounts = []
+        all_active_impersonators = []
+        all_not_found_users = []
 
         try:
             choice_number = int(choice)
@@ -415,11 +458,18 @@ def main():
                     url = create_url(chunk)
                     headers = create_headers(main_bearer_token)
                     response_data = connect_to_endpoint(url, headers)
-                    processed_data = process_api_response(response_data, session, protected_channel)
-                    all_processed_data.extend(processed_data)
+
+                    suspended_accounts, active_impersonators, not_found_users = process_api_response(response_data,
+                                                                                                     session,
+                                                                                                     protected_channel)
+                    all_suspended_accounts.extend(suspended_accounts)
+                    all_active_impersonators.extend(active_impersonators)
+                    all_not_found_users.extend(not_found_users)
                     time.sleep(1)
 
-                print("\n".join(all_processed_data))
+                print("\n".join(all_suspended_accounts))
+                print("\n".join(all_active_impersonators))
+                print("\n".join(all_not_found_users))
                 print(f"All chunks processed for {protected_channel}.")
 
         except ValueError as e:
@@ -430,9 +480,6 @@ def main():
         except Exception as e:
             logging.error(f"An unexpected error occurred: {e}", exc_info=True)
             traceback.print_exc()
-        finally:
-            print(
-                f"Operation completed for {protected_channel if 'protected_channel' in locals() else 'unknown channel'}.")
 
     if user_choice.upper() == "ALL":
         for txt_file in txt_files:
