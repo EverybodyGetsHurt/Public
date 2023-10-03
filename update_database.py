@@ -14,6 +14,8 @@ import os
 
 # Logging setup
 log_filename = "TwitterData/SQL-ImpersonatorAccounts/ImpersonatorAccounts.log"
+if not os.path.exists(os.path.dirname(log_filename)):
+    os.makedirs(os.path.dirname(log_filename))
 logging.basicConfig(filename=log_filename, level=logging.DEBUG)
 logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
@@ -33,8 +35,9 @@ Session = scoped_session(sessionmaker(bind=engine))
 BASE_URL = "https://api.twitter.com/2/users/by"
 
 # API tokens
-main_bearer_token = config.BEARER_TOKEN
-backup_bearer_token = config.BEARER_TOKEN_V2
+# Modified the variable names to resolve the shadowing warning
+main_token = config.BEARER_TOKEN
+backup_token = config.BEARER_TOKEN_V2
 
 
 # API limits
@@ -151,6 +154,24 @@ class SafeEncoder(json.JSONEncoder):
             return super().default(obj)
         except TypeError:
             return str(obj)
+
+
+# Token Manager for handling the token rotation
+class TokenManager:
+    def __init__(self, tokens):
+        self.tokens_list = tokens  # Changed the parameter name to `tokens`
+        self.current_token_index = 0
+
+    def get_current_token(self):
+        return self.tokens_list[self.current_token_index]
+
+    def rotate_token(self):
+        self.current_token_index = (self.current_token_index + 1) % len(self.tokens_list)
+
+
+# No warning since the local parameter name is different from the outer variable name
+tokens_list = [main_token, backup_token]
+token_manager = TokenManager(tokens_list)
 
 
 def chunked_usernames(usernames: List[str], chunk_size: int = 100):
@@ -307,17 +328,17 @@ def connect_to_endpoint(url, headers, max_retries=5, base_delay=5, max_delay=60)
     retries = 0
     while retries <= max_retries:
         response = requests.get(url, headers=headers)
+
         if response.status_code != 429:  # Not a rate limit error
             response.raise_for_status()  # Raise an exception for other HTTP errors
             return response.json()
 
-        # Handle rate limit error with exponential backoff
+        # If we reach here, it means we hit the rate limit. We can log this and/or handle it as needed.
         retries += 1
         delay = min(max_delay, (base_delay * (2 ** retries)) + random.uniform(0, 1))
         logging.warning(f"Rate limit exceeded, retrying in {delay:.2f} seconds...")
         time.sleep(delay)
 
-    # If it reaches here, it means it has retried max_retries times already
     raise Exception("Max retries reached for the API request")
 
 
@@ -326,6 +347,7 @@ def exponential_backoff_retry(max_retries, base_delay, max_delay):
     while retries <= max_retries:
         try:
             # Your API request code here
+            # Ensure you use the token_manager to handle the tokens
             pass  # Replace with the actual code
 
         except requests.HTTPError as e:
@@ -363,7 +385,7 @@ def process_api_response(response, session, protected_channel):
             if 'could not be found' in detail:
                 if account and account.twitter_id:
                     url = f"https://api.twitter.com/2/users/{account.twitter_id}"
-                    headers = create_headers(main_bearer_token)
+                    headers = create_headers(token_manager.get_current_token())
                     try:
                         new_user_data = connect_to_endpoint(url, headers)
                         new_username = new_user_data['data']['username']
@@ -456,7 +478,7 @@ def main():
                 chunks = list(chunked_usernames(usernames))
                 for chunk in chunks:
                     url = create_url(chunk)
-                    headers = create_headers(main_bearer_token)
+                    headers = create_headers(token_manager.get_current_token())
                     response_data = connect_to_endpoint(url, headers)
 
                     suspended_accounts, active_impersonators, not_found_users = process_api_response(response_data,
