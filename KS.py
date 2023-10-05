@@ -1,8 +1,9 @@
+# Import necessary libraries and configurations:
 from instance import config  # This is the file where I have a value BEARER_TOKEN = 'tokenherenblablablabla'
 import requests  # You need to do a pip install requests
 import json  # By my knowledge you do not need to pip install anything
 
-# MY API TOKEN - BEARER TOKEN
+# Bearer token for authenticating requests to the Twitter API
 bearer_token = config.BEARER_TOKEN_V2
 
 
@@ -123,6 +124,15 @@ def create_url_by_username(username):
 
 
 def get_users_tweets(username):
+    """
+    Fetch and print the user's recent tweets.
+
+    Parameters:
+    - username: The Twitter username of the target user.
+
+    Returns:
+    - None: Prints the JSON response containing the user's tweets.
+    """
     tweet_fields = ("tweet.fields=attachments,author_id,context_annotations,"
                     "conversation_id,created_at,entities,geo,id,in_reply_to_user_id,"
                     "lang,public_metrics,referenced_tweets,reply_settings,source,"
@@ -135,6 +145,15 @@ def get_users_tweets(username):
 
 
 def get_user_timeline(username):
+    """
+    Fetch and print the user's Twitter timeline.
+
+    Parameters:
+    - username: The Twitter username of the target user.
+
+    Returns:
+    - None: Prints the JSON response containing the user's timeline.
+    """
     tweet_fields = ("tweet.fields=attachments,author_id,context_annotations,"
                     "conversation_id,created_at,entities,geo,id,in_reply_to_user_id,"
                     "lang,public_metrics,referenced_tweets,reply_settings,source,"
@@ -147,12 +166,33 @@ def get_user_timeline(username):
 
 
 def bearer_oauth(r):
+    """
+    Attach the bearer token to the HTTP request for authentication.
+
+    Parameters:
+    - r: The HTTP request before sending.
+
+    Returns:
+    - r: The HTTP request with the bearer token attached.
+    """
     r.headers["Authorization"] = f"Bearer {bearer_token}"
     r.headers["User-Agent"] = "v2UserLookupPython"
     return r
 
 
 def connect_to_endpoint(url):
+    """
+    Send a request to the given URL and return the JSON response.
+
+    Parameters:
+    - url: The URL of the API endpoint.
+
+    Returns:
+    - The JSON response from the API endpoint.
+
+    Raises:
+    - Exception: An exception is raised if the request returns an error status code.
+    """
     response = requests.request("GET", url, auth=bearer_oauth)
     if response.status_code != 200:
         raise Exception(
@@ -163,6 +203,15 @@ def connect_to_endpoint(url):
 
 # Twitter API v2
 def get_user_info_v2(username):
+    """
+    Fetch user information using Twitter API v2.
+
+    Parameters:
+    - username: The Twitter username of the target user.
+
+    Returns:
+    - A dictionary containing the user's information.
+    """
     url = f"https://api.twitter.com/2/users/by/username/{username}?user.fields=public_metrics,pinned_tweet_id,withheld"
     headers = {"Authorization": f"Bearer {bearer_token}"}
     response = requests.get(url, headers=headers)
@@ -171,6 +220,18 @@ def get_user_info_v2(username):
 
 # Twitter API v1.1
 def get_user_info_v1(username):
+    """
+    Fetch user information using Twitter API v1.1.
+
+    Parameters:
+    - username: The Twitter username of the target user.
+
+    Returns:
+    - A dictionary containing the user's information.
+
+    Raises:
+    - Exception: An exception is raised if the request returns an error status code.
+    """
     url = f"https://api.twitter.com/1.1/users/show.json?screen_name={username}&include_entities=true"
     headers = {"Authorization": f"Bearer {bearer_token}"}
     response = requests.get(url, headers=headers)
@@ -179,6 +240,15 @@ def get_user_info_v1(username):
 
 # Combine data from both APIs
 def get_combined_user_info(username):
+    """
+    Combine user information fetched from Twitter API v1.1 and v2.
+
+    Parameters:
+    - username: The Twitter username of the target user.
+
+    Returns:
+    - A dictionary containing the combined user information from both API versions.
+    """
     info_v2 = get_user_info_v2(username)
     info_v1 = get_user_info_v1(username)
 
@@ -190,6 +260,13 @@ def get_combined_user_info(username):
 
 
 def main():
+    """
+    The main function to execute the script. It prompts the user for a Twitter username,
+    fetches and combines the user's information from Twitter API v1.1 and v2, and prints it.
+
+    Returns:
+    - None: Prints the combined user information.
+    """
     username = input("Please enter a Twitter username: ")
     combined_info = get_combined_user_info(username)
     print(json.dumps(combined_info, indent=4, sort_keys=True))
