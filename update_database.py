@@ -245,33 +245,25 @@ def process_not_found_user(username, error, protected_channel, session):
             'unresolvable': True
         }
 
-        # Remove or comment out the debugging print statements below
-        # Debugging print statement
-        # print(f"Creating new account with data: {user_data}")
+        # Check if the user already exists
+        existing_account = session.query(TwitterAccount).filter_by(username=username).first()
 
-        new_account = TwitterAccount(**user_data)
-        # Debugging print statement
-        # print(f"New account before flush: unresolvable = {new_account.unresolvable}")
-
-        session.add(new_account)
-        session.flush()
-
-        # Debugging print statement
-        # print(f"New account after flush: unresolvable = {new_account.unresolvable}")
-
-        # Explicitly set the unresolvable attribute
-        new_account.unresolvable = True
-        # Debugging print statement
-        # print(f"New account after re-setting unresolvable: unresolvable = {new_account.unresolvable}")
+        if existing_account:
+            # Update existing account
+            for key, value in user_data.items():
+                setattr(existing_account, key, value)
+            logging.info(f"Updated {username} in the database as not found.")
+        else:
+            # Create new account
+            new_account = TwitterAccount(**user_data)
+            session.add(new_account)
+            logging.info(f"Added {username} to the database as not found.")
 
         session.commit()
-
-        # print(f"New account after commit: unresolvable = {new_account.unresolvable}")  # Debugging print statement
-
-        logging.info(f"Added {username} to the database as not found with unresolvable set to {new_account.unresolvable}.")
     except Exception as e:
-        logging.error(f"Failed to add {username} to the database: {e}", exc_info=True)
+        logging.error(f"Failed to process {username}: {e}", exc_info=True)
         session.rollback()
+
 
 
 def process_active_user(account, user_data, protected_channel, session):
