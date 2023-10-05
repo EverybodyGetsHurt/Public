@@ -1,25 +1,24 @@
-C:\CODE_REPO\PerfectGPT\venv\Scripts\python.exe "C:\CODE_REPO\PerfectGPT\update_database(TEST).py" 
+C:\CODE_REPO\PerfectGPT\venv\Scripts\python.exe "C:\CODE_REPO\PerfectGPT\update_database(LIVE).py" 
 Select a protected channel to process:
 1. 100trillionUSD
-2. Changers
-3. CryptoCovosJoe
-4. ctoLarsson
-5. fossGregFoss
-6. hodlonaut
-7. ICannot_Enough
-8. intocryptoverse
-9. invest_answers
-10. iWantCoinNews
-11. jasonpizzino
-12. JasonPLowery
-13. luke_broyles
-14. NewsAsset
-15. pizzinomichael
-16. scottmelker
-17. SimonDixonTwitt
-18. StandfieldKen
-19. thetrocro
-20. TomCrownCrypto
+2. CryptoCovosJoe
+3. ctoLarsson
+4. fossGregFoss
+5. hodlonaut
+6. ICannot_Enough
+7. intocryptoverse
+8. invest_answers
+9. iWantCoinNews
+10. jasonpizzino
+11. JasonPLowery
+12. luke_broyles
+13. NewsAsset
+14. pizzinomichael
+15. scottmelker
+16. SimonDixonTwitt
+17. StandfieldKen
+18. thetrocro
+19. TomCrownCrypto
 Comma separated Nr or Name. Or type ALL: ALL
 Processing API response...
 100trilli0n_USD is Suspended.
@@ -108,11 +107,13 @@ diegofe21325346 is Suspended.
 IOOtrlionUSD is Suspended.
 100trivllionUSD is Suspended.
 100trillioanUSD is Suspended.
+KekeAlfred1 changed username to KekeAlfred. Updating Database
 Processing API response...
 1OOtrillli0nUSD is Suspended.
 100trilianUSD is Suspended.
 100tr1lionUSD is Suspended.
 100trilianUSD is Suspended.
+11OthrillionUSD changed username to 1OOthrillionUSD. Updating Database
 
 l00triIlionUSDT impersonates 100trillionUSD.
 woonomic_oi impersonates 100trillionUSD.
@@ -135,39 +136,9 @@ kidzreallycute impersonates 100trillionUSD.
 kheyp1195 impersonates 100trillionUSD.
 1000trilloinUSD impersonates 100trillionUSD.
 PlanB_Trader impersonates 100trillionUSD.
+4intocryptovers impersonates 100trillionUSD.
 
 All chunks processed for 100trillionUSD.
-Processing API response...
-intothecryptk is Suspended.
-mrjenus1 is Suspended.
-Onizuka79er is Suspended.
-beincrypto_se is Suspended.
-UrbqnKaoboy is Suspended.
-sirecryptotlps is Suspended.
-suunydeecree is Suspended.
-NarutoU42231551 is Suspended.
-hodlonaut13 is Suspended.
-intocrytroverse is Suspended.
-Lyneldancontact is Suspended.
-
-invstanswerspod impersonates Changers.
-lnt0crypt0verss impersonates Changers.
-WoodSar23738394 impersonates Changers.
-invest_ansewrs impersonates Changers.
-Ashacryptoreal impersonates Changers.
-thebonldebroker impersonates Changers.
-1ntocrptoverse impersonates Changers.
-Amie01493825 impersonates Changers.
-xr3lix impersonates Changers.
-Harry_son7 impersonates Changers.
-sgbitcoinboi impersonates Changers.
-PlanB100trilli1 impersonates Changers.
-JanKuik7 impersonates Changers.
-KMinh17 impersonates Changers.
-JesusGallegoU impersonates Changers.
-KhowlaKhan impersonates Changers.
-
-All chunks processed for Changers.
 Processing API response...
 
 Crane1517246 impersonates CryptoCovosJoe.
@@ -210,6 +181,7 @@ forthekids60142 is Suspended.
 FossGregfoss_z is Suspended.
 FosseGregFoss is Suspended.
 FossGregsFosse is Suspended.
+f1ssGreegffoss changed username to fossGreegffoss. Updating Database
 
 FoseGregfoss impersonates fossGregFoss.
 fosGregfoss1 impersonates fossGregFoss.
@@ -268,6 +240,7 @@ FossGregfoss01e impersonates fossGregFoss.
 All chunks processed for fossGregFoss.
 Processing API response...
 mich3u is Suspended.
+ukaszWa28783454 changed username to ukaszWa18783454. Updating Database
 
 Galiciarallys impersonates hodlonaut.
 Mme_Hamartia impersonates hodlonaut.
@@ -338,6 +311,7 @@ DrCraigSWright5 impersonates hodlonaut.
 
 All chunks processed for hodlonaut.
 Processing API response...
+FreundHill53210 changed username to FreundHill53211. Updating Database
 
 liriemelvin06 impersonates ICannot_Enough.
 Jamesstefanpage impersonates ICannot_Enough.
@@ -373,6 +347,7 @@ infocryptoversr is Suspended.
 intothecryptove is Suspended.
 intocryptoverue is Suspended.
 intocryptovesce is Suspended.
+trash_tr4n changed username to trash_tran. Updating Database
 Processing API response...
 intocryptoverwa is Suspended.
 intoocyptoverse is Suspended.
