@@ -1,45 +1,9 @@
+from instance import config
 import requests
 import json
 
 # MY API TOKEN - BEARER TOKEN
-bearer_token = ("MY KEY HERE")
-
-
-def create_url_by_id(account_id):
-    # User fields with docstring
-    user_fields = ("user.fields=id,name,username,created_at,description,"
-                   "public_metrics,location,url,verified,profile_image_url,"
-                   "protected,entities,pinned_tweet_id,withheld,blocked_by,blocking,"
-                   "follow_request_sent,muting,profile_background_color,profile_background_image_url,"
-                   "profile_banner_url,profile_text_color,translator_type,withheld")
-
-    # Tweet fields with docstring
-    tweet_fields = ("tweet.fields=attachments,author_id,context_annotations,"
-                    "conversation_id,created_at,entities,geo,id,in_reply_to_user_id,"
-                    "lang,public_metrics,referenced_tweets,reply_settings,source,"
-                    "text,withheld,non_public_metrics,organic_metrics,promoted_metrics,"
-                    "possibly_sensitive,filter_level")
-
-    # Expansions with docstring
-    expansions = ("expansions=pinned_tweet_id,attachments.media_keys,referenced_tweets.id,"
-                  "entities.mentions.username,entities.hashtags,geo.place_id,"
-                  "author_id,in_reply_to_user_id,attachments.poll_ids,referenced_tweets.id.author_id")
-
-    # Media fields with docstring
-    media_fields = ("media.fields=duration_ms,height,media_key,preview_image_url,"
-                    "type,url,width,public_metrics,non_public_metrics,organic_metrics,"
-                    "promoted_metrics,alt_text,description")
-
-    # Place fields with docstring
-    place_fields = "place.fields=contained_within,country,country_code,full_name,geo,id,name,place_type"
-
-    # Poll fields with docstring
-    poll_fields = "poll.fields=duration_minutes,end_datetime,id,options,voting_status"
-
-    url = (f"https://api.twitter.com/2/users/{account_id}?{user_fields}&{tweet_fields}"
-           f"&{expansions}&{media_fields}&{place_fields}&{poll_fields}")
-
-    return url
+bearer_token = config.BEARER_TOKEN_V2
 
 
 def create_url_by_username(username):
@@ -53,7 +17,7 @@ def create_url_by_username(username):
     location: The location specified in the user's profile, if the user provided one.
     pinned_tweet_id: Unique identifier of this user's pinned Tweet.
     profile_image_url: The URL to the profile image for this user, as shown on the user's profile.
-    protected: Indicates if this user has chosen to protect their Tweets 
+    protected: Indicates if this user has chosen to protect their Tweets
                (in other words, if this user's Tweets are private).
     public_metrics: Contains details about activity for this user.
     url: The URL specified in the user's profile, if present.
@@ -224,15 +188,9 @@ def get_combined_user_info(username):
 
 
 def main():
-    user_input = input("Please enter a Twitter username or ID: ")
-
-    if user_input.isdigit():
-        url = create_url_by_id(user_input)
-    else:
-        url = create_url_by_username(user_input)
-
-    json_response = connect_to_endpoint(url)
-    print(json.dumps(json_response, indent=4, sort_keys=True))
+    username = input("Please enter a Twitter username: ")
+    combined_info = get_combined_user_info(username)
+    print(json.dumps(combined_info, indent=4, sort_keys=True))
 
 
 if __name__ == "__main__":
