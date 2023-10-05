@@ -1,6 +1,6 @@
-from instance import config
-import requests
-import json
+from instance import config  # This is the file where I have a value BEARER_TOKEN = 'tokenherenblablablabla'
+import requests  # You need to do a pip install requests
+import json  # By my knowledge you do not need to pip install anything
 
 # MY API TOKEN - BEARER TOKEN
 bearer_token = config.BEARER_TOKEN_V2
