@@ -1,4 +1,4 @@
-C:\CODE_REPO\PerfectGPT\venv\Scripts\python.exe "C:\CODE_REPO\PerfectGPT\update_database(LIVE).py" 
+C:\CODE_REPO\PerfectGPT\venv\Scripts\python.exe "C:\CODE_REPO\PerfectGPT\update_database(TEST).py" 
 Select a protected channel to process:
 1. 100trillionUSD
 2. Changers
@@ -258,7 +258,6 @@ FossGregfosszs impersonates fossGregFoss.
 FossGregffoss_ impersonates fossGregFoss.
 FlossGregfoss impersonates fossGregFoss.
 FossGregfoss42 impersonates fossGregFoss.
-FossGregfoss110 impersonates fossGregFoss.
 FossGeregfoss impersonates fossGregFoss.
 FossGregfoss190 impersonates fossGregFoss.
 FossGreegfoss_ impersonates fossGregFoss.
@@ -605,7 +604,6 @@ investsanswerrs impersonates invest_answers.
 lnvest_answers7 impersonates invest_answers.
 1investansrs impersonates invest_answers.
 invest__answcrs impersonates invest_answers.
-NATASYACILUBA impersonates invest_answers.
 invest_answerTA impersonates invest_answers.
 _investsanswer_ impersonates invest_answers.
 invest_answcr impersonates invest_answers.
@@ -909,7 +907,6 @@ TomCrown_Crypt impersonates TomCrownCrypto.
 TomCrownCryPtb impersonates TomCrownCrypto.
 TomCrownCrypt0o impersonates TomCrownCrypto.
 TomCrownCryiqto impersonates TomCrownCrypto.
-Tomcrownzcrypto impersonates TomCrownCrypto.
 
 All chunks processed for TomCrownCrypto.
 
