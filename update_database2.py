@@ -16,7 +16,8 @@ import os
 log_filename = "TwitterData/SQL-ImpersonatorAccounts/ImpersonatorAccounts.log"
 if not os.path.exists(os.path.dirname(log_filename)):
     os.makedirs(os.path.dirname(log_filename))
-logging.basicConfig(filename=log_filename, level=logging.DEBUG)
+logging.basicConfig(filename=log_filename, level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
 # Directory and database setup
@@ -313,22 +314,35 @@ def all_impersonators(session, filename):
     return all_impersonator_accounts
 
 
+# Updated function with enhanced error handling
 def connect_to_endpoint(url, headers, max_retries=5, base_delay=5, max_delay=60):
     retries = 0
     while retries <= max_retries:
-        response = requests.get(url, headers=headers)
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+            if response.status_code != 429:
+                return response.json()
 
-        if response.status_code != 429:  # Not a rate limit error
-            response.raise_for_status()  # Raise an exception for other HTTP errors
-            return response.json()
+        except requests.HTTPError as e:
+            if e.response.status_code == 429:  # Handling rate limit errors
+                delay = min(max_delay, base_delay * (2 ** retries) + random.uniform(0, 1))
+                logging.warning(f"Rate limit exceeded, retrying in {delay:.2f} seconds...")
+                time.sleep(delay)
+                retries += 1
+                continue
 
-        # If we reach here, it means we hit the rate limit. We can log this and/or handle it as needed.
-        retries += 1
-        delay = min(max_delay, (base_delay * (2 ** retries)) + random.uniform(0, 1))
-        logging.warning(f"Rate limit exceeded, retrying in {delay:.2f} seconds...")
-        time.sleep(delay)
+            logging.error(f"HTTP error occurred: {e}", exc_info=True)
+            raise  # Re-raise the exception if it is not a rate limit error
 
-    raise Exception("Max retries reached for the API request")
+        except Exception as e:
+            logging.error(f"An unexpected error occurred: {e}", exc_info=True)
+            raise  # Re-raise the exception for any other errors
+
+        # If retries exceeded, raise an exception
+        if retries > max_retries:
+            logging.error("Max retries reached for the API request.")
+            raise Exception("Max retries reached for the API request.")
 
 
 def exponential_backoff_retry(max_retries, base_delay, max_delay):
@@ -427,8 +441,6 @@ def main():
             print("----------------------------------------")
             print("The SQLite database file did not exist or was empty.")
             print("----------------------------------------")
-
-    create_tables()
 
     txt_files_directory = os.path.join(
         base_dir, "TwitterData", "TXT-ImpersonatorAccounts", "ImpersonatorURLs"
