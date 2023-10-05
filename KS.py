@@ -1,21 +1,48 @@
 import requests
 import json
 
-# MY API TOKEN - TWITTER.COM'S OWN WEBSITE BEARER TOKEN
-bearer_token = ("I WILL MESSAGE YOU THIS OR JUST INSPECT"
-                "THE WEBSITE WITH THE DEV MENU IN A BROWSER")
+# MY API TOKEN - BEARER TOKEN
+bearer_token = ("MY KEY HERE")
 
 
-def create_url_by_id():
-    account_id = input("Please enter a Twitter account ID: ")
-    user_fields = "user.fields=name,username,id,created_at,description,profile_image_url,url"
-    url = f"https://api.twitter.com/2/users/{account_id}?{user_fields}"
+def create_url_by_id(account_id):
+    # User fields with docstring
+    user_fields = ("user.fields=id,name,username,created_at,description,"
+                   "public_metrics,location,url,verified,profile_image_url,"
+                   "protected,entities,pinned_tweet_id,withheld,blocked_by,blocking,"
+                   "follow_request_sent,muting,profile_background_color,profile_background_image_url,"
+                   "profile_banner_url,profile_text_color,translator_type,withheld")
+
+    # Tweet fields with docstring
+    tweet_fields = ("tweet.fields=attachments,author_id,context_annotations,"
+                    "conversation_id,created_at,entities,geo,id,in_reply_to_user_id,"
+                    "lang,public_metrics,referenced_tweets,reply_settings,source,"
+                    "text,withheld,non_public_metrics,organic_metrics,promoted_metrics,"
+                    "possibly_sensitive,filter_level")
+
+    # Expansions with docstring
+    expansions = ("expansions=pinned_tweet_id,attachments.media_keys,referenced_tweets.id,"
+                  "entities.mentions.username,entities.hashtags,geo.place_id,"
+                  "author_id,in_reply_to_user_id,attachments.poll_ids,referenced_tweets.id.author_id")
+
+    # Media fields with docstring
+    media_fields = ("media.fields=duration_ms,height,media_key,preview_image_url,"
+                    "type,url,width,public_metrics,non_public_metrics,organic_metrics,"
+                    "promoted_metrics,alt_text,description")
+
+    # Place fields with docstring
+    place_fields = "place.fields=contained_within,country,country_code,full_name,geo,id,name,place_type"
+
+    # Poll fields with docstring
+    poll_fields = "poll.fields=duration_minutes,end_datetime,id,options,voting_status"
+
+    url = (f"https://api.twitter.com/2/users/{account_id}?{user_fields}&{tweet_fields}"
+           f"&{expansions}&{media_fields}&{place_fields}&{poll_fields}")
+
     return url
 
 
-def create_url_by_username():
-    username = input("Please enter a Twitter username: ")
-
+def create_url_by_username(username):
     """
     id: The unique identifier of this user.
     name: The name of the user, as they’ve defined it on their profile.
@@ -197,18 +224,15 @@ def get_combined_user_info(username):
 
 
 def main():
-    option = input("Lookup by ID or username? (i/u): ").lower()
-    if option == 'i':
-        url = create_url_by_id()
-        json_response = connect_to_endpoint(url)
-        print(json.dumps(json_response, indent=4, sort_keys=True))
-    elif option == 'u':
-        username = input("Please enter a Twitter username: ")
-        combined_info = get_combined_user_info(username)
-        print(json.dumps(combined_info, indent=4, sort_keys=True))
+    user_input = input("Please enter a Twitter username or ID: ")
+
+    if user_input.isdigit():
+        url = create_url_by_id(user_input)
     else:
-        print("Invalid option. Exiting.")
-        return
+        url = create_url_by_username(user_input)
+
+    json_response = connect_to_endpoint(url)
+    print(json.dumps(json_response, indent=4, sort_keys=True))
 
 
 if __name__ == "__main__":
