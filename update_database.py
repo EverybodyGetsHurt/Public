@@ -16,7 +16,8 @@ import os
 log_filename = "TwitterData/SQL-ImpersonatorAccounts/ImpersonatorAccounts.log"
 if not os.path.exists(os.path.dirname(log_filename)):
     os.makedirs(os.path.dirname(log_filename))
-logging.basicConfig(filename=log_filename, level=logging.DEBUG)
+logging.basicConfig(filename=log_filename, level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
 # Directory and database setup
@@ -38,10 +39,6 @@ BASE_URL = "https://api.twitter.com/2/users/by"
 # Modified the variable names to resolve the shadowing warning
 main_token = config.BEARER_TOKEN
 backup_token = config.BEARER_TOKEN_V2
-
-
-# API limits
-# https://developer.twitter.com/en/docs/twitter-api/rate-limits#v2-limits
 
 
 class TwitterAccount(Base):
@@ -96,9 +93,6 @@ class TwitterAccount(Base):
         self.profile_image_url = kwargs.get("profile_image_url")
 
     def mark_as_suspended(self, date=None):
-        """
-        Mark the account as suspended.
-        """
         if not self.suspended:  # Add this condition
             logging.info(f"Marking {self.username} as suspended.")
             self.suspended = True
@@ -108,34 +102,22 @@ class TwitterAccount(Base):
             logging.info(f"{self.username} is already marked as suspended.")
 
     def mark_as_unsuspended(self):
-        """
-        Mark the account as unsuspended.
-        """
         self.suspended = False
         self.suspended_date = None
         self.rechecked_suspended_state = datetime.now()
 
     def update_username(self, new_username):
-        """
-        Update the username of the account.
-        """
         self.username_changed = True
         self.username_changed_to = new_username
         self.username_changed_date = datetime.now()
 
     def update_api_response(self, new_response):
-        """
-        Update the API response.
-        """
         self.previous_api_response = self.api_response
         self.previous_api_response_updated_at = self.api_response_updated_at
         self.api_response = new_response
         self.api_response_updated_at = datetime.now()
 
     def __repr__(self):
-        """
-        String representation of the Twitter account.
-        """
         return f"<TwitterAccount(username={self.username}, twitter_id={self.twitter_id}, suspended={self.suspended})>"
 
 
@@ -175,7 +157,6 @@ token_manager = TokenManager(tokens_list)
 
 
 def chunked_usernames(usernames: List[str], chunk_size: int = 100):
-    """Yield successive n-sized chunks from a list."""
     for i in range(0, len(usernames), chunk_size):
         yield usernames[i:i + chunk_size]
 
@@ -254,16 +235,43 @@ def process_suspended_user(account, username, error, protected_channel, session)
 
 
 def process_not_found_user(username, error, protected_channel, session):
-    user_data = {
-        'username': username,
-        'protected_channel': protected_channel,
-        'api_response': error  # Store the error response as the API response
-    }
-    new_account = TwitterAccount(**user_data)
-    new_account.unresolvable = True  # Mark the account as unresolvable
-    session.add(new_account)
-    print(f"{username} not found.")
-    session.commit()
+    logging.info(f"Processing not found user: {username}")
+
+    try:
+        user_data = {
+            'username': username,
+            'protected_channel': protected_channel,
+            'api_response': error,
+            'unresolvable': True
+        }
+
+        # Remove or comment out the debugging print statements below
+        # Debugging print statement
+        # print(f"Creating new account with data: {user_data}")
+
+        new_account = TwitterAccount(**user_data)
+        # Debugging print statement
+        # print(f"New account before flush: unresolvable = {new_account.unresolvable}")
+
+        session.add(new_account)
+        session.flush()
+
+        # Debugging print statement
+        # print(f"New account after flush: unresolvable = {new_account.unresolvable}")
+
+        # Explicitly set the unresolvable attribute
+        new_account.unresolvable = True
+        # Debugging print statement
+        # print(f"New account after re-setting unresolvable: unresolvable = {new_account.unresolvable}")
+
+        session.commit()
+
+        # print(f"New account after commit: unresolvable = {new_account.unresolvable}")  # Debugging print statement
+
+        logging.info(f"Added {username} to the database as not found with unresolvable set to {new_account.unresolvable}.")
+    except Exception as e:
+        logging.error(f"Failed to add {username} to the database: {e}", exc_info=True)
+        session.rollback()
 
 
 def process_active_user(account, user_data, protected_channel, session):
@@ -324,22 +332,36 @@ def all_impersonators(session, filename):
     return all_impersonator_accounts
 
 
+# Updated function with enhanced error handling and token rotation
 def connect_to_endpoint(url, headers, max_retries=5, base_delay=5, max_delay=60):
     retries = 0
     while retries <= max_retries:
-        response = requests.get(url, headers=headers)
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+            if response.status_code != 429:
+                return response.json()
 
-        if response.status_code != 429:  # Not a rate limit error
-            response.raise_for_status()  # Raise an exception for other HTTP errors
-            return response.json()
+        except requests.HTTPError as e:
+            if e.response.status_code == 429:  # Handling rate limit errors
+                token_manager.rotate_token()  # Rotate the token when rate limit exceeded
+                delay = min(max_delay, base_delay * (2 ** retries) + random.uniform(0, 1))
+                logging.warning(f"Rate limit exceeded, retrying in {delay:.2f} seconds with a new token...")
+                time.sleep(delay)
+                retries += 1
+                continue
 
-        # If we reach here, it means we hit the rate limit. We can log this and/or handle it as needed.
-        retries += 1
-        delay = min(max_delay, (base_delay * (2 ** retries)) + random.uniform(0, 1))
-        logging.warning(f"Rate limit exceeded, retrying in {delay:.2f} seconds...")
-        time.sleep(delay)
+            logging.error(f"HTTP error occurred: {e}", exc_info=True)
+            raise  # Re-raise the exception if it is not a rate limit error
 
-    raise Exception("Max retries reached for the API request")
+        except Exception as e:
+            logging.error(f"An unexpected error occurred: {e}", exc_info=True)
+            raise  # Re-raise the exception for any other errors
+
+        # If retries exceeded, raise an exception
+        if retries > max_retries:
+            logging.error("Max retries reached for the API request.")
+            raise Exception("Max retries reached for the API request.")
 
 
 def exponential_backoff_retry(max_retries, base_delay, max_delay):
@@ -363,6 +385,8 @@ def exponential_backoff_retry(max_retries, base_delay, max_delay):
             break  # Break the loop if the request is successful
 
 
+# In the process_api_response function:
+# In the process_api_response function:
 def process_api_response(response, session, protected_channel):
     print("Processing API response...")
     suspended_accounts = []
@@ -382,7 +406,7 @@ def process_api_response(response, session, protected_channel):
                 continue
 
             # Handling username not found
-            if 'could not be found' in detail:
+            if 'Could not find user with usernames' in detail or 'not be found' in detail.lower():
                 if account and account.twitter_id:
                     url = f"https://api.twitter.com/2/users/{account.twitter_id}"
                     headers = create_headers(token_manager.get_current_token())
@@ -395,11 +419,12 @@ def process_api_response(response, session, protected_channel):
                         session.commit()
                     except Exception as e:
                         logging.error(f"Could not update username: {e}")
+                        print(f"Both username {username} and Twitter ID {account.twitter_id} could not be resolved.")
+                        account.api_response = error
                         account.unresolvable = True
-                        print(f"{username} could not be updated with existing information, marked as unresolvable.")
                         session.commit()
                 else:
-                    not_found_users.append(username)
+                    # This part should handle the case when the user isn't found and there's no existing account info
                     process_not_found_user(username, error, protected_channel, session)
                 continue
 
@@ -421,8 +446,7 @@ def process_api_response(response, session, protected_channel):
                 create_new_account(user_data, session)
                 active_impersonators.append(
                     f"Added new account {user_data['username']} impersonating {protected_channel}")
-
-            session.commit()
+                session.commit()
 
     return suspended_accounts, active_impersonators, not_found_users
 
@@ -436,8 +460,6 @@ def main():
             print("----------------------------------------")
             print("The SQLite database file did not exist or was empty.")
             print("----------------------------------------")
-
-    create_tables()
 
     txt_files_directory = os.path.join(
         base_dir, "TwitterData", "TXT-ImpersonatorAccounts", "ImpersonatorURLs"
