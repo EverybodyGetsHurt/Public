@@ -126,7 +126,8 @@ def get_users_tweets(username):
     tweet_fields = ("tweet.fields=attachments,author_id,context_annotations,"
                     "conversation_id,created_at,entities,geo,id,in_reply_to_user_id,"
                     "lang,public_metrics,referenced_tweets,reply_settings,source,"
-                    "text,withheld")
+                    "text,withheld,non_public_metrics,organic_metrics,promoted_metrics,"
+                    "possibly_sensitive,filter_level")
 
     url = f"https://api.twitter.com/2/tweets/search/recent?query=from:{username}&{tweet_fields}"
     response = connect_to_endpoint(url)
@@ -137,7 +138,8 @@ def get_user_timeline(username):
     tweet_fields = ("tweet.fields=attachments,author_id,context_annotations,"
                     "conversation_id,created_at,entities,geo,id,in_reply_to_user_id,"
                     "lang,public_metrics,referenced_tweets,reply_settings,source,"
-                    "text,withheld")
+                    "text,withheld,non_public_metrics,organic_metrics,promoted_metrics,"
+                    "possibly_sensitive,filter_level")
 
     url = f"https://api.twitter.com/2/tweets/timeline?query=from:{username}&{tweet_fields}"
     response = connect_to_endpoint(url)
