@@ -36,7 +36,6 @@ Session = scoped_session(sessionmaker(bind=engine))
 BASE_URL = "https://api.twitter.com/2/users/by"
 
 # API tokens
-# Modified the variable names to resolve the shadowing warning
 main_token = config.BEARER_TOKEN
 backup_token = config.BEARER_TOKEN_V2
 
@@ -141,7 +140,7 @@ class SafeEncoder(json.JSONEncoder):
 # Token Manager for handling the token rotation
 class TokenManager:
     def __init__(self, tokens):
-        self.tokens_list = tokens  # Changed the parameter name to `tokens`
+        self.tokens_list = tokens
         self.current_token_index = 0
 
     def get_current_token(self):
@@ -377,7 +376,6 @@ def exponential_backoff_retry(max_retries, base_delay, max_delay):
 
 
 # In the process_api_response function:
-# In the process_api_response function:
 def process_api_response(response, session, protected_channel):
     print("Processing API response...")
     suspended_accounts = []
@@ -538,4 +536,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-  
