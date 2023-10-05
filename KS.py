@@ -7,6 +7,7 @@ import json  # By my knowledge you do not need to pip install anything
 bearer_token = config.BEARER_TOKEN_V2
 
 
+# Construct and return the Twitter API URL for fetching user information by username.
 def create_url_by_username(username):
     """
     id: The unique identifier of this user.
@@ -123,6 +124,7 @@ def create_url_by_username(username):
     return url
 
 
+# Fetch and print the user's recent tweets.
 def get_users_tweets(username):
     """
     Fetch and print the user's recent tweets.
@@ -144,6 +146,7 @@ def get_users_tweets(username):
     print(json.dumps(response, indent=4, sort_keys=True))
 
 
+# Fetch and print the user's Twitter timeline.
 def get_user_timeline(username):
     """
     Fetch and print the user's Twitter timeline.
@@ -165,6 +168,7 @@ def get_user_timeline(username):
     print(json.dumps(response, indent=4, sort_keys=True))
 
 
+# Attach the bearer token to the HTTP request for authentication.
 def bearer_oauth(r):
     """
     Attach the bearer token to the HTTP request for authentication.
@@ -180,6 +184,7 @@ def bearer_oauth(r):
     return r
 
 
+# Send a request to the given URL and return the JSON response.
 def connect_to_endpoint(url):
     """
     Send a request to the given URL and return the JSON response.
@@ -259,6 +264,7 @@ def get_combined_user_info(username):
     return combined_info
 
 
+# The main function to execute the script.
 def main():
     """
     The main function to execute the script. It prompts the user for a Twitter username,
