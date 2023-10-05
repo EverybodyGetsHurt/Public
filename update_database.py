@@ -265,7 +265,6 @@ def process_not_found_user(username, error, protected_channel, session):
         session.rollback()
 
 
-
 def process_active_user(account, user_data, protected_channel, session):
     user_data['protected_channel'] = protected_channel
     user_data['api_response'] = json.dumps(user_data, cls=SafeEncoder)
@@ -539,3 +538,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+  
