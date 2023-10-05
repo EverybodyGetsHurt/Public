@@ -1,4 +1,4 @@
-C:\CODE_REPO\PerfectGPT\venv\Scripts\python.exe "C:\CODE_REPO\PerfectGPT\update_database(TEST).py" 
+C:\CODE_REPO\PerfectGPT\venv\Scripts\python.exe "C:\CODE_REPO\PerfectGPT\update_database(LIVE).py" 
 
    [Unique Situation Detected]
 ----------------------------------------
@@ -6,25 +6,24 @@ The SQLite database file did not exist or was empty.
 ----------------------------------------
 Select a protected channel to process:
 1. 100trillionUSD
-2. Changers
-3. CryptoCovosJoe
-4. ctoLarsson
-5. fossGregFoss
-6. hodlonaut
-7. ICannot_Enough
-8. intocryptoverse
-9. invest_answers
-10. iWantCoinNews
-11. jasonpizzino
-12. JasonPLowery
-13. luke_broyles
-14. NewsAsset
-15. pizzinomichael
-16. scottmelker
-17. SimonDixonTwitt
-18. StandfieldKen
-19. thetrocro
-20. TomCrownCrypto
+2. CryptoCovosJoe
+3. ctoLarsson
+4. fossGregFoss
+5. hodlonaut
+6. ICannot_Enough
+7. intocryptoverse
+8. invest_answers
+9. iWantCoinNews
+10. jasonpizzino
+11. JasonPLowery
+12. luke_broyles
+13. NewsAsset
+14. pizzinomichael
+15. scottmelker
+16. SimonDixonTwitt
+17. StandfieldKen
+18. thetrocro
+19. TomCrownCrypto
 Comma separated Nr or Name. Or type ALL: ALL
 Processing API response...
 Added new account l00triIlionUSDT
@@ -50,6 +49,7 @@ Added new account kidzreallycute
 Added new account kheyp1195
 Added new account 1000trilloinUSD
 Added new account PlanB_Trader
+Added new account 4intocryptovers
 
 Added new account l00triIlionUSDT impersonating 100trillionUSD
 Added new account woonomic_oi impersonating 100trillionUSD
@@ -72,44 +72,9 @@ Added new account kidzreallycute impersonating 100trillionUSD
 Added new account kheyp1195 impersonating 100trillionUSD
 Added new account 1000trilloinUSD impersonating 100trillionUSD
 Added new account PlanB_Trader impersonating 100trillionUSD
+Added new account 4intocryptovers impersonating 100trillionUSD
 
 All chunks processed for 100trillionUSD.
-Processing API response...
-Added new account invstanswerspod
-Added new account lnt0crypt0verss
-Added new account WoodSar23738394
-Added new account invest_ansewrs
-Added new account Ashacryptoreal
-Added new account thebonldebroker
-Added new account 1ntocrptoverse
-Added new account Amie01493825
-Added new account xr3lix
-Added new account Harry_son7
-Added new account sgbitcoinboi
-Added new account PlanB100trilli1
-Added new account JanKuik7
-Added new account KMinh17
-Added new account JesusGallegoU
-Added new account KhowlaKhan
-
-Added new account invstanswerspod impersonating Changers
-Added new account lnt0crypt0verss impersonating Changers
-Added new account WoodSar23738394 impersonating Changers
-Added new account invest_ansewrs impersonating Changers
-Added new account Ashacryptoreal impersonating Changers
-Added new account thebonldebroker impersonating Changers
-Added new account 1ntocrptoverse impersonating Changers
-Added new account Amie01493825 impersonating Changers
-Added new account xr3lix impersonating Changers
-Added new account Harry_son7 impersonating Changers
-Added new account sgbitcoinboi impersonating Changers
-Added new account PlanB100trilli1 impersonating Changers
-Added new account JanKuik7 impersonating Changers
-Added new account KMinh17 impersonating Changers
-Added new account JesusGallegoU impersonating Changers
-Added new account KhowlaKhan impersonating Changers
-
-All chunks processed for Changers.
 Processing API response...
 Added new account Crane1517246
 Added new account wiggie125908
@@ -727,6 +692,8 @@ Added new account menoloma
 Added new account BoboskyBri82878
 Added new account invest_answern
 Added new account lolital48184751
+Added new account invest_ansewrs
+Added new account invstanswerspod
 Added new account invst_Answers
 Added new account InvestAnswer001
 Added new account investAnswersss
@@ -771,8 +738,8 @@ Added new account menoloma impersonating invest_answers
 Added new account BoboskyBri82878 impersonating invest_answers
 Added new account invest_answern impersonating invest_answers
 Added new account lolital48184751 impersonating invest_answers
-invest_ansewrs impersonates invest_answers.
-invstanswerspod impersonates invest_answers.
+Added new account invest_ansewrs impersonating invest_answers
+Added new account invstanswerspod impersonating invest_answers
 Added new account invst_Answers impersonating invest_answers
 Added new account InvestAnswer001 impersonating invest_answers
 Added new account investAnswersss impersonating invest_answers
