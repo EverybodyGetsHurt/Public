@@ -41,7 +41,7 @@ backup_token = config.BEARER_TOKEN_V2
 
 
 class TwitterAccount(Base):
-    __tablename__ = "twitter_accounts"
+    __tablename__ = "ImpersonatorAccounts"
     id = Column(Integer, primary_key=True, index=True)
     twitter_id = Column(String, unique=True)
     protected_channel = Column(String, index=True)
@@ -56,8 +56,8 @@ class TwitterAccount(Base):
     suspended = Column(Boolean, default=False)
     suspended_date = Column(DateTime)
     rechecked_suspended_state = Column(DateTime)
-    username_changed = Column(Boolean, default=False)
-    username_changed_to = Column(String)
+    username_changed = Column(Integer, default=0)
+    previous_username = Column(String)  # Renamed from username_changed_to
     username_changed_date = Column(DateTime)
     unresolvable = Column(Boolean, default=False)
     api_response = Column(JSON)
@@ -106,14 +106,17 @@ class TwitterAccount(Base):
         self.rechecked_suspended_state = datetime.now()
 
     def update_username(self, new_username):
-        self.username_changed = True
-        self.username_changed_to = new_username
+        print(f"Updating username from {self.username} to {new_username}")
+        self.previous_username = self.username  # Store the old username
+        self.username = new_username
+        self.username_changed += 1
         self.username_changed_date = datetime.now()
 
     def update_api_response(self, new_response):
+        print(f"Updating API response")  # Debug print
         self.previous_api_response = self.api_response
         self.previous_api_response_updated_at = self.api_response_updated_at
-        self.api_response = new_response
+        self.api_response = json.dumps(new_response, cls=SafeEncoder)
         self.api_response_updated_at = datetime.now()
 
     def __repr__(self):
@@ -125,7 +128,7 @@ class OAuth10a(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
     previous_twitter_account_info = Column(String)
-    twitter_account_id = Column(String, ForeignKey("twitter_accounts.twitter_id"))
+    twitter_account_id = Column(String, ForeignKey("ImpersonatorAccounts.twitter_id"))
     twitter_account = relationship("TwitterAccount", backref="oauth10a")
 
 
@@ -424,12 +427,17 @@ def process_api_response(response, session, protected_channel):
             account = session.query(TwitterAccount).filter_by(twitter_id=user_data['id']).first()
 
             if account:
+                print(f"Before update: {account.username}, {account.api_response}")  # Debug print
+
                 if not account.suspended:
                     if account.username != user_data['username']:
                         print(f"{account.username} changed username to {user_data['username']}. Updating Database")
-                        account.username = user_data['username']
+                        account.update_username(user_data['username'])
 
                 account.update_api_response(user_data)
+                session.commit()  # Ensure that the session is being committed
+
+                print(f"After update: {account.username}, {account.api_response}")  # Debug print
                 active_impersonators.append(f"{user_data['username']} impersonates {protected_channel}.")
             else:
                 create_new_account(user_data, session)
