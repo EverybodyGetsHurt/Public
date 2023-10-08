@@ -356,8 +356,32 @@ def connect_to_endpoint(url, headers, max_retries=5, base_delay=5, max_delay=60)
             raise Exception("Max retries reached for the API request.")
 
 
-# Function to process the API response and update the database accordingly
+# New function to handle API requests with a retry mechanism
+def make_api_request(url, headers, retries=3, delay=5):
+    for _ in range(retries):
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            return response.json()
+        except requests.HTTPError as e:
+            logging.error(f"HTTP error occurred: {e}")
+            if e.response.status_code == 429:  # Rate limit exceeded
+                logging.warning("Rate limit exceeded. Retrying...")
+                time.sleep(delay)
+                continue
+            break  # For other HTTP errors, break the loop and handle the error outside
+        except Exception as e:
+            logging.error(f"An error occurred: {e}")
+            break  # For other errors, break the loop and handle the error outside
+    return None  # Return None if the request fails
+
+
+# This function processes the API response, handling various scenarios like suspended accounts,
+# active impersonators, and not found users. It updates the database accordingly.
 def process_api_response(response, session, protected_channel):
+    if not response:
+        logging.error("No response received from the API.")
+        return
     logging.info(f"Raw API response: {response}")  # Added this line to log the raw API response
     print("Processing API response...")
     suspended_accounts = []
@@ -454,7 +478,9 @@ def process_api_response(response, session, protected_channel):
 # Function to process the user's choice of protected channel
 def process_user_choice(choice, txt_files):
     if not choice or not choice.strip():
-        print("Invalid input. Please enter a valid option.")
+        print(
+            "Invalid input. Please enter a number corresponding to the protected channels, or type 'ALL' to select "
+            "all channels.")
         return
 
     def process_choice(inner_choice):
@@ -542,11 +568,30 @@ def validate_user_choice(choice, txt_files):
         if 1 <= choice_number <= len(txt_files):
             return True
         else:
-            print(f"Invalid selection. Please enter a number between 1 and {len(txt_files)}.")
+            print(f"Invalid selection. The number should be between 1 and {len(txt_files)} to correspond with the "
+                  "listed protected channels.")
             return False
 
-    # Add more validations as needed
-    return True  # Return True if the choice is valid, else return False
+    if choice.upper() == "ALL":
+        return True
+
+    if ',' in choice:
+        choices = choice.split(',')
+        for ch in choices:
+            ch = ch.strip()
+            if not ch.isdigit() and not any(ch.lower() in txt_file.lower() for txt_file in txt_files):
+                print(f"Invalid name: {ch}")
+                return False
+        return True
+
+    channel_names = [os.path.basename(txt_file).replace(
+        'Active-', '').replace(
+        '.txt', '').lower() for txt_file in txt_files]
+    if choice.lower() in channel_names:
+        return True
+
+    print("Invalid input format. Please enter a valid option.")
+    return False
 
 
 # Main function to execute the script
@@ -574,7 +619,6 @@ def main():
     for index, txt_file in enumerate(txt_files, start=1):
         print(f"{index}. {os.path.basename(txt_file).replace('Active-', '').replace('.txt', '')}")
 
-    # In the main function
     user_choice = input("Comma separated Nr or Name. Or type ALL: ").strip()
     if validate_user_choice(user_choice, txt_files):
         process_user_choice(user_choice, txt_files)
