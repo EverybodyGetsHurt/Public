@@ -1,4 +1,4 @@
-C:\CODE_REPO\PerfectGPT\venv\Scripts\python.exe "C:\CODE_REPO\PerfectGPT\update_database(LIVE).py" 
+C:\CODE_REPO\PerfectGPT\venv\Scripts\python.exe C:\CODE_REPO\PerfectGPT\update_database.py 
 
    [Unique Situation Detected]
 ----------------------------------------
@@ -17,62 +17,25 @@ Select a protected channel to process:
 10. jasonpizzino
 11. JasonPLowery
 12. luke_broyles
-13. NewsAsset
-14. pizzinomichael
-15. scottmelker
-16. SimonDixonTwitt
-17. StandfieldKen
-18. thetrocro
-19. TomCrownCrypto
+13. missteencrypto
+14. NewsAsset
+15. pizzinomichael
+16. scottmelker
+17. Sheldon_Sniper
+18. SimonDixonTwitt
+19. StandfieldKen
+20. thetrocro
+21. TiffanyFong_
+22. TomCrownCrypto
 Comma separated Nr or Name. Or type ALL: ALL
 Processing API response...
-Added new account l00triIlionUSDT
-Added new account woonomic_oi
-Added new account 100rtriliionUSD
-Added new account Red_D0_gT4
-Added new account rojelit
-Added new account KekeAlfred
-Added new account 100trillion22
-Added new account 1000trilllion
-Processing API response...
-100trilianUSD is Suspended.
-Added new account 100trilliON10
-Added new account 100trilliolnUSD
-Added new account 1OOthrillionUSD
-Added new account 1OOtrillionUSD0
-Added new account trillionUSD_
-Added new account SakariyauR
-Added new account jasivezamora
-Added new account 100trillio_J_77
-Added new account _10OtrilionUSD
-Added new account kidzreallycute
-Added new account kheyp1195
-Added new account 1000trilloinUSD
-Added new account PlanB_Trader
-Added new account 4intocryptovers
+Added new account arab_beautie
+Added new account PLANtrillionUSD
+Added new account HadesInferno9
 
-Added new account l00triIlionUSDT impersonating 100trillionUSD
-Added new account woonomic_oi impersonating 100trillionUSD
-Added new account 100rtriliionUSD impersonating 100trillionUSD
-Added new account Red_D0_gT4 impersonating 100trillionUSD
-Added new account rojelit impersonating 100trillionUSD
-Added new account KekeAlfred impersonating 100trillionUSD
-Added new account 100trillion22 impersonating 100trillionUSD
-Added new account 1000trilllion impersonating 100trillionUSD
-Added new account 100trilliON10 impersonating 100trillionUSD
-Added new account 100trilliolnUSD impersonating 100trillionUSD
-Added new account 1OOthrillionUSD impersonating 100trillionUSD
-Added new account 1OOtrillionUSD0 impersonating 100trillionUSD
-Added new account trillionUSD_ impersonating 100trillionUSD
-Added new account SakariyauR impersonating 100trillionUSD
-Added new account jasivezamora impersonating 100trillionUSD
-Added new account 100trillio_J_77 impersonating 100trillionUSD
-Added new account _10OtrilionUSD impersonating 100trillionUSD
-Added new account kidzreallycute impersonating 100trillionUSD
-Added new account kheyp1195 impersonating 100trillionUSD
-Added new account 1000trilloinUSD impersonating 100trillionUSD
-Added new account PlanB_Trader impersonating 100trillionUSD
-Added new account 4intocryptovers impersonating 100trillionUSD
+Added new account arab_beautie impersonating 100trillionUSD
+Added new account PLANtrillionUSD impersonating 100trillionUSD
+Added new account HadesInferno9 impersonating 100trillionUSD
 
 All chunks processed for 100trillionUSD.
 Processing API response...
@@ -98,22 +61,38 @@ cto_Larsson_ impersonates ctoLarsson.
 Added new account ctolarsson7 impersonating ctoLarsson
 Added new account ctoLarsson9 impersonating ctoLarsson
 Added new account reallystg impersonating ctoLarsson
+ctooLarssoon impersonates ctoLarsson.
+cto_Larsson_ impersonates ctoLarsson.
+cto_Larsson_ impersonates ctoLarsson.
+ctolarsson7 impersonates ctoLarsson.
+ctoLarsson9 impersonates ctoLarsson.
+reallystg impersonates ctoLarsson.
 
 All chunks processed for ctoLarsson.
 Processing API response...
+Added new account FossGregFuss
+Added new account fossGregfosses
+Added new account _gregfossgreg
+Added new account FossGregFossc
+Added new account FossGregfoss201
+Added new account _FossGreggfoss_
+Added new account FossGrugfoss
+Added new account FussGregfoss
+Added new account FossgGregg
+Added new account FosslGregfoss
+Added new account Fosssgrregfoss
+Added new account GregFoss8
+Added new account f0ss_greg_f0ss
+Added new account FossGregfoss_00
 Added new account FoseGregfoss
 Added new account fosGregfoss1
-Added new account FossgGregg
+Added new account fossgregf0ss___
+Added new account FossGregfss
+Added new account _1fossGregfoss
+Added new account FossGregfosis
 Added new account fossGreegffoss
 Added new account FossGregf0ss__
 Added new account abubakar8376644
-Added new account FussGregfoss
-Added new account fossgregf0ss___
-Added new account FossGregfosis
-Added new account FossGregfoss_00
-Added new account f0ss_greg_f0ss
-Added new account FossGregfoss201
-Added new account FossGregFossc
 Added new account FossGregfoss08
 Added new account FossGrecgfoss
 Added new account FossGregfossgs
@@ -130,43 +109,36 @@ Added new account FossmGregfoss
 Added new account FaossGregfoss
 Added new account FossGregfoosz
 Added new account forthekids11083
-Added new account fossGregfosses
-Added new account GregFoss8
-Added new account FossGregfss
-Added new account FossGregFuss
-Added new account FossGrugfoss
-Added new account FosslGregfoss
-Added new account Fosssgrregfoss
-Added new account _FossGreggfoss_
-Added new account _gregfossgreg
-Added new account _1fossGregfoss
 Added new account fossgregsfos_
 Added new account FossForthekids
 Added new account FosssGGregfoss
 Added new account FossGregfosszs
 Added new account FossGregffoss_
 Added new account FlossGregfoss
-Added new account FossGregfoss42
-Added new account FossGeregfoss
-Added new account FossGregfoss190
-Added new account FossGreegfoss_
-Added new account _FossGregfss_
-Added new account FOSSforss67
-Added new account FossGregfoss01e
 
+Added new account FossGregFuss impersonating fossGregFoss
+Added new account fossGregfosses impersonating fossGregFoss
+Added new account _gregfossgreg impersonating fossGregFoss
+Added new account FossGregFossc impersonating fossGregFoss
+Added new account FossGregfoss201 impersonating fossGregFoss
+Added new account _FossGreggfoss_ impersonating fossGregFoss
+Added new account FossGrugfoss impersonating fossGregFoss
+Added new account FussGregfoss impersonating fossGregFoss
+Added new account FossgGregg impersonating fossGregFoss
+Added new account FosslGregfoss impersonating fossGregFoss
+Added new account Fosssgrregfoss impersonating fossGregFoss
+Added new account GregFoss8 impersonating fossGregFoss
+Added new account f0ss_greg_f0ss impersonating fossGregFoss
+Added new account FossGregfoss_00 impersonating fossGregFoss
 Added new account FoseGregfoss impersonating fossGregFoss
 Added new account fosGregfoss1 impersonating fossGregFoss
-Added new account FossgGregg impersonating fossGregFoss
+Added new account fossgregf0ss___ impersonating fossGregFoss
+Added new account FossGregfss impersonating fossGregFoss
+Added new account _1fossGregfoss impersonating fossGregFoss
+Added new account FossGregfosis impersonating fossGregFoss
 Added new account fossGreegffoss impersonating fossGregFoss
 Added new account FossGregf0ss__ impersonating fossGregFoss
 Added new account abubakar8376644 impersonating fossGregFoss
-Added new account FussGregfoss impersonating fossGregFoss
-Added new account fossgregf0ss___ impersonating fossGregFoss
-Added new account FossGregfosis impersonating fossGregFoss
-Added new account FossGregfoss_00 impersonating fossGregFoss
-Added new account f0ss_greg_f0ss impersonating fossGregFoss
-Added new account FossGregfoss201 impersonating fossGregFoss
-Added new account FossGregFossc impersonating fossGregFoss
 Added new account FossGregfoss08 impersonating fossGregFoss
 Added new account FossGrecgfoss impersonating fossGregFoss
 Added new account FossGregfossgs impersonating fossGregFoss
@@ -183,30 +155,13 @@ Added new account FossmGregfoss impersonating fossGregFoss
 Added new account FaossGregfoss impersonating fossGregFoss
 Added new account FossGregfoosz impersonating fossGregFoss
 Added new account forthekids11083 impersonating fossGregFoss
-Added new account fossGregfosses impersonating fossGregFoss
-Added new account GregFoss8 impersonating fossGregFoss
-Added new account FossGregfss impersonating fossGregFoss
 FossGregfss impersonates fossGregFoss.
-Added new account FossGregFuss impersonating fossGregFoss
-Added new account FossGrugfoss impersonating fossGregFoss
-Added new account FosslGregfoss impersonating fossGregFoss
-Added new account Fosssgrregfoss impersonating fossGregFoss
-Added new account _FossGreggfoss_ impersonating fossGregFoss
-Added new account _gregfossgreg impersonating fossGregFoss
-Added new account _1fossGregfoss impersonating fossGregFoss
 Added new account fossgregsfos_ impersonating fossGregFoss
 Added new account FossForthekids impersonating fossGregFoss
 Added new account FosssGGregfoss impersonating fossGregFoss
 Added new account FossGregfosszs impersonating fossGregFoss
 Added new account FossGregffoss_ impersonating fossGregFoss
 Added new account FlossGregfoss impersonating fossGregFoss
-Added new account FossGregfoss42 impersonating fossGregFoss
-Added new account FossGeregfoss impersonating fossGregFoss
-Added new account FossGregfoss190 impersonating fossGregFoss
-Added new account FossGreegfoss_ impersonating fossGregFoss
-Added new account _FossGregfss_ impersonating fossGregFoss
-Added new account FOSSforss67 impersonating fossGregFoss
-Added new account FossGregfoss01e impersonating fossGregFoss
 
 All chunks processed for fossGregFoss.
 Processing API response...
@@ -276,6 +231,11 @@ Added new account MateusR14773701
 Added new account resperaptor
 Added new account nasser_algaafry
 Added new account DrCraigSWright5
+Added new account officialgregmax
+Added new account himatifUTM
+Added new account JordanK47186719
+Added new account joisa08
+Added new account hodlunaut
 
 Added new account Galiciarallys impersonating hodlonaut
 Added new account Mme_Hamartia impersonating hodlonaut
@@ -343,12 +303,16 @@ Added new account MateusR14773701 impersonating hodlonaut
 Added new account resperaptor impersonating hodlonaut
 Added new account nasser_algaafry impersonating hodlonaut
 Added new account DrCraigSWright5 impersonating hodlonaut
+Added new account officialgregmax impersonating hodlonaut
+Added new account himatifUTM impersonating hodlonaut
+Added new account JordanK47186719 impersonating hodlonaut
+Added new account joisa08 impersonating hodlonaut
+Added new account hodlunaut impersonating hodlonaut
 
 All chunks processed for hodlonaut.
 Processing API response...
 Added new account liriemelvin06
 Added new account Jamesstefanpage
-Added new account renkliavakado1
 Added new account ICannot_Enoough
 Added new account l_cannot
 Added new account _ICannotEnough_
@@ -361,7 +325,6 @@ Added new account StrombergLoyce1
 
 Added new account liriemelvin06 impersonating ICannot_Enough
 Added new account Jamesstefanpage impersonating ICannot_Enough
-Added new account renkliavakado1 impersonating ICannot_Enough
 Added new account ICannot_Enoough impersonating ICannot_Enough
 Added new account l_cannot impersonating ICannot_Enough
 Added new account _ICannotEnough_ impersonating ICannot_Enough
@@ -517,7 +480,6 @@ Added new account cryptoversepriv
 Added new account intocrypt2verse
 Added new account intothecyptover
 Added new account i2cryptoverse
-Added new account intocryptto11i
 Added new account Benjamincrypto_
 Added new account intocryptevesre
 Added new account BenCowenVerse
@@ -672,7 +634,6 @@ Added new account cryptoversepriv impersonating intocryptoverse
 Added new account intocrypt2verse impersonating intocryptoverse
 Added new account intothecyptover impersonating intocryptoverse
 Added new account i2cryptoverse impersonating intocryptoverse
-Added new account intocryptto11i impersonating intocryptoverse
 Added new account Benjamincrypto_ impersonating intocryptoverse
 Added new account intocryptevesre impersonating intocryptoverse
 Added new account BenCowenVerse impersonating intocryptoverse
@@ -691,8 +652,6 @@ Added new account 01investanswer
 Added new account menoloma
 Added new account BoboskyBri82878
 Added new account invest_answern
-Added new account lolital48184751
-Added new account invest_ansewrs
 Added new account invstanswerspod
 Added new account invst_Answers
 Added new account InvestAnswer001
@@ -723,22 +682,22 @@ Added new account investmanswers
 Added new account linvest_answer
 Added new account investanswers_0
 Added new account lnvest__answars
-Added new account kalto_sunny
 Added new account invest_anwers1
-Added new account investsanswerrs
 Added new account lnvest_answers7
 Added new account 1investansrs
 Added new account invest__answcrs
+Added new account Invest0r_answer
 Added new account invest_answerTA
 Added new account _investsanswer_
-Added new account invest_answcr
+Added new account Invest_answ3rs
+Added new account Sully_CNBC
+Added new account Invest_answerk
+Added new account invests1answers
 
 Added new account 01investanswer impersonating invest_answers
 Added new account menoloma impersonating invest_answers
 Added new account BoboskyBri82878 impersonating invest_answers
 Added new account invest_answern impersonating invest_answers
-Added new account lolital48184751 impersonating invest_answers
-Added new account invest_ansewrs impersonating invest_answers
 Added new account invstanswerspod impersonating invest_answers
 Added new account invst_Answers impersonating invest_answers
 Added new account InvestAnswer001 impersonating invest_answers
@@ -769,15 +728,17 @@ Added new account investmanswers impersonating invest_answers
 Added new account linvest_answer impersonating invest_answers
 Added new account investanswers_0 impersonating invest_answers
 Added new account lnvest__answars impersonating invest_answers
-Added new account kalto_sunny impersonating invest_answers
 Added new account invest_anwers1 impersonating invest_answers
-Added new account investsanswerrs impersonating invest_answers
 Added new account lnvest_answers7 impersonating invest_answers
 Added new account 1investansrs impersonating invest_answers
 Added new account invest__answcrs impersonating invest_answers
+Added new account Invest0r_answer impersonating invest_answers
 Added new account invest_answerTA impersonating invest_answers
 Added new account _investsanswer_ impersonating invest_answers
-Added new account invest_answcr impersonating invest_answers
+Added new account Invest_answ3rs impersonating invest_answers
+Added new account Sully_CNBC impersonating invest_answers
+Added new account Invest_answerk impersonating invest_answers
+Added new account invests1answers impersonating invest_answers
 
 All chunks processed for invest_answers.
 Processing API response...
@@ -787,11 +748,6 @@ Added new account hsudjfjfnn
 Added new account yeyrhryrhg
 Added new account ffdhjbbbh
 Added new account iWantCoinNewz
-Added new account 1WantCoinNews
-Added new account iWantc0inNews
-Added new account iWantCoinNeaws
-Added new account jahsvdvgdhdd
-Added new account iWantiCoinNews
 
 Added new account iWantCoinNews_ impersonating iWantCoinNews
 Added new account lwantcoinNews impersonating iWantCoinNews
@@ -799,11 +755,6 @@ Added new account hsudjfjfnn impersonating iWantCoinNews
 Added new account yeyrhryrhg impersonating iWantCoinNews
 Added new account ffdhjbbbh impersonating iWantCoinNews
 Added new account iWantCoinNewz impersonating iWantCoinNews
-Added new account 1WantCoinNews impersonating iWantCoinNews
-Added new account iWantc0inNews impersonating iWantCoinNews
-Added new account iWantCoinNeaws impersonating iWantCoinNews
-Added new account jahsvdvgdhdd impersonating iWantCoinNews
-Added new account iWantiCoinNews impersonating iWantCoinNews
 
 All chunks processed for iWantCoinNews.
 Processing API response...
@@ -872,6 +823,7 @@ Added new account FathirTegarN
 Added new account mekritana
 Added new account _Dan1x_7
 Added new account DCSwavy_VFX
+Added new account lolital48184751
 Added new account Stayluc1d
 Added new account vini1000cius
 Added new account Sur54478971
@@ -927,7 +879,7 @@ Added new account FathirTegarN impersonating JasonPLowery
 Added new account mekritana impersonating JasonPLowery
 Added new account _Dan1x_7 impersonating JasonPLowery
 Added new account DCSwavy_VFX impersonating JasonPLowery
-lolital48184751 impersonates JasonPLowery.
+Added new account lolital48184751 impersonating JasonPLowery
 Added new account Stayluc1d impersonating JasonPLowery
 Added new account vini1000cius impersonating JasonPLowery
 Added new account Sur54478971 impersonating JasonPLowery
@@ -1026,9 +978,142 @@ luke_broyles001 impersonates luke_broyles.
 
 All chunks processed for luke_broyles.
 Processing API response...
+Added new account missteencryptto
+Added new account missteancrpto
+Added new account missteencrypro
+Added new account MrDrexeded
+Added new account Andu1207
+Added new account Malachicrypto
+Added new account Flaynny1337
+Added new account missteenncrypt
+Added new account xDrex18
+Added new account miss_teen_crpto
+Added new account M4nga_actu
+Added new account missencrypto
+Added new account VetriTv
+Added new account missteencrybto
+Added new account missiteancrypto
+Added new account mizsteencrypto
+Added new account misseeencrypto
+Added new account stxirs
+Added new account missteencyrpto
+Added new account Odbayar59514791
+Added new account ShabnazChowdhu1
+Added new account henriqu14448201
+Added new account dragosneagu1
+Added new account mylinh17051988
+Added new account SEXY6983082600
+Added new account 9DbK1xEmr9CNfpS
+Added new account missteincryto
+Added new account Cryptomisstee
+Added new account missteincrypto
+Added new account wordpresx
+Added new account Manzani19629668
+Added new account MaghrebUnited20
+Added new account misstleencrypto
+Added new account misstaancrypto
+Added new account tflyaas
+Added new account missteencrypt
+Added new account Missteencrypt15
+Added new account MissTeenCrypto2
+Added new account missteencrypt02
+Added new account miss3teencrypto
+Added new account drawing34546048
+Added new account Mahmoud37008826
+Added new account Arshia06072059
+Added new account miisteen_crypto
+Added new account misstaencrypto1
+Added new account missteenprivate
+Added new account missteencyp
+Added new account missteencrypsto
+Added new account _miisteencrypto
+Added new account misstenn_crypto
+Added new account msstteencrypto
+Added new account missteenkcrypto
+Added new account mssteencrypto
+Added new account _mssteencrypto
+Added new account MissTee87187003
+Added new account msteencrypto
+Added new account misteencrypton
+Added new account misteencryppto
+Added new account miessteancrypto
+Added new account missteencryptn
+Added new account ilovebbstocks
+Added new account _mrssteencrypto
+Added new account misstteencrypt0
+Added new account missaTeenCrypto
+Added new account missteenzcrypto
+
+Added new account missteencryptto impersonating missteencrypto
+Added new account missteancrpto impersonating missteencrypto
+Added new account missteencrypro impersonating missteencrypto
+Added new account MrDrexeded impersonating missteencrypto
+Added new account Andu1207 impersonating missteencrypto
+Added new account Malachicrypto impersonating missteencrypto
+Added new account Flaynny1337 impersonating missteencrypto
+Added new account missteenncrypt impersonating missteencrypto
+Added new account xDrex18 impersonating missteencrypto
+Added new account miss_teen_crpto impersonating missteencrypto
+Added new account M4nga_actu impersonating missteencrypto
+Added new account missencrypto impersonating missteencrypto
+Added new account VetriTv impersonating missteencrypto
+Added new account missteencrybto impersonating missteencrypto
+Added new account missiteancrypto impersonating missteencrypto
+Added new account mizsteencrypto impersonating missteencrypto
+Added new account misseeencrypto impersonating missteencrypto
+Added new account stxirs impersonating missteencrypto
+Added new account missteencyrpto impersonating missteencrypto
+Added new account Odbayar59514791 impersonating missteencrypto
+Added new account ShabnazChowdhu1 impersonating missteencrypto
+Added new account henriqu14448201 impersonating missteencrypto
+Added new account dragosneagu1 impersonating missteencrypto
+Added new account mylinh17051988 impersonating missteencrypto
+Added new account SEXY6983082600 impersonating missteencrypto
+Added new account 9DbK1xEmr9CNfpS impersonating missteencrypto
+Added new account missteincryto impersonating missteencrypto
+Added new account Cryptomisstee impersonating missteencrypto
+Added new account missteincrypto impersonating missteencrypto
+Added new account wordpresx impersonating missteencrypto
+Added new account Manzani19629668 impersonating missteencrypto
+Added new account MaghrebUnited20 impersonating missteencrypto
+Added new account misstleencrypto impersonating missteencrypto
+Added new account misstaancrypto impersonating missteencrypto
+Added new account tflyaas impersonating missteencrypto
+Added new account missteencrypt impersonating missteencrypto
+Added new account Missteencrypt15 impersonating missteencrypto
+Added new account MissTeenCrypto2 impersonating missteencrypto
+Added new account missteencrypt02 impersonating missteencrypto
+Added new account miss3teencrypto impersonating missteencrypto
+Added new account drawing34546048 impersonating missteencrypto
+Added new account Mahmoud37008826 impersonating missteencrypto
+Added new account Arshia06072059 impersonating missteencrypto
+Added new account miisteen_crypto impersonating missteencrypto
+Added new account misstaencrypto1 impersonating missteencrypto
+Added new account missteenprivate impersonating missteencrypto
+Added new account missteencyp impersonating missteencrypto
+Added new account missteencrypsto impersonating missteencrypto
+Added new account _miisteencrypto impersonating missteencrypto
+Added new account misstenn_crypto impersonating missteencrypto
+Added new account msstteencrypto impersonating missteencrypto
+Added new account missteenkcrypto impersonating missteencrypto
+Added new account mssteencrypto impersonating missteencrypto
+Added new account _mssteencrypto impersonating missteencrypto
+Added new account MissTee87187003 impersonating missteencrypto
+Added new account msteencrypto impersonating missteencrypto
+Added new account misteencrypton impersonating missteencrypto
+Added new account misteencryppto impersonating missteencrypto
+Added new account miessteancrypto impersonating missteencrypto
+Added new account missteencryptn impersonating missteencrypto
+Added new account ilovebbstocks impersonating missteencrypto
+Added new account _mrssteencrypto impersonating missteencrypto
+Added new account misstteencrypt0 impersonating missteencrypto
+Added new account missaTeenCrypto impersonating missteencrypto
+Added new account missteenzcrypto impersonating missteencrypto
+
+All chunks processed for missteencrypto.
+Processing API response...
 Added new account DigitalAssetNe1
 Added new account Wokocha3
-Added new account NewsAssets_
 Added new account benitawilwon
 Added new account theNewsAsset
 Added new account NewsAssse
@@ -1038,7 +1123,6 @@ Added new account DigitalAss76539
 
 Added new account DigitalAssetNe1 impersonating NewsAsset
 Added new account Wokocha3 impersonating NewsAsset
-Added new account NewsAssets_ impersonating NewsAsset
 Added new account benitawilwon impersonating NewsAsset
 Added new account theNewsAsset impersonating NewsAsset
 Added new account NewsAssse impersonating NewsAsset
@@ -1054,7 +1138,11 @@ Added new account PizzinoMichael2 impersonating pizzinomichael
 
 All chunks processed for pizzinomichael.
 Processing API response...
-PennieWaldrop41 is Suspended.
+scoIttmeIker is Suspended.
+scooottmelker is Suspended.
+privatemelker is Suspended.
+scottmelike is Suspended.
+scottmglker is Suspended.
 Added new account thewolf_podcast
 Added new account meIkerscott
 Added new account scottmelkers2_
@@ -1097,6 +1185,8 @@ Added new account scottmeklker
 Added new account thescottmelke
 Added new account scttmellker
 Added new account Galn54O
+Processing API response...
+PennieWaldrop41 is Suspended.
 Added new account massrrealty
 Added new account scottmielker
 Added new account scottmelke23
@@ -1141,6 +1231,37 @@ Added new account scottmelkh impersonating scottmelker
 Added new account scottmelkerz impersonating scottmelker
 Added new account der_persie impersonating scottmelker
 Added new account melihu761 impersonating scottmelker
+thewolf_podcast impersonates scottmelker.
+meIkerscott impersonates scottmelker.
+scottmelkers2_ impersonates scottmelker.
+scottmelkerr4 impersonates scottmelker.
+scottmelker96 impersonates scottmelker.
+4scottmelker impersonates scottmelker.
+scottmelker1l impersonates scottmelker.
+scottmelkerWolf impersonates scottmelker.
+__scottmelker__ impersonates scottmelker.
+scotlltmelker impersonates scottmelker.
+scomelker impersonates scottmelker.
+scottwolfM impersonates scottmelker.
+suottmelker impersonates scottmelker.
+scottmelkell impersonates scottmelker.
+thewolfofstree impersonates scottmelker.
+ssssscottmelker impersonates scottmelker.
+sssscottmelker impersonates scottmelker.
+WolfStreet61403 impersonates scottmelker.
+scottmeIIkerr impersonates scottmelker.
+Scottmelkker_ impersonates scottmelker.
+scott_me_lker impersonates scottmelker.
+scottmmelke impersonates scottmelker.
+treefamily233 impersonates scottmelker.
+sscottmelkerr impersonates scottmelker.
+scottmelkeh impersonates scottmelker.
+scottmelkbl impersonates scottmelker.
+ssscottmelker impersonates scottmelker.
+scottmelkh impersonates scottmelker.
+scottmelkerz impersonates scottmelker.
+der_persie impersonates scottmelker.
+melihu761 impersonates scottmelker.
 Added new account AcetheKiidsTA impersonating scottmelker
 Added new account Vivek_4reaI_ impersonating scottmelker
 Added new account dann_held1 impersonating scottmelker
@@ -1166,6 +1287,44 @@ Added new account scottmelker1t impersonating scottmelker
 Added new account scorttmelker impersonating scottmelker
 
 All chunks processed for scottmelker.
+Processing API response...
+Added new account Sheld0n_Snper
+Added new account ShaIdcn_Snipar
+Added new account sheldonsniper_0
+Added new account SheldonSniper3
+Added new account Sheldn_S_niper
+Added new account SheldonTheSnip1
+Added new account Shedion__Sniper
+Added new account Sehldon_snlper
+Added new account sheld0n_sniper6
+Added new account sheldonsnipperr
+Added new account SheldonSniiper
+Added new account Sheld0n__Sniper
+Added new account shelldon_siper
+Added new account Sheldon_Snnper
+Added new account Sheld0n_Snipers
+Added new account Sheldon_Snieper
+Added new account Dan22513955
+
+Added new account Sheld0n_Snper impersonating Sheldon_Sniper
+Added new account ShaIdcn_Snipar impersonating Sheldon_Sniper
+Added new account sheldonsniper_0 impersonating Sheldon_Sniper
+Added new account SheldonSniper3 impersonating Sheldon_Sniper
+Added new account Sheldn_S_niper impersonating Sheldon_Sniper
+Added new account SheldonTheSnip1 impersonating Sheldon_Sniper
+Added new account Shedion__Sniper impersonating Sheldon_Sniper
+Added new account Sehldon_snlper impersonating Sheldon_Sniper
+Added new account sheld0n_sniper6 impersonating Sheldon_Sniper
+Added new account sheldonsnipperr impersonating Sheldon_Sniper
+Added new account SheldonSniiper impersonating Sheldon_Sniper
+Added new account Sheld0n__Sniper impersonating Sheldon_Sniper
+Added new account shelldon_siper impersonating Sheldon_Sniper
+Added new account Sheldon_Snnper impersonating Sheldon_Sniper
+Added new account Sheld0n_Snipers impersonating Sheldon_Sniper
+Added new account Sheldon_Snieper impersonating Sheldon_Sniper
+Added new account Dan22513955 impersonating Sheldon_Sniper
+
+All chunks processed for Sheldon_Sniper.
 Processing API response...
 Added new account SimonDixonTw
 Added new account SimonDioxnTwitt
@@ -1207,6 +1366,12 @@ Added new account Meltt__Dem impersonating thetrocro
 
 All chunks processed for thetrocro.
 Processing API response...
+Added new account Tiffany_F0ng
+
+Added new account Tiffany_F0ng impersonating TiffanyFong_
+
+All chunks processed for TiffanyFong_.
+Processing API response...
 Added new account TomCrownCryipto
 Added new account AppleBlaZ3
 Added new account TomCrwnCrypto_
@@ -1216,7 +1381,6 @@ Added new account TomcronwCrypto
 Added new account TomCrown7Crypto
 Added new account TommCrownCryto
 Added new account TomCriownCrypto
-Added new account TomCrownCryptu
 Added new account CryptoTomCrown
 Added new account TomCrownCryptr
 Added new account TomCrown_Crypt
@@ -1233,7 +1397,6 @@ Added new account TomcronwCrypto impersonating TomCrownCrypto
 Added new account TomCrown7Crypto impersonating TomCrownCrypto
 Added new account TommCrownCryto impersonating TomCrownCrypto
 Added new account TomCriownCrypto impersonating TomCrownCrypto
-Added new account TomCrownCryptu impersonating TomCrownCrypto
 TomcronwCrypto impersonates TomCrownCrypto.
 Added new account CryptoTomCrown impersonating TomCrownCrypto
 Added new account TomCrownCryptr impersonating TomCrownCrypto
