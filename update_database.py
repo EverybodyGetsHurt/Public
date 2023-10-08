@@ -1,3 +1,4 @@
+# Import necessary libraries and modules
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, ForeignKey, JSON
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship, declarative_base
 from datetime import datetime
@@ -38,6 +39,52 @@ BASE_URL = "https://api.twitter.com/2/users/by"
 # API tokens
 main_token = config.BEARER_TOKEN
 backup_token = config.BEARER_TOKEN_V2
+tokens_list = [main_token, backup_token]
+
+
+# Token Manager for handling the token rotation
+class TokenManager:
+    """
+    Manages the rotation and retrieval of API tokens to handle rate limiting.
+    Initializes with a list of tokens and provides methods to get the current token
+    and rotate to the next token in a round-robin manner.
+    """
+
+    # Initialization of TokenManager with a list of tokens
+    def __init__(self, tokens):
+        self.tokens_list = tokens
+        self.current_token_index = 0
+
+    # Get the current token from the list
+    def get_current_token(self):
+        return self.tokens_list[self.current_token_index]
+
+    # Rotate to the next token in the list
+    def rotate_token(self):
+        self.current_token_index = (self.current_token_index + 1) % len(self.tokens_list)
+
+
+# Instantiate the TokenManager with the list of tokens
+token_manager = TokenManager(tokens_list)
+
+
+# SQLAlchemy ORM models for the database tables
+class OAuth10a(Base):
+    __tablename__ = "oauth10a_accounts"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True)
+    previous_twitter_account_info = Column(String)
+    twitter_account_id = Column(String, ForeignKey("ImpersonatorAccounts.twitter_id"))
+    twitter_account = relationship("TwitterAccount", backref="oauth10a")
+
+
+# Custom JSON encoder to handle non-serializable objects
+class SafeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        try:
+            return super().default(obj)
+        except TypeError:
+            return str(obj)
 
 
 class TwitterAccount(Base):
@@ -57,7 +104,7 @@ class TwitterAccount(Base):
     suspended_date = Column(DateTime)
     rechecked_suspended_state = Column(DateTime)
     username_changed = Column(Integer, default=0)
-    previous_username = Column(String)  # Renamed from username_changed_to
+    previous_username = Column(String)
     username_changed_date = Column(DateTime)
     unresolvable = Column(Boolean, default=False)
     api_response = Column(JSON)
@@ -92,7 +139,7 @@ class TwitterAccount(Base):
         self.profile_image_url = kwargs.get("profile_image_url")
 
     def mark_as_suspended(self, date=None):
-        if not self.suspended:  # Add this condition
+        if not self.suspended:
             logging.info(f"Marking {self.username} as suspended.")
             self.suspended = True
             self.suspended_date = date or datetime.now()
@@ -126,63 +173,38 @@ class TwitterAccount(Base):
         return f"<TwitterAccount(username={self.username}, twitter_id={self.twitter_id}, suspended={self.suspended})>"
 
 
-class OAuth10a(Base):
-    __tablename__ = "oauth10a_accounts"
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True)
-    previous_twitter_account_info = Column(String)
-    twitter_account_id = Column(String, ForeignKey("ImpersonatorAccounts.twitter_id"))
-    twitter_account = relationship("TwitterAccount", backref="oauth10a")
-
-
-class SafeEncoder(json.JSONEncoder):
-    def default(self, obj):
-        try:
-            return super().default(obj)
-        except TypeError:
-            return str(obj)
-
-
-# Token Manager for handling the token rotation
-class TokenManager:
-    def __init__(self, tokens):
-        self.tokens_list = tokens
-        self.current_token_index = 0
-
-    def get_current_token(self):
-        return self.tokens_list[self.current_token_index]
-
-    def rotate_token(self):
-        self.current_token_index = (self.current_token_index + 1) % len(self.tokens_list)
-
-
-# No warning since the local parameter name is different from the outer variable name
-tokens_list = [main_token, backup_token]
-token_manager = TokenManager(tokens_list)
-
-
+# Function to split the list of usernames into chunks for batch processing
 def chunked_usernames(usernames: List[str], chunk_size: int = 100):
     for i in range(0, len(usernames), chunk_size):
         yield usernames[i:i + chunk_size]
 
 
+# Function to create a new TwitterAccount object and add it to the session
 def create_new_account(user_data, session):
     new_account = TwitterAccount(**user_data)
     session.add(new_account)
     logging.info(f"Added new account {user_data['username']}")
     print(f"Added new account {user_data['username']}")
-    session.commit()
+    try:
+        session.commit()
+        logging.info("Database commit successful.")
+    except Exception as e:
+        session.rollback()
+        logging.error(f"Database commit failed: {e}", exc_info=True)
 
 
+# Function to create headers for the API request
 def create_headers(bearer_token):
     headers = {"Authorization": f"Bearer {bearer_token}"}
     return headers
 
 
+# Function to create the database tables
 def create_tables():
     Base.metadata.create_all(engine)
 
 
+# Function to create the URL for the API request
 def create_url(usernames):
     usernames = ",".join(usernames)
     url = (f"{BASE_URL}?usernames={usernames}&user.fields=created_at,description,id,name,profile_image_url,"
@@ -190,43 +212,61 @@ def create_url(usernames):
     return url
 
 
+# Function to delete a user from the database by their Twitter ID
 def delete_user(user_id, session):
     account = session.query(TwitterAccount).filter_by(twitter_id=user_id).first()
     if account:
         session.delete(account)
-        session.commit()
+        try:
+            session.commit()
+            logging.info("Database commit successful.")
+        except Exception as e:
+            session.rollback()
+            logging.error(f"Database commit failed: {e}", exc_info=True)
 
 
+# Function to retrieve a TwitterAccount object by Twitter ID
 def get_account_by_twitter_id(twitter_id, session):
     return session.query(TwitterAccount).filter_by(twitter_id=twitter_id).first()
 
 
+# Function to extract the protected channel name from the filename
 def get_protected_channel_from_filename(filename):
     protected_channel = filename.replace("Active-", "").replace(".txt", "")
     return protected_channel
 
 
+# Function to extract the username from the Twitter URL
 def get_username_from_url(url):
     return url.strip().split("/")[-1]
 
 
+# Function to retrieve all impersonator accounts for a specific protected channel
 def get_impersonators_for_protected_channel(session, protected_channel):
     impersonators_query = session.query(TwitterAccount).filter_by(protected_channel=protected_channel)
     return impersonators_query.all()
 
 
+# Function to check if the database is empty
 def is_database_empty(session=None):
     if not session:
         session = Session()
     return session.query(TwitterAccount).first() is None
 
 
+# Function to process a suspended user
 def process_suspended_user(account, username, error, protected_channel, session):
     if account:
         account.mark_as_suspended()
         account.api_response = error
         print(f"{username} is Suspended.")
-        session.commit()
+        try:
+            session.commit()
+            logging.info("Database commit successful.")
+        except Exception as e:
+            session.rollback()
+            logging.error(f"Database commit failed: {e}", exc_info=True)
+
     else:
         user_data = {
             'username': username,
@@ -236,9 +276,15 @@ def process_suspended_user(account, username, error, protected_channel, session)
         new_account = TwitterAccount(**user_data)
         new_account.mark_as_suspended()
         session.add(new_account)
-        session.commit()
+        try:
+            session.commit()
+            logging.info("Database commit successful.")
+        except Exception as e:
+            session.rollback()
+            logging.error(f"Database commit failed: {e}", exc_info=True)
 
 
+# Function to process a user that was not found
 def process_not_found_user(username, error, protected_channel, session):
     logging.info(f"Processing not found user: {username}")
 
@@ -264,12 +310,19 @@ def process_not_found_user(username, error, protected_channel, session):
             session.add(new_account)
             logging.info(f"Added {username} to the database as not found.")
 
-        session.commit()
+        try:
+            session.commit()
+            logging.info("Database commit successful.")
+        except Exception as e:
+            session.rollback()
+            logging.error(f"Database commit failed: {e}", exc_info=True)
+
     except Exception as e:
         logging.error(f"Failed to process {username}: {e}", exc_info=True)
         session.rollback()
 
 
+# Function to process an active user
 def process_active_user(account, user_data, protected_channel, session):
     user_data['protected_channel'] = protected_channel
     user_data['api_response'] = json.dumps(user_data, cls=SafeEncoder)
@@ -284,14 +337,21 @@ def process_active_user(account, user_data, protected_channel, session):
         create_new_account(user_data, session)
 
     print(f"{user_data['username']} impersonates {protected_channel}.")
-    session.commit()
+    try:
+        session.commit()
+        logging.info("Database commit successful.")
+    except Exception as e:
+        session.rollback()
+        logging.error(f"Database commit failed: {e}", exc_info=True)
 
 
+# Function to print the status of users
 def print_users(users, status):
     for user in users:
         print(f"{user} is {status}.")
 
 
+# Function to retrieve all impersonator accounts from a text file and add them to the database
 def all_impersonators(session, filename):
     protected_channel = get_protected_channel_from_filename(filename)
 
@@ -309,7 +369,13 @@ def all_impersonators(session, filename):
         if db_impersonator:
             if db_impersonator.protected_channel != protected_channel:
                 db_impersonator.protected_channel = protected_channel
-                session.commit()
+                try:
+                    session.commit()
+                    logging.info("Database commit successful.")
+                except Exception as e:
+                    session.rollback()
+                    logging.error(f"Database commit failed: {e}", exc_info=True)
+
         else:
             session.add(
                 TwitterAccount(
@@ -320,7 +386,12 @@ def all_impersonators(session, filename):
                     tweet_count=None,
                 )
             )
-            session.commit()
+            try:
+                session.commit()
+                logging.info("Database commit successful.")
+            except Exception as e:
+                session.rollback()
+                logging.error(f"Database commit failed: {e}", exc_info=True)
 
     all_impersonator_accounts = get_impersonators_for_protected_channel(
         session, protected_channel
@@ -328,17 +399,23 @@ def all_impersonators(session, filename):
     return all_impersonator_accounts
 
 
-# Updated function with enhanced error handling and token rotation
+# Function to connect to the Twitter API endpoint with enhanced error handling and token rotation
 def connect_to_endpoint(url, headers, max_retries=5, base_delay=5, max_delay=60):
     retries = 0
     while retries <= max_retries:
         try:
+            logging.info(f"Connecting to URL: {url} with headers: {headers}")
             response = requests.get(url, headers=headers)
             response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+
             if response.status_code != 429:
                 return response.json()
 
         except requests.HTTPError as e:
+            error_message = f"HTTP error occurred for URL {url}: {e}"
+            logging.error(f"HTTP error occurred: {e}", exc_info=True)
+            print(error_message)  # Printing the error message for immediate feedback
+
             if e.response.status_code == 429:  # Handling rate limit errors
                 token_manager.rotate_token()  # Rotate the token when rate limit exceeded
                 delay = min(max_delay, base_delay * (2 ** retries) + random.uniform(0, 1))
@@ -347,8 +424,11 @@ def connect_to_endpoint(url, headers, max_retries=5, base_delay=5, max_delay=60)
                 retries += 1
                 continue
 
-            logging.error(f"HTTP error occurred: {e}", exc_info=True)
             raise  # Re-raise the exception if it is not a rate limit error
+
+        except requests.ConnectionError as e:
+            logging.error(f"Connection error occurred: {e}", exc_info=True)
+            raise
 
         except Exception as e:
             logging.error(f"An unexpected error occurred: {e}", exc_info=True)
@@ -360,12 +440,13 @@ def connect_to_endpoint(url, headers, max_retries=5, base_delay=5, max_delay=60)
             raise Exception("Max retries reached for the API request.")
 
 
+# Function to implement exponential backoff retry logic
 def exponential_backoff_retry(max_retries, base_delay, max_delay):
     retries = 0
     while retries <= max_retries:
         try:
-            # Your API request code here
-            # Ensure you use the token_manager to handle the tokens
+            # My API request code here
+            # Ensure to use the token_manager to handle the tokens
             pass  # Replace with the actual code
 
         except requests.HTTPError as e:
@@ -381,8 +462,9 @@ def exponential_backoff_retry(max_retries, base_delay, max_delay):
             break  # Break the loop if the request is successful
 
 
-# In the process_api_response function:
+# Function to process the API response and update the database accordingly
 def process_api_response(response, session, protected_channel):
+    logging.info(f"Raw API response: {response}")  # Added this line to log the raw API response
     print("Processing API response...")
     suspended_accounts = []
     active_impersonators = []
@@ -390,6 +472,7 @@ def process_api_response(response, session, protected_channel):
 
     if 'errors' in response:
         for error in response['errors']:
+            # Handling specific error types and updating the database accordingly
             detail = error.get('detail', 'No detail provided')
             logging.error(f"API Error: {detail}")
 
@@ -411,13 +494,25 @@ def process_api_response(response, session, protected_channel):
                         print(f"Username {username} not found. Updated to {new_username} using Twitter ID.")
                         account.update_username(new_username)
                         account.update_api_response(new_user_data['data'])
-                        session.commit()
+                        try:
+                            session.commit()
+                            logging.info("Database commit successful.")
+                        except Exception as e:
+                            session.rollback()
+                            logging.error(f"Database commit failed: {e}", exc_info=True)
+
                     except Exception as e:
                         logging.error(f"Could not update username: {e}")
                         print(f"Both username {username} and Twitter ID {account.twitter_id} could not be resolved.")
                         account.api_response = error
                         account.unresolvable = True
-                        session.commit()
+                        try:
+                            session.commit()
+                            logging.info("Database commit successful.")
+                        except Exception as e:
+                            session.rollback()
+                            logging.error(f"Database commit failed: {e}", exc_info=True)
+
                 else:
                     # This part should handle the case when the user isn't found and there's no existing account info
                     process_not_found_user(username, error, protected_channel, session)
@@ -438,7 +533,13 @@ def process_api_response(response, session, protected_channel):
                         account.update_username(user_data['username'])
 
                 account.update_api_response(user_data)
-                session.commit()  # Ensure that the session is being committed
+                try:
+                    # Ensure that the session is being committed
+                    session.commit()
+                    logging.info("Database commit successful.")
+                except Exception as e:
+                    session.rollback()
+                    logging.error(f"Database commit failed: {e}", exc_info=True)
 
                 # print(f"After update: {account.username}, {account.api_response}")  # Debug print
                 active_impersonators.append(f"{user_data['username']} impersonates {protected_channel}.")
@@ -446,45 +547,29 @@ def process_api_response(response, session, protected_channel):
                 create_new_account(user_data, session)
                 active_impersonators.append(
                     f"Added new account {user_data['username']} impersonating {protected_channel}")
-                session.commit()
+                try:
+                    session.commit()
+                    logging.info("Database commit successful.")
+                except Exception as e:
+                    session.rollback()
+                    logging.error(f"Database commit failed: {e}", exc_info=True)
 
     return suspended_accounts, active_impersonators, not_found_users
 
 
-def main():
-    create_tables()
-
-    with Session() as outer_session:
-        if is_database_empty(outer_session):
-            print("\n   [Unique Situation Detected]")
-            print("----------------------------------------")
-            print("The SQLite database file did not exist or was empty.")
-            print("----------------------------------------")
-
-    txt_files_directory = os.path.join(
-        base_dir, "TwitterData", "TXT-ImpersonatorAccounts", "ImpersonatorURLs"
-    )
-
-    txt_files = glob.glob(f"{txt_files_directory}/Active-*.txt")
-
-    if not txt_files:
-        print("No protected channels found.")
+# Function to process the user's choice of protected channel
+def process_user_choice(choice, txt_files):
+    if not choice or not choice.strip():
+        print("Invalid input. Please enter a valid option.")
         return
 
-    print("Select a protected channel to process:")
-    for index, txt_file in enumerate(txt_files, start=1):
-        print(f"{index}. {os.path.basename(txt_file).replace('Active-', '').replace('.txt', '')}")
-
-    user_choice = input("Comma separated Nr or Name. Or type ALL: ").strip()
-
-    # Function to process each choice
-    def process_choice(choice):
+    def process_choice(inner_choice):
         all_suspended_accounts = []
         all_active_impersonators = []
         all_not_found_users = []
 
         try:
-            choice_number = int(choice)
+            choice_number = int(inner_choice)
             selected_file = txt_files[choice_number - 1]
             protected_channel = os.path.basename(selected_file).replace('Active-', '').replace('.txt', '')
 
@@ -525,11 +610,11 @@ def main():
             logging.error(f"An unexpected error occurred: {e}", exc_info=True)
             traceback.print_exc()
 
-    if user_choice.upper() == "ALL":
+    if choice.upper() == "ALL":
         for txt_file in txt_files:
             process_choice(str(txt_files.index(txt_file) + 1))
-    elif ',' in user_choice:
-        choices = user_choice.split(',')
+    elif ',' in choice:
+        choices = choice.split(',')
         for ch in choices:
             ch = ch.strip()
             if ch.isdigit():
@@ -542,8 +627,67 @@ def main():
                 else:
                     print(f"Invalid name: {ch}")
     else:
-        process_choice(user_choice)
+        if choice.isdigit():
+            process_choice(choice)
+        else:
+            channel_names = [os.path.basename(txt_file).replace(
+                'Active-', '').replace('.txt', '') for txt_file in txt_files]
+            if choice in channel_names:
+                process_choice(str(channel_names.index(choice) + 1))
+            else:
+                print(f"Invalid name: {choice}")
 
 
+def validate_user_choice(choice, txt_files):
+    if not choice.strip():
+        print("Invalid input. Please enter a non-empty option.")
+        return False
+
+    if choice.isdigit():
+        choice_number = int(choice)
+        if 1 <= choice_number <= len(txt_files):
+            return True
+        else:
+            print(f"Invalid selection. Please enter a number between 1 and {len(txt_files)}.")
+            return False
+
+    # Add more validations as needed
+    return True  # Return True if the choice is valid, else return False
+
+
+# Main function to execute the script
+def main():
+    create_tables()
+
+    with Session() as outer_session:
+        if is_database_empty(outer_session):
+            print("\n   [Unique Situation Detected]")
+            print("----------------------------------------")
+            print("The SQLite database file did not exist or was empty.")
+            print("----------------------------------------")
+
+    txt_files_directory = os.path.join(
+        base_dir, "TwitterData", "TXT-ImpersonatorAccounts", "ImpersonatorURLs"
+    )
+
+    txt_files = glob.glob(f"{txt_files_directory}/Active-*.txt")
+
+    if not txt_files:
+        print("No protected channels found.")
+        return
+
+    print("Select a protected channel to process:")
+    for index, txt_file in enumerate(txt_files, start=1):
+        print(f"{index}. {os.path.basename(txt_file).replace('Active-', '').replace('.txt', '')}")
+
+    # In the main function
+    user_choice = input("Comma separated Nr or Name. Or type ALL: ").strip()
+    if validate_user_choice(user_choice, txt_files):
+        process_user_choice(user_choice, txt_files)
+    else:
+        print("Invalid choice. Please try again.")
+
+
+# Execute the main function if the script is run as the main program
 if __name__ == "__main__":
     main()
