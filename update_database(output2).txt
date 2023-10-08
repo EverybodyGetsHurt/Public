@@ -1,4 +1,4 @@
-C:\CODE_REPO\PerfectGPT\venv\Scripts\python.exe "C:\CODE_REPO\PerfectGPT\update_database(LIVE).py" 
+C:\CODE_REPO\PerfectGPT\venv\Scripts\python.exe C:\CODE_REPO\PerfectGPT\update_database.py 
 Select a protected channel to process:
 1. 100trillionUSD
 2. CryptoCovosJoe
@@ -12,131 +12,97 @@ Select a protected channel to process:
 10. jasonpizzino
 11. JasonPLowery
 12. luke_broyles
-13. NewsAsset
-14. pizzinomichael
-15. scottmelker
-16. SimonDixonTwitt
-17. StandfieldKen
-18. thetrocro
-19. TomCrownCrypto
+13. missteencrypto
+14. NewsAsset
+15. pizzinomichael
+16. scottmelker
+17. Sheldon_Sniper
+18. SimonDixonTwitt
+19. StandfieldKen
+20. thetrocro
+21. TiffanyFong_
+22. TomCrownCrypto
 Comma separated Nr or Name. Or type ALL: ALL
 Processing API response...
+100TrillionUSED is Suspended.
+PlanB_Support is Suspended.
 100trilli0n_USD is Suspended.
+arts_schools is Suspended.
 100trili0n_USD is Suspended.
+100trillionUSB is Suspended.
 OfficiaI100USD is Suspended.
+100USDTTrillion is Suspended.
 1ootrillinUSD is Suspended.
 100triIionUSD_i is Suspended.
-alguieN64155777 is Suspended.
-shadow_exodia is Suspended.
-_1OOtrillionUSD is Suspended.
-Snaczek0 is Suspended.
-JarithPolo is Suspended.
-_1OOtriIIoinUSD is Suspended.
-BitcoinPlanB is Suspended.
-IOOtrilllionUSD is Suspended.
-1OOtriIIioinUSD is Suspended.
-1OOTriIIonUSD__ is Suspended.
-1ootrilonUSD is Suspended.
-1OOtrlilionUSD is Suspended.
-_100trillionUS is Suspended.
-_10OtriIIonUSD is Suspended.
-107trillionUSD is Suspended.
-10OtrilloinUSD is Suspended.
-1100triIIionUSD is Suspended.
-100trilliionUS is Suspended.
-100trillio0nUSD is Suspended.
-100trillionCHF is Suspended.
-100trillionmUSD is Suspended.
-100trillionsus is Suspended.
-100trillionU_SD is Suspended.
-100trillionUSB is Suspended.
-100trillionUSDB is Suspended.
-100trilonUSD_ is Suspended.
-100trjillionUSD is Suspended.
-100trllionnUsd is Suspended.
-100trzillionUSD is Suspended.
-100USDTTrillion is Suspended.
+100tri1llionUSD is Suspended.
 100Ust is Suspended.
-arts_schools is Suspended.
 Ayib07562296 is Suspended.
 oaragih is Suspended.
 Official100USD is Suspended.
+alguieN64155777 is Suspended.
+1O0tirillionUSD is Suspended.
 100triIIli0nUSD is Suspended.
+10OtrilloinUSD is Suspended.
 1OOoTrillionUSD is Suspended.
-l0OtrliionUSD is Suspended.
-Ioo_triIIoinUSD is Suspended.
-100OtriIlionUSD is Suspended.
-100triIionUSD_3 is Suspended.
-PlanrB is Suspended.
-100trilIionjUSD is Suspended.
-_I00trillionUSD is Suspended.
-IOOtriillionUSD is Suspended.
-I00trillionUSD_ is Suspended.
-_100trilionUSD_ is Suspended.
-100triIionUSD_6 is Suspended.
-10otrillionUDS is Suspended.
-10trillionUSD_ is Suspended.
-oootrillionUSD is Suspended.
-beeplans is Suspended.
-100trillionUXD is Suspended.
-martapazlisan20 is Suspended.
-SabbarAdam is Suspended.
-100_trillion_US is Suspended.
-100tr_illionUSD is Suspended.
-100tri1llionUSD is Suspended.
+shadow_exodia is Suspended.
 100triIiIoinUSD is Suspended.
-100triIionUSD_2 is Suspended.
-l00TrillionUSB is Suspended.
-l00trilllonUSD is Suspended.
-100trilIionUSD_ is Suspended.
+II0OtrillionUSD is Suspended.
+l0OtrliionUSD is Suspended.
 100trilionUSD_m is Suspended.
 PlanB_2dot0 is Suspended.
-PlanB_IL is Suspended.
-PlanB_Support is Suspended.
-1O0tirillionUSD is Suspended.
+100trillionUSDB is Suspended.
+100trilonUSD_ is Suspended.
+Ioo_triIIoinUSD is Suspended.
+100triIionUSD_2 is Suspended.
+100OtriIlionUSD is Suspended.
 1O0trillionsUSD is Suspended.
+_1OOtrillionUSD is Suspended.
+PlanB_IL is Suspended.
+107trillionUSD is Suspended.
+100trillionsus is Suspended.
+1ootrilonUSD is Suspended.
+Snaczek0 is Suspended.
+JarithPolo is Suspended.
+IOOtrilllionUSD is Suspended.
+100_trillion_US is Suspended.
+_1OOtriIIoinUSD is Suspended.
+100trillionmUSD is Suspended.
+_100trillionUS is Suspended.
+1OOtrlilionUSD is Suspended.
+l00TrillionUSB is Suspended.
+100triIionUSD_3 is Suspended.
+100trllionnUsd is Suspended.
+100trilli0USD is Suspended.
+1OOtriIIioinUSD is Suspended.
+100trjillionUSD is Suspended.
+l00trilllonUSD is Suspended.
+PlanrB is Suspended.
+100trillio0nUSD is Suspended.
+100trilIionjUSD is Suspended.
+r100TrillionUSD is Suspended.
+_I00trillionUSD is Suspended.
+BitcoinPlanB is Suspended.
+100trillionU_SD is Suspended.
+100tr_illionUSD is Suspended.
+100trilliionUS is Suspended.
 1OOitrillionUSD is Suspended.
-II0OtrillionUSD is Suspended.
+IOOtriillionUSD is Suspended.
+100trzillionUSD is Suspended.
+I00trillionUSD_ is Suspended.
+100trillionCHF is Suspended.
+_100trilionUSD_ is Suspended.
+_10OtriIIonUSD is Suspended.
+100triIionUSD_6 is Suspended.
+100trilIionUSD_ is Suspended.
+1100triIIionUSD is Suspended.
+1OOtrliIIionUSD is Suspended.
+1OOTriIIonUSD__ is Suspended.
 IO0trilliIonUSD is Suspended.
-100trillion_BTC is Suspended.
-diegofe21325346 is Suspended.
-100tionUSD is Suspended.
-100trillionUZD is Suspended.
-100trrilli0nUSD is Suspended.
-100TillionUSD_ is Suspended.
-IOOtrlionUSD is Suspended.
-100trivllionUSD is Suspended.
-100trillioanUSD is Suspended.
-KekeAlfred1 changed username to KekeAlfred. Updating Database
-Processing API response...
-1OOtrillli0nUSD is Suspended.
-100trilianUSD is Suspended.
-100tr1lionUSD is Suspended.
-100trilianUSD is Suspended.
-11OthrillionUSD changed username to 1OOthrillionUSD. Updating Database
+planb_bitcoln is Suspended.
 
-l00triIlionUSDT impersonates 100trillionUSD.
-woonomic_oi impersonates 100trillionUSD.
-100rtriliionUSD impersonates 100trillionUSD.
-Red_D0_gT4 impersonates 100trillionUSD.
-rojelit impersonates 100trillionUSD.
-KekeAlfred impersonates 100trillionUSD.
-100trillion22 impersonates 100trillionUSD.
-1000trilllion impersonates 100trillionUSD.
-100trilliON10 impersonates 100trillionUSD.
-100trilliolnUSD impersonates 100trillionUSD.
-1OOthrillionUSD impersonates 100trillionUSD.
-1OOtrillionUSD0 impersonates 100trillionUSD.
-trillionUSD_ impersonates 100trillionUSD.
-SakariyauR impersonates 100trillionUSD.
-jasivezamora impersonates 100trillionUSD.
-100trillio_J_77 impersonates 100trillionUSD.
-_10OtrilionUSD impersonates 100trillionUSD.
-kidzreallycute impersonates 100trillionUSD.
-kheyp1195 impersonates 100trillionUSD.
-1000trilloinUSD impersonates 100trillionUSD.
-PlanB_Trader impersonates 100trillionUSD.
-4intocryptovers impersonates 100trillionUSD.
+arab_beautie impersonates 100trillionUSD.
+PLANtrillionUSD impersonates 100trillionUSD.
+HadesInferno9 impersonates 100trillionUSD.
 
 All chunks processed for 100trillionUSD.
 Processing API response...
@@ -154,14 +120,33 @@ cto_Larsson_ impersonates ctoLarsson.
 ctolarsson7 impersonates ctoLarsson.
 ctoLarsson9 impersonates ctoLarsson.
 reallystg impersonates ctoLarsson.
+ctooLarssoon impersonates ctoLarsson.
+cto_Larsson_ impersonates ctoLarsson.
+cto_Larsson_ impersonates ctoLarsson.
+ctolarsson7 impersonates ctoLarsson.
+ctoLarsson9 impersonates ctoLarsson.
+reallystg impersonates ctoLarsson.
 
 All chunks processed for ctoLarsson.
 Processing API response...
 FossGegfos is Suspended.
-FssGregfcss is Suspended.
-FssGregfoss is Suspended.
 FossGregF0sss is Suspended.
+FssGregfoss is Suspended.
+FossssGreegfoss is Suspended.
 F0ssGregF6ss is Suspended.
+Brandon90652344 is Suspended.
+MikeJos08796401 is Suspended.
+FssGregfcss is Suspended.
+ForsGregfoss is Suspended.
+FossGregFosssl is Suspended.
+FossGregFoszz is Suspended.
+ggfggjjbbbh is Suspended.
+FossGregfossd is Suspended.
+FossGregfossig is Suspended.
+Fossngregfoss is Suspended.
+FossGrreggfoss_ is Suspended.
+FonssGregfoss is Suspended.
+FossGrqgfoss is Suspended.
 FossGregfos__ is Suspended.
 foss_forthekids is Suspended.
 forthekids_foss is Suspended.
@@ -181,21 +166,30 @@ forthekids60142 is Suspended.
 FossGregfoss_z is Suspended.
 FosseGregFoss is Suspended.
 FossGregsFosse is Suspended.
-f1ssGreegffoss changed username to fossGreegffoss. Updating Database
 
+FossGregFuss impersonates fossGregFoss.
+fossGregfosses impersonates fossGregFoss.
+_gregfossgreg impersonates fossGregFoss.
+FossGregFossc impersonates fossGregFoss.
+FossGregfoss201 impersonates fossGregFoss.
+_FossGreggfoss_ impersonates fossGregFoss.
+FossGrugfoss impersonates fossGregFoss.
+FussGregfoss impersonates fossGregFoss.
+FossgGregg impersonates fossGregFoss.
+FosslGregfoss impersonates fossGregFoss.
+Fosssgrregfoss impersonates fossGregFoss.
+GregFoss8 impersonates fossGregFoss.
+f0ss_greg_f0ss impersonates fossGregFoss.
+FossGregfoss_00 impersonates fossGregFoss.
 FoseGregfoss impersonates fossGregFoss.
 fosGregfoss1 impersonates fossGregFoss.
-FossgGregg impersonates fossGregFoss.
+fossgregf0ss___ impersonates fossGregFoss.
+FossGregfss impersonates fossGregFoss.
+_1fossGregfoss impersonates fossGregFoss.
+FossGregfosis impersonates fossGregFoss.
 fossGreegffoss impersonates fossGregFoss.
 FossGregf0ss__ impersonates fossGregFoss.
 abubakar8376644 impersonates fossGregFoss.
-FussGregfoss impersonates fossGregFoss.
-fossgregf0ss___ impersonates fossGregFoss.
-FossGregfosis impersonates fossGregFoss.
-FossGregfoss_00 impersonates fossGregFoss.
-f0ss_greg_f0ss impersonates fossGregFoss.
-FossGregfoss201 impersonates fossGregFoss.
-FossGregFossc impersonates fossGregFoss.
 FossGregfoss08 impersonates fossGregFoss.
 FossGrecgfoss impersonates fossGregFoss.
 FossGregfossgs impersonates fossGregFoss.
@@ -212,35 +206,20 @@ FossmGregfoss impersonates fossGregFoss.
 FaossGregfoss impersonates fossGregFoss.
 FossGregfoosz impersonates fossGregFoss.
 forthekids11083 impersonates fossGregFoss.
-fossGregfosses impersonates fossGregFoss.
-GregFoss8 impersonates fossGregFoss.
 FossGregfss impersonates fossGregFoss.
-FossGregfss impersonates fossGregFoss.
-FossGregFuss impersonates fossGregFoss.
-FossGrugfoss impersonates fossGregFoss.
-FosslGregfoss impersonates fossGregFoss.
-Fosssgrregfoss impersonates fossGregFoss.
-_FossGreggfoss_ impersonates fossGregFoss.
-_gregfossgreg impersonates fossGregFoss.
-_1fossGregfoss impersonates fossGregFoss.
 fossgregsfos_ impersonates fossGregFoss.
 FossForthekids impersonates fossGregFoss.
 FosssGGregfoss impersonates fossGregFoss.
 FossGregfosszs impersonates fossGregFoss.
 FossGregffoss_ impersonates fossGregFoss.
 FlossGregfoss impersonates fossGregFoss.
-FossGregfoss42 impersonates fossGregFoss.
-FossGeregfoss impersonates fossGregFoss.
-FossGregfoss190 impersonates fossGregFoss.
-FossGreegfoss_ impersonates fossGregFoss.
-_FossGregfss_ impersonates fossGregFoss.
-FOSSforss67 impersonates fossGregFoss.
-FossGregfoss01e impersonates fossGregFoss.
 
 All chunks processed for fossGregFoss.
 Processing API response...
 mich3u is Suspended.
-ukaszWa28783454 changed username to ukaszWa18783454. Updating Database
+hodionautt_ is Suspended.
+Sultan10006749 is Suspended.
+hodjonaut is Suspended.
 
 Galiciarallys impersonates hodlonaut.
 Mme_Hamartia impersonates hodlonaut.
@@ -308,14 +287,18 @@ MateusR14773701 impersonates hodlonaut.
 resperaptor impersonates hodlonaut.
 nasser_algaafry impersonates hodlonaut.
 DrCraigSWright5 impersonates hodlonaut.
+officialgregmax impersonates hodlonaut.
+himatifUTM impersonates hodlonaut.
+JordanK47186719 impersonates hodlonaut.
+joisa08 impersonates hodlonaut.
+hodlunaut impersonates hodlonaut.
 
 All chunks processed for hodlonaut.
 Processing API response...
-FreundHill53210 changed username to FreundHill53211. Updating Database
+renkliavakado1 is Suspended.
 
 liriemelvin06 impersonates ICannot_Enough.
 Jamesstefanpage impersonates ICannot_Enough.
-renkliavakado1 impersonates ICannot_Enough.
 ICannot_Enoough impersonates ICannot_Enough.
 l_cannot impersonates ICannot_Enough.
 _ICannotEnough_ impersonates ICannot_Enough.
@@ -347,7 +330,6 @@ infocryptoversr is Suspended.
 intothecryptove is Suspended.
 intocryptoverue is Suspended.
 intocryptovesce is Suspended.
-trash_tr4n changed username to trash_tran. Updating Database
 Processing API response...
 intocryptoverwa is Suspended.
 intoocyptoverse is Suspended.
@@ -498,7 +480,6 @@ cryptoversepriv impersonates intocryptoverse.
 intocrypt2verse impersonates intocryptoverse.
 intothecyptover impersonates intocryptoverse.
 i2cryptoverse impersonates intocryptoverse.
-intocryptto11i impersonates intocryptoverse.
 Benjamincrypto_ impersonates intocryptoverse.
 intocryptevesre impersonates intocryptoverse.
 BenCowenVerse impersonates intocryptoverse.
@@ -536,13 +517,12 @@ investAnswers0_ is Suspended.
 invest_answver is Suspended.
 invest_answersw is Suspended.
 1nvest_Answesr is Suspended.
+invest_answcr is Suspended.
 
 01investanswer impersonates invest_answers.
 menoloma impersonates invest_answers.
 BoboskyBri82878 impersonates invest_answers.
 invest_answern impersonates invest_answers.
-lolital48184751 impersonates invest_answers.
-invest_ansewrs impersonates invest_answers.
 invstanswerspod impersonates invest_answers.
 invst_Answers impersonates invest_answers.
 InvestAnswer001 impersonates invest_answers.
@@ -573,19 +553,20 @@ investmanswers impersonates invest_answers.
 linvest_answer impersonates invest_answers.
 investanswers_0 impersonates invest_answers.
 lnvest__answars impersonates invest_answers.
-kalto_sunny impersonates invest_answers.
 invest_anwers1 impersonates invest_answers.
-investsanswerrs impersonates invest_answers.
 lnvest_answers7 impersonates invest_answers.
 1investansrs impersonates invest_answers.
 invest__answcrs impersonates invest_answers.
+Invest0r_answer impersonates invest_answers.
 invest_answerTA impersonates invest_answers.
 _investsanswer_ impersonates invest_answers.
-invest_answcr impersonates invest_answers.
+Invest_answ3rs impersonates invest_answers.
+Sully_CNBC impersonates invest_answers.
+Invest_answerk impersonates invest_answers.
+invests1answers impersonates invest_answers.
 
 All chunks processed for invest_answers.
 Processing API response...
-iWant_CoinNews is Suspended.
 
 iWantCoinNews_ impersonates iWantCoinNews.
 lwantcoinNews impersonates iWantCoinNews.
@@ -593,11 +574,6 @@ hsudjfjfnn impersonates iWantCoinNews.
 yeyrhryrhg impersonates iWantCoinNews.
 ffdhjbbbh impersonates iWantCoinNews.
 iWantCoinNewz impersonates iWantCoinNews.
-1WantCoinNews impersonates iWantCoinNews.
-iWantc0inNews impersonates iWantCoinNews.
-iWantCoinNeaws impersonates iWantCoinNews.
-jahsvdvgdhdd impersonates iWantCoinNews.
-iWantiCoinNews impersonates iWantCoinNews.
 
 All chunks processed for iWantCoinNews.
 Processing API response...
@@ -736,11 +712,99 @@ luke_broyles001 impersonates luke_broyles.
 
 All chunks processed for luke_broyles.
 Processing API response...
+misstepcryptoc is Suspended.
+missteeecrypto is Suspended.
+misstencrypt0 is Suspended.
+missteen_crypt0 is Suspended.
+misteencryptoe is Suspended.
+Misteencryypto is Suspended.
+mjssteencrypto_ is Suspended.
+misteeencrypto_ is Suspended.
+missteancrypto_ is Suspended.
+Misstencrypto__ is Suspended.
+misstenncrypto_ is Suspended.
+missteinncrypto is Suspended.
+misstenncypto is Suspended.
+misszteencrypto is Suspended.
+misssteencryptt is Suspended.
+miss7teencrypto is Suspended.
+m1ssteencrypto0 is Suspended.
+mis_steencrypto is Suspended.
+misste_ncrypto is Suspended.
+_msteencrypto is Suspended.
+
+missteencryptto impersonates missteencrypto.
+missteancrpto impersonates missteencrypto.
+missteencrypro impersonates missteencrypto.
+MrDrexeded impersonates missteencrypto.
+Andu1207 impersonates missteencrypto.
+Malachicrypto impersonates missteencrypto.
+Flaynny1337 impersonates missteencrypto.
+missteenncrypt impersonates missteencrypto.
+xDrex18 impersonates missteencrypto.
+miss_teen_crpto impersonates missteencrypto.
+M4nga_actu impersonates missteencrypto.
+missencrypto impersonates missteencrypto.
+VetriTv impersonates missteencrypto.
+missteencrybto impersonates missteencrypto.
+missiteancrypto impersonates missteencrypto.
+mizsteencrypto impersonates missteencrypto.
+misseeencrypto impersonates missteencrypto.
+stxirs impersonates missteencrypto.
+missteencyrpto impersonates missteencrypto.
+Odbayar59514791 impersonates missteencrypto.
+ShabnazChowdhu1 impersonates missteencrypto.
+henriqu14448201 impersonates missteencrypto.
+dragosneagu1 impersonates missteencrypto.
+mylinh17051988 impersonates missteencrypto.
+SEXY6983082600 impersonates missteencrypto.
+9DbK1xEmr9CNfpS impersonates missteencrypto.
+missteincryto impersonates missteencrypto.
+Cryptomisstee impersonates missteencrypto.
+missteincrypto impersonates missteencrypto.
+wordpresx impersonates missteencrypto.
+Manzani19629668 impersonates missteencrypto.
+MaghrebUnited20 impersonates missteencrypto.
+misstleencrypto impersonates missteencrypto.
+misstaancrypto impersonates missteencrypto.
+tflyaas impersonates missteencrypto.
+missteencrypt impersonates missteencrypto.
+Missteencrypt15 impersonates missteencrypto.
+MissTeenCrypto2 impersonates missteencrypto.
+missteencrypt02 impersonates missteencrypto.
+miss3teencrypto impersonates missteencrypto.
+drawing34546048 impersonates missteencrypto.
+Mahmoud37008826 impersonates missteencrypto.
+Arshia06072059 impersonates missteencrypto.
+miisteen_crypto impersonates missteencrypto.
+misstaencrypto1 impersonates missteencrypto.
+missteenprivate impersonates missteencrypto.
+missteencyp impersonates missteencrypto.
+missteencrypsto impersonates missteencrypto.
+_miisteencrypto impersonates missteencrypto.
+misstenn_crypto impersonates missteencrypto.
+msstteencrypto impersonates missteencrypto.
+missteenkcrypto impersonates missteencrypto.
+mssteencrypto impersonates missteencrypto.
+_mssteencrypto impersonates missteencrypto.
+MissTee87187003 impersonates missteencrypto.
+msteencrypto impersonates missteencrypto.
+misteencrypton impersonates missteencrypto.
+misteencryppto impersonates missteencrypto.
+miessteancrypto impersonates missteencrypto.
+missteencryptn impersonates missteencrypto.
+ilovebbstocks impersonates missteencrypto.
+_mrssteencrypto impersonates missteencrypto.
+misstteencrypt0 impersonates missteencrypto.
+missaTeenCrypto impersonates missteencrypto.
+missteenzcrypto impersonates missteencrypto.
+
+All chunks processed for missteencrypto.
+Processing API response...
 NewsAsset__ is Suspended.
 
 DigitalAssetNe1 impersonates NewsAsset.
 Wokocha3 impersonates NewsAsset.
-NewsAssets_ impersonates NewsAsset.
 benitawilwon impersonates NewsAsset.
 theNewsAsset impersonates NewsAsset.
 NewsAssse impersonates NewsAsset.
@@ -764,14 +828,51 @@ scooottmelker is Suspended.
 privatemelker is Suspended.
 scottmelike is Suspended.
 scottmglker is Suspended.
+scoIttmeIker is Suspended.
+scooottmelker is Suspended.
+privatemelker is Suspended.
+scottmelike is Suspended.
+scottmglker is Suspended.
 scottmjlker is Suspended.
 Scottmelker2888 is Suspended.
 PennieWaldrop41 is Suspended.
 FacialFan2009 is Suspended.
+Processing API response...
 iSc0ttMelker is Suspended.
 __scott_melker is Suspended.
 PennieWaldrop41 is Suspended.
 
+thewolf_podcast impersonates scottmelker.
+meIkerscott impersonates scottmelker.
+scottmelkers2_ impersonates scottmelker.
+scottmelkerr4 impersonates scottmelker.
+scottmelker96 impersonates scottmelker.
+4scottmelker impersonates scottmelker.
+scottmelker1l impersonates scottmelker.
+scottmelkerWolf impersonates scottmelker.
+__scottmelker__ impersonates scottmelker.
+scotlltmelker impersonates scottmelker.
+scomelker impersonates scottmelker.
+scottwolfM impersonates scottmelker.
+suottmelker impersonates scottmelker.
+scottmelkell impersonates scottmelker.
+thewolfofstree impersonates scottmelker.
+ssssscottmelker impersonates scottmelker.
+sssscottmelker impersonates scottmelker.
+WolfStreet61403 impersonates scottmelker.
+scottmeIIkerr impersonates scottmelker.
+Scottmelkker_ impersonates scottmelker.
+scott_me_lker impersonates scottmelker.
+scottmmelke impersonates scottmelker.
+treefamily233 impersonates scottmelker.
+sscottmelkerr impersonates scottmelker.
+scottmelkeh impersonates scottmelker.
+scottmelkbl impersonates scottmelker.
+ssscottmelker impersonates scottmelker.
+scottmelkh impersonates scottmelker.
+scottmelkerz impersonates scottmelker.
+der_persie impersonates scottmelker.
+melihu761 impersonates scottmelker.
 thewolf_podcast impersonates scottmelker.
 meIkerscott impersonates scottmelker.
 scottmelkers2_ impersonates scottmelker.
@@ -829,6 +930,28 @@ scorttmelker impersonates scottmelker.
 
 All chunks processed for scottmelker.
 Processing API response...
+Sheldon__niper is Suspended.
+
+Sheld0n_Snper impersonates Sheldon_Sniper.
+ShaIdcn_Snipar impersonates Sheldon_Sniper.
+sheldonsniper_0 impersonates Sheldon_Sniper.
+SheldonSniper3 impersonates Sheldon_Sniper.
+Sheldn_S_niper impersonates Sheldon_Sniper.
+SheldonTheSnip1 impersonates Sheldon_Sniper.
+Shedion__Sniper impersonates Sheldon_Sniper.
+Sehldon_snlper impersonates Sheldon_Sniper.
+sheld0n_sniper6 impersonates Sheldon_Sniper.
+sheldonsnipperr impersonates Sheldon_Sniper.
+SheldonSniiper impersonates Sheldon_Sniper.
+Sheld0n__Sniper impersonates Sheldon_Sniper.
+shelldon_siper impersonates Sheldon_Sniper.
+Sheldon_Snnper impersonates Sheldon_Sniper.
+Sheld0n_Snipers impersonates Sheldon_Sniper.
+Sheldon_Snieper impersonates Sheldon_Sniper.
+Dan22513955 impersonates Sheldon_Sniper.
+
+All chunks processed for Sheldon_Sniper.
+Processing API response...
 SimonDixcnTwitt is Suspended.
 SimonDixonTweet is Suspended.
 SimonDixonTwttt is Suspended.
@@ -864,6 +987,26 @@ Meltt__Dem impersonates thetrocro.
 
 All chunks processed for thetrocro.
 Processing API response...
+TlffanyFong is Suspended.
+TiffonyFong is Suspended.
+tiffanyy_fong is Suspended.
+TiffnyFong_ is Suspended.
+__TiffanyFong is Suspended.
+RealTiffanyFong is Suspended.
+TifanyFong__ is Suspended.
+
+Tiffany_F0ng impersonates TiffanyFong_.
+
+All chunks processed for TiffanyFong_.
+Processing API response...
+Tom_CrownCrypt0 is Suspended.
+TomCrownCrrypto is Suspended.
+TomCrownCryptol is Suspended.
+TomsCrownCrytpo is Suspended.
+TomCrownCyptto is Suspended.
+TomCrownCry is Suspended.
+T0mCr0wnCrypto is Suspended.
+TCrownCrypto is Suspended.
 
 TomCrownCryipto impersonates TomCrownCrypto.
 AppleBlaZ3 impersonates TomCrownCrypto.
@@ -874,7 +1017,6 @@ TomcronwCrypto impersonates TomCrownCrypto.
 TomCrown7Crypto impersonates TomCrownCrypto.
 TommCrownCryto impersonates TomCrownCrypto.
 TomCriownCrypto impersonates TomCrownCrypto.
-TomCrownCryptu impersonates TomCrownCrypto.
 TomcronwCrypto impersonates TomCrownCrypto.
 CryptoTomCrown impersonates TomCrownCrypto.
 TomCrownCryptr impersonates TomCrownCrypto.
