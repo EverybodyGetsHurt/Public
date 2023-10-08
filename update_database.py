@@ -1,6 +1,6 @@
 # Import necessary libraries and modules
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, ForeignKey, JSON
-from sqlalchemy.orm import sessionmaker, scoped_session, relationship, declarative_base
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, JSON
+from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
 from datetime import datetime
 from instance import config
 from typing import List
@@ -68,16 +68,6 @@ class TokenManager:
 token_manager = TokenManager(tokens_list)
 
 
-# SQLAlchemy ORM models for the database tables
-class OAuth10a(Base):
-    __tablename__ = "oauth10a_accounts"
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True)
-    previous_twitter_account_info = Column(String)
-    twitter_account_id = Column(String, ForeignKey("ImpersonatorAccounts.twitter_id"))
-    twitter_account = relationship("TwitterAccount", backref="oauth10a")
-
-
 # Custom JSON encoder to handle non-serializable objects
 class SafeEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -102,7 +92,6 @@ class TwitterAccount(Base):
     listed_count = Column(Integer)
     suspended = Column(Boolean, default=False)
     suspended_date = Column(DateTime)
-    rechecked_suspended_state = Column(DateTime)
     username_changed = Column(Integer, default=0)
     previous_username = Column(String)
     username_changed_date = Column(DateTime)
@@ -128,7 +117,6 @@ class TwitterAccount(Base):
         self.listed_count = kwargs.get("public_metrics", {}).get("listed_count")
         self.suspended = False
         self.suspended_date = None
-        self.rechecked_suspended_state = None
         self.username_changed = False
         self.username_changed_to = None
         self.username_changed_date = None
@@ -146,11 +134,6 @@ class TwitterAccount(Base):
             logging.info(f"Marked {self.username} as suspended at {self.suspended_date}.")
         else:
             logging.info(f"{self.username} is already marked as suspended.")
-
-    def mark_as_unsuspended(self):
-        self.suspended = False
-        self.suspended_date = None
-        self.rechecked_suspended_state = datetime.now()
 
     def update_username(self, new_username):
         print(f"Updating username from {self.username} to {new_username}")
@@ -210,19 +193,6 @@ def create_url(usernames):
     url = (f"{BASE_URL}?usernames={usernames}&user.fields=created_at,description,id,name,profile_image_url,"
            f"public_metrics,url,username,verified")
     return url
-
-
-# Function to delete a user from the database by their Twitter ID
-def delete_user(user_id, session):
-    account = session.query(TwitterAccount).filter_by(twitter_id=user_id).first()
-    if account:
-        session.delete(account)
-        try:
-            session.commit()
-            logging.info("Database commit successful.")
-        except Exception as e:
-            session.rollback()
-            logging.error(f"Database commit failed: {e}", exc_info=True)
 
 
 # Function to retrieve a TwitterAccount object by Twitter ID
@@ -345,60 +315,6 @@ def process_active_user(account, user_data, protected_channel, session):
         logging.error(f"Database commit failed: {e}", exc_info=True)
 
 
-# Function to print the status of users
-def print_users(users, status):
-    for user in users:
-        print(f"{user} is {status}.")
-
-
-# Function to retrieve all impersonator accounts from a text file and add them to the database
-def all_impersonators(session, filename):
-    protected_channel = get_protected_channel_from_filename(filename)
-
-    with open(filename, "r") as file:
-        urls = file.readlines()
-        # Print the content of the URLs list
-        print(f"URLs: {urls}")
-
-    usernames_from_file = [get_username_from_url(url) for url in urls if url.strip()]
-
-    for username in usernames_from_file:
-        db_impersonator = (
-            session.query(TwitterAccount).filter_by(username=username).first()
-        )
-        if db_impersonator:
-            if db_impersonator.protected_channel != protected_channel:
-                db_impersonator.protected_channel = protected_channel
-                try:
-                    session.commit()
-                    logging.info("Database commit successful.")
-                except Exception as e:
-                    session.rollback()
-                    logging.error(f"Database commit failed: {e}", exc_info=True)
-
-        else:
-            session.add(
-                TwitterAccount(
-                    username=username,
-                    protected_channel=protected_channel,
-                    followers_count=None,
-                    following_count=None,
-                    tweet_count=None,
-                )
-            )
-            try:
-                session.commit()
-                logging.info("Database commit successful.")
-            except Exception as e:
-                session.rollback()
-                logging.error(f"Database commit failed: {e}", exc_info=True)
-
-    all_impersonator_accounts = get_impersonators_for_protected_channel(
-        session, protected_channel
-    )
-    return all_impersonator_accounts
-
-
 # Function to connect to the Twitter API endpoint with enhanced error handling and token rotation
 def connect_to_endpoint(url, headers, max_retries=5, base_delay=5, max_delay=60):
     retries = 0
@@ -438,28 +354,6 @@ def connect_to_endpoint(url, headers, max_retries=5, base_delay=5, max_delay=60)
         if retries > max_retries:
             logging.error("Max retries reached for the API request.")
             raise Exception("Max retries reached for the API request.")
-
-
-# Function to implement exponential backoff retry logic
-def exponential_backoff_retry(max_retries, base_delay, max_delay):
-    retries = 0
-    while retries <= max_retries:
-        try:
-            # My API request code here
-            # Ensure to use the token_manager to handle the tokens
-            pass  # Replace with the actual code
-
-        except requests.HTTPError as e:
-            if e.response.status_code == 429:  # Rate limit exceeded
-                delay = min(max_delay, (base_delay * 2 ** retries) + random.uniform(0, 1))
-                logging.warning(f"Rate limit exceeded, retrying in {delay} seconds...")
-                time.sleep(delay)
-                retries += 1
-            else:
-                logging.error(f"HTTP error occurred: {e}")
-                break  # Or handle other HTTP errors as needed
-        else:
-            break  # Break the loop if the request is successful
 
 
 # Function to process the API response and update the database accordingly
