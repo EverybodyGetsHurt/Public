@@ -107,13 +107,16 @@ class TwitterAccount(Base):
 
     def update_username(self, new_username):
         print(f"Updating username from {self.username} to {new_username}")
-        self.previous_username = self.username  # Store the old username
+        if self.previous_username:
+            self.previous_username += f",{self.username}"  # Append the old username with a comma
+        else:
+            self.previous_username = self.username  # If it's the first change, just assign the old username
         self.username = new_username
         self.username_changed += 1
         self.username_changed_date = datetime.now()
 
     def update_api_response(self, new_response):
-        print(f"Updating API response")  # Debug print
+        # print(f"Updating API response")  # Debug print
         self.previous_api_response = self.api_response
         self.previous_api_response_updated_at = self.api_response_updated_at
         self.api_response = json.dumps(new_response, cls=SafeEncoder)
@@ -427,7 +430,7 @@ def process_api_response(response, session, protected_channel):
             account = session.query(TwitterAccount).filter_by(twitter_id=user_data['id']).first()
 
             if account:
-                print(f"Before update: {account.username}, {account.api_response}")  # Debug print
+                # print(f"Before update: {account.username}, {account.api_response}")  # Debug print
 
                 if not account.suspended:
                     if account.username != user_data['username']:
@@ -437,7 +440,7 @@ def process_api_response(response, session, protected_channel):
                 account.update_api_response(user_data)
                 session.commit()  # Ensure that the session is being committed
 
-                print(f"After update: {account.username}, {account.api_response}")  # Debug print
+                # print(f"After update: {account.username}, {account.api_response}")  # Debug print
                 active_impersonators.append(f"{user_data['username']} impersonates {protected_channel}.")
             else:
                 create_new_account(user_data, session)
