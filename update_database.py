@@ -501,6 +501,15 @@ def process_user_choice(choice, txt_files):
                 logging.error(f"The usernames list is empty for file {selected_file}.")
                 return
 
+            # New code: Validate the length of the usernames
+            invalid_usernames = [username for username in usernames if len(username) > 15]
+            if invalid_usernames:
+                print(
+                    f"Error: The following usernames are too "
+                    f"long (more than 15 characters): {', '.join(invalid_usernames)}")
+                print("Please correct the usernames in the .txt file and try again.")
+                return  # Stop the execution if invalid usernames are found
+
             with Session() as session:
                 chunks = list(chunked_usernames(usernames))
                 for chunk in chunks:
