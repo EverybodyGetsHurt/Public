@@ -1,24 +1,31 @@
 # Import necessary libraries and modules
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, JSON
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
+from logging.handlers import RotatingFileHandler
 from datetime import datetime
 from instance import config
 from typing import List
 import traceback
 import requests
 import logging
-import random
 import json
 import glob
 import time
 import os
 
 # Logging setup
-log_filename = "TwitterData/SQL-ImpersonatorAccounts/ImpersonatorAccounts.log"
+log_filename = os.path.join("TwitterData", "SQL-ImpersonatorAccounts", "ImpersonatorAccounts.log")
 if not os.path.exists(os.path.dirname(log_filename)):
     os.makedirs(os.path.dirname(log_filename))
-logging.basicConfig(filename=log_filename, level=logging.DEBUG,
-                    format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+logger = logging.getLogger()  # Creating a custom logger
+logger.setLevel(logging.DEBUG)  # You can set this to the lowest level of logging messages you want to handle
+# Create handler that writes log messages to a file, with a maximum
+# log file size of 2.5MB, keeping 1 backup old log file by {backupCount}.
+handler = RotatingFileHandler(log_filename, maxBytes=int(2.5 * 1024 * 1024), backupCount=1, encoding='utf-8')
+# Create formatter
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+handler.setFormatter(formatter)  # Add formatter to handler
+logger.addHandler(handler)  # Add handler to logger
 logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
 # Directory and database setup
@@ -54,6 +61,7 @@ class TokenManager:
     def __init__(self, tokens):
         self.tokens_list = tokens
         self.current_token_index = 0
+        self.rate_limited_tokens = set()  # Added to keep track of rate-limited tokens
 
     # Get the current token from the list
     def get_current_token(self):
@@ -62,6 +70,18 @@ class TokenManager:
     # Rotate to the next token in the list
     def rotate_token(self):
         self.current_token_index = (self.current_token_index + 1) % len(self.tokens_list)
+
+    # Mark a token as rate-limited
+    def mark_token_as_rate_limited(self, token):  # Added this method
+        self.rate_limited_tokens.add(token)
+
+    # Check if all tokens are rate-limited
+    def all_tokens_rate_limited(self):  # Added this method
+        return len(self.rate_limited_tokens) == len(self.tokens_list)
+
+    # Reset rate-limited tokens (optional, you can use this after all tokens get reset)
+    def reset_rate_limited_tokens(self):  # Added this method
+        self.rate_limited_tokens.clear()
 
 
 # Instantiate the TokenManager with the list of tokens
@@ -162,18 +182,26 @@ def chunked_usernames(usernames: List[str], chunk_size: int = 100):
         yield usernames[i:i + chunk_size]
 
 
+# Function made to reduce repetitive code
+def commit_session(session):
+    try:
+        session.commit()
+        logging.info("Database commit successful.")
+        return True
+    except Exception as e:
+        session.rollback()
+        logging.error(f"Database commit failed: {e}", exc_info=True)
+        return False
+
+
 # Function to create a new TwitterAccount object and add it to the session
 def create_new_account(user_data, session):
     new_account = TwitterAccount(**user_data)
     session.add(new_account)
     logging.info(f"Added new account {user_data['username']}")
     print(f"Added new account {user_data['username']}")
-    try:
-        session.commit()
-        logging.info("Database commit successful.")
-    except Exception as e:
-        session.rollback()
-        logging.error(f"Database commit failed: {e}", exc_info=True)
+    if not commit_session(session):
+        print("An error occurred while committing to the database.")
 
 
 # Function to create headers for the API request
@@ -229,13 +257,10 @@ def process_suspended_user(account, username, error, protected_channel, session)
     if account:
         account.mark_as_suspended()
         account.api_response = error
-        print(f"{username} is Suspended.")
-        try:
-            session.commit()
-            logging.info("Database commit successful.")
-        except Exception as e:
-            session.rollback()
-            logging.error(f"Database commit failed: {e}", exc_info=True)
+        print(f"Status Suspended: {username}")
+
+        if not commit_session(session):
+            print("An error occurred while committing to the database.")
 
     else:
         user_data = {
@@ -246,12 +271,9 @@ def process_suspended_user(account, username, error, protected_channel, session)
         new_account = TwitterAccount(**user_data)
         new_account.mark_as_suspended()
         session.add(new_account)
-        try:
-            session.commit()
-            logging.info("Database commit successful.")
-        except Exception as e:
-            session.rollback()
-            logging.error(f"Database commit failed: {e}", exc_info=True)
+
+        if not commit_session(session):
+            print("An error occurred while committing to the database.")
 
 
 # Function to process a user that was not found
@@ -280,16 +302,12 @@ def process_not_found_user(username, error, protected_channel, session):
             session.add(new_account)
             logging.info(f"Added {username} to the database as not found.")
 
-        try:
-            session.commit()
-            logging.info("Database commit successful.")
-        except Exception as e:
-            session.rollback()
-            logging.error(f"Database commit failed: {e}", exc_info=True)
+        if not commit_session(session):
+            print(f"An error occurred while committing {username} to the database.")
 
     except Exception as e:
         logging.error(f"Failed to process {username}: {e}", exc_info=True)
-        session.rollback()
+        print(f"An error occurred while processing {username}.")
 
 
 # Function to process an active user
@@ -306,13 +324,9 @@ def process_active_user(account, user_data, protected_channel, session):
     else:
         create_new_account(user_data, session)
 
-    print(f"{user_data['username']} impersonates {protected_channel}.")
-    try:
-        session.commit()
-        logging.info("Database commit successful.")
-    except Exception as e:
-        session.rollback()
-        logging.error(f"Database commit failed: {e}", exc_info=True)
+    print(f"{protected_channel} is impersonated by {user_data['username']}")
+    if not commit_session(session):
+        print("An error occurred while committing to the database.")
 
 
 # Function to connect to the Twitter API endpoint with enhanced error handling and token rotation
@@ -328,14 +342,27 @@ def connect_to_endpoint(url, headers, max_retries=5, base_delay=5, max_delay=60)
                 return response.json()
 
         except requests.HTTPError as e:
-            error_message = f"HTTP error occurred for URL {url}: {e}"
+            current_token = token_manager.get_current_token()  # Get the current token
+            masked_token = current_token[:5] + '*' * len(
+                current_token[5:-5]) + current_token[-5:]  # Mask the middle part of the token for security
+
+            error_message = f"HTTP error occurred for URL {url} with token {masked_token}: {e}"
             logging.error(f"HTTP error occurred: {e}", exc_info=True)
             print(error_message)  # Printing the error message for immediate feedback
 
             if e.response.status_code == 429:  # Handling rate limit errors
+                token_manager.mark_token_as_rate_limited(current_token)  # Mark the current token as rate-limited
+
+                if token_manager.all_tokens_rate_limited():
+                    logging.error("All tokens are rate-limited. Halting operation.")
+                    raise Exception("All tokens are rate-limited. Halting operation.")
+
                 token_manager.rotate_token()  # Rotate the token when rate limit exceeded
-                delay = min(max_delay, base_delay * (2 ** retries) + random.uniform(0, 1))
-                logging.warning(f"Rate limit exceeded, retrying in {delay:.2f} seconds with a new token...")
+                retry_after = int(e.response.headers.get('Retry-After', base_delay))
+                delay = min(max_delay, retry_after)
+                logging.warning(
+                    f"Rate limit exceeded for token {masked_token}, "
+                    f"retrying in {delay:.2f} seconds with a new token...")
                 time.sleep(delay)
                 retries += 1
                 continue
@@ -366,8 +393,9 @@ def make_api_request(url, headers, retries=3, delay=5):
         except requests.HTTPError as e:
             logging.error(f"HTTP error occurred: {e}")
             if e.response.status_code == 429:  # Rate limit exceeded
-                logging.warning("Rate limit exceeded. Retrying...")
-                time.sleep(delay)
+                retry_after = int(e.response.headers.get('Retry-After', delay))  # Get Retry-After header value
+                logging.warning(f"Rate limit exceeded. Retrying in {retry_after} seconds...")
+                time.sleep(retry_after)
                 continue
             break  # For other HTTP errors, break the loop and handle the error outside
         except Exception as e:
@@ -383,7 +411,9 @@ def process_api_response(response, session, protected_channel):
         logging.error("No response received from the API.")
         return
     logging.info(f"Raw API response: {response}")  # Added this line to log the raw API response
-    print("Processing API response...")
+    print("\n_____________________________________________")
+    print(f"Processing API response... for {protected_channel}")
+    print("_____________________________________________")
     suspended_accounts = []
     active_impersonators = []
     not_found_users = []
@@ -412,24 +442,16 @@ def process_api_response(response, session, protected_channel):
                         print(f"Username {username} not found. Updated to {new_username} using Twitter ID.")
                         account.update_username(new_username)
                         account.update_api_response(new_user_data['data'])
-                        try:
-                            session.commit()
-                            logging.info("Database commit successful.")
-                        except Exception as e:
-                            session.rollback()
-                            logging.error(f"Database commit failed: {e}", exc_info=True)
+                        if not commit_session(session):
+                            print("An error occurred while committing to the database.")
 
                     except Exception as e:
                         logging.error(f"Could not update username: {e}")
                         print(f"Both username {username} and Twitter ID {account.twitter_id} could not be resolved.")
                         account.api_response = error
                         account.unresolvable = True
-                        try:
-                            session.commit()
-                            logging.info("Database commit successful.")
-                        except Exception as e:
-                            session.rollback()
-                            logging.error(f"Database commit failed: {e}", exc_info=True)
+                        if not commit_session(session):
+                            print("An error occurred while committing to the database.")
 
                 else:
                     # This part should handle the case when the user isn't found and there's no existing account info
@@ -451,26 +473,17 @@ def process_api_response(response, session, protected_channel):
                         account.update_username(user_data['username'])
 
                 account.update_api_response(user_data)
-                try:
-                    # Ensure that the session is being committed
-                    session.commit()
-                    logging.info("Database commit successful.")
-                except Exception as e:
-                    session.rollback()
-                    logging.error(f"Database commit failed: {e}", exc_info=True)
+                if not commit_session(session):
+                    print("An error occurred while committing to the database.")
 
                 # print(f"After update: {account.username}, {account.api_response}")  # Debug print
-                active_impersonators.append(f"{user_data['username']} impersonates {protected_channel}.")
+                active_impersonators.append(f"{protected_channel} is impersonated by: {user_data['username']}.")
             else:
                 create_new_account(user_data, session)
                 active_impersonators.append(
                     f"Added new account {user_data['username']} impersonating {protected_channel}")
-                try:
-                    session.commit()
-                    logging.info("Database commit successful.")
-                except Exception as e:
-                    session.rollback()
-                    logging.error(f"Database commit failed: {e}", exc_info=True)
+                if not commit_session(session):
+                    print("An error occurred while committing to the database.")
 
     return suspended_accounts, active_impersonators, not_found_users
 
@@ -501,7 +514,6 @@ def process_user_choice(choice, txt_files):
                 logging.error(f"The usernames list is empty for file {selected_file}.")
                 return
 
-            # New code: Validate the length of the usernames
             invalid_usernames = [username for username in usernames if len(username) > 15]
             if invalid_usernames:
                 print(
@@ -510,25 +522,32 @@ def process_user_choice(choice, txt_files):
                 print("Please correct the usernames in the .txt file and try again.")
                 return  # Stop the execution if invalid usernames are found
 
-            with Session() as session:
+            with (Session() as session):
                 chunks = list(chunked_usernames(usernames))
                 for chunk in chunks:
                     url = create_url(chunk)
                     headers = create_headers(token_manager.get_current_token())
                     response_data = connect_to_endpoint(url, headers)
 
-                    suspended_accounts, active_impersonators, not_found_users = process_api_response(response_data,
-                                                                                                     session,
-                                                                                                     protected_channel)
+                    if response_data is not None:
+                        suspended_accounts, active_impersonators, not_found_users = process_api_response(
+                            response_data, session, protected_channel)
+                    else:
+                        logging.error("Response data is None, skipping...")
                     all_suspended_accounts.extend(suspended_accounts)
                     all_active_impersonators.extend(active_impersonators)
                     all_not_found_users.extend(not_found_users)
                     time.sleep(1)
 
-                print("\n".join(all_suspended_accounts))
-                print("\n".join(all_active_impersonators))
-                print("\n".join(all_not_found_users))
-                print(f"All chunks processed for {protected_channel}.")
+                print(f"\n_____________________________________________\n"
+                      f"All information processed for {protected_channel}:\n"
+                      f"_____________________________________________")
+                if all_suspended_accounts:
+                    print("\n".join(all_suspended_accounts))
+                if all_active_impersonators:
+                    print("\n".join(all_active_impersonators))
+                if all_not_found_users:
+                    print("\n".join(all_not_found_users))
 
         except ValueError as e:
             print(f"ValueError occurred: {e}")
@@ -605,34 +624,40 @@ def validate_user_choice(choice, txt_files):
 
 # Main function to execute the script
 def main():
-    create_tables()
+    try:
+        create_tables()
 
-    with Session() as outer_session:
-        if is_database_empty(outer_session):
-            print("\n   [Unique Situation Detected]")
-            print("----------------------------------------")
-            print("The SQLite database file did not exist or was empty.")
-            print("----------------------------------------")
+        with Session() as outer_session:
+            if is_database_empty(outer_session):
+                print("\n   [Unique Situation Detected]")
+                print("----------------------------------------")
+                print("The SQLite database file did not exist or was empty.")
+                print("----------------------------------------")
 
-    txt_files_directory = os.path.join(
-        base_dir, "TwitterData", "TXT-ImpersonatorAccounts", "ImpersonatorURLs"
-    )
+        txt_files_directory = os.path.join(base_dir, "TwitterData", "TXT-ImpersonatorAccounts", "ImpersonatorURLs")
+        txt_files = glob.glob(f"{txt_files_directory}/Active-*.txt")
 
-    txt_files = glob.glob(f"{txt_files_directory}/Active-*.txt")
+        if not txt_files:
+            print("No protected channels found.")
+            return
 
-    if not txt_files:
-        print("No protected channels found.")
-        return
+        print("Select a protected channel to process:")
+        for index, txt_file in enumerate(txt_files, start=1):
+            print(f"{index}. {os.path.basename(txt_file).replace('Active-', '').replace('.txt', '')}")
 
-    print("Select a protected channel to process:")
-    for index, txt_file in enumerate(txt_files, start=1):
-        print(f"{index}. {os.path.basename(txt_file).replace('Active-', '').replace('.txt', '')}")
+        user_choice = input("Comma separated Nr or Name. Or type ALL: ").strip()
+        if validate_user_choice(user_choice, txt_files):
+            process_user_choice(user_choice, txt_files)
+        else:
+            print("Invalid choice. Please try again.")
 
-    user_choice = input("Comma separated Nr or Name. Or type ALL: ").strip()
-    if validate_user_choice(user_choice, txt_files):
-        process_user_choice(user_choice, txt_files)
-    else:
-        print("Invalid choice. Please try again.")
+    except KeyboardInterrupt:
+        print("Script interrupted by user.")
+        logging.warning("Script interrupted by user.")
+
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        logging.error(f"An unexpected error occurred: {e}", exc_info=True)
 
 
 # Execute the main function if the script is run as the main program
