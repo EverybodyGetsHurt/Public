@@ -21,7 +21,7 @@ logger = logging.getLogger()  # Creating a custom logger
 logger.setLevel(logging.DEBUG)  # You can set this to the lowest level of logging messages you want to handle
 # Create handler that writes log messages to a file, with a maximum
 # log file size of 2.5MB, keeping 1 backup old log file by {backupCount}.
-handler = RotatingFileHandler(log_filename, maxBytes=int(2.4 * 1024 * 1024), backupCount=1, encoding='utf-8')
+handler = RotatingFileHandler(log_filename, maxBytes=int(49.9 * 1024 * 1024), backupCount=1, encoding='utf-8')
 # Create formatter
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 handler.setFormatter(formatter)  # Add formatter to handler
@@ -30,9 +30,7 @@ logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
 # Directory and database setup
 base_dir = os.path.dirname(os.path.abspath(__file__))
-DATABASE_PATH = os.path.join(
-    base_dir, "TwitterData", "SQL-ImpersonatorAccounts", "ImpersonatorAccounts.sqlite"
-)
+DATABASE_PATH = os.path.join(base_dir, "TwitterData", "SQL-ImpersonatorAccounts", "ImpersonatorAccounts.sqlite")
 DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
 
 # SQLAlchemy setup
@@ -40,10 +38,8 @@ Base = declarative_base()
 engine = create_engine(DATABASE_URL)
 Session = scoped_session(sessionmaker(bind=engine))
 
-# API setup
+# API setup and tokens
 BASE_URL = "https://api.twitter.com/2/users/by"
-
-# API tokens
 main_token = config.BEARER_TOKEN
 backup_token = config.BEARER_TOKEN_V2
 tokens_list = [main_token, backup_token]
@@ -70,17 +66,21 @@ class TokenManager:
     # Rotate to the next token in the list
     def rotate_token(self):
         self.current_token_index = (self.current_token_index + 1) % len(self.tokens_list)
+        logging.debug(f"Rotated to token {self.current_token_index}: {self.tokens_list[self.current_token_index]}")
 
     # Mark a token as rate-limited
-    def mark_token_as_rate_limited(self, token):  # Added this method
+    def mark_token_as_rate_limited(self, token):
         self.rate_limited_tokens.add(token)
+        logging.debug(f"Marked token as rate-limited: {token}")
 
     # Check if all tokens are rate-limited
-    def all_tokens_rate_limited(self):  # Added this method
-        return len(self.rate_limited_tokens) == len(self.tokens_list)
+    def all_tokens_rate_limited(self):
+        all_rate_limited = len(self.rate_limited_tokens) == len(self.tokens_list)
+        logging.debug(f"All tokens rate-limited: {all_rate_limited}")
+        return all_rate_limited
 
     # Reset rate-limited tokens (optional, you can use this after all tokens get reset)
-    def reset_rate_limited_tokens(self):  # Added this method
+    def reset_rate_limited_tokens(self):
         self.rate_limited_tokens.clear()
 
 
@@ -128,8 +128,8 @@ class TwitterAccount(Base):
         self.protected_channel = kwargs.get("protected_channel")
         self.username = kwargs.get("username")
         self.name = kwargs.get("name")
-        self.created_at = datetime.strptime(kwargs.get("created_at"),
-                                            '%Y-%m-%dT%H:%M:%S.%fZ') if kwargs.get("created_at") else None
+        self.created_at = datetime.strptime(
+            kwargs.get("created_at"), '%Y-%m-%dT%H:%M:%S.%fZ') if kwargs.get("created_at") else None
         self.description = kwargs.get("description")
         self.followers_count = kwargs.get("public_metrics", {}).get("followers_count")
         self.following_count = kwargs.get("public_metrics", {}).get("following_count")
@@ -288,7 +288,6 @@ def process_not_found_user(username, error, protected_channel, session):
             'unresolvable': True
         }
 
-        # Check if the user already exists
         existing_account = session.query(TwitterAccount).filter_by(username=username).first()
 
         if existing_account:
@@ -330,7 +329,7 @@ def process_active_user(account, user_data, protected_channel, session):
 
 
 # Function to connect to the Twitter API endpoint with enhanced error handling and token rotation
-def connect_to_endpoint(url, headers, max_retries=5, base_delay=5, max_delay=60):
+def connect_to_endpoint(url, headers, max_retries=5):
     retries = 0
     while retries <= max_retries:
         try:
@@ -346,11 +345,10 @@ def connect_to_endpoint(url, headers, max_retries=5, base_delay=5, max_delay=60)
             masked_token = current_token[:5] + '*' * len(
                 current_token[5:-5]) + current_token[-5:]  # Mask the middle part of the token for security
 
-            error_message = f"HTTP error occurred for URL {url} with token {masked_token}: {e}"
-            logging.error(f"HTTP error occurred: {e}", exc_info=True)
-            print(error_message)  # Printing the error message for immediate feedback
-
             if e.response.status_code == 429:  # Handling rate limit errors
+                print(f"_______________________________________________________________________________________________"
+                      "______________________________________________\nRate-Limit hit for Token: {masked_token}\nSwitch"
+                      "ing Token...")
                 token_manager.mark_token_as_rate_limited(current_token)  # Mark the current token as rate-limited
 
                 if token_manager.all_tokens_rate_limited():
@@ -358,16 +356,17 @@ def connect_to_endpoint(url, headers, max_retries=5, base_delay=5, max_delay=60)
                     raise Exception("All tokens are rate-limited. Halting operation.")
 
                 token_manager.rotate_token()  # Rotate the token when rate limit exceeded
-                retry_after = int(e.response.headers.get('Retry-After', base_delay))
-                delay = min(max_delay, retry_after)
-                logging.warning(
-                    f"Rate limit exceeded for token {masked_token}, "
-                    f"retrying in {delay:.2f} seconds with a new token...")
-                time.sleep(delay)
+                headers[
+                    'Authorization'] = f'Bearer {token_manager.get_current_token()}'  # Update headers with new token
+                print("Token switched successfully.\n__________________________________________________________________"
+                      "___________________________________________________________________________")
                 retries += 1
                 continue
-
-            raise  # Re-raise the exception if it is not a rate limit error
+            else:
+                error_message = f"HTTP error occurred for URL {url} with token {masked_token}: {e}"
+                logging.error(f"HTTP error occurred: {e}", exc_info=True)
+                print(error_message)  # Printing the error message for immediate feedback
+                raise  # Re-raise the exception if it is not a rate limit error
 
         except requests.ConnectionError as e:
             logging.error(f"Connection error occurred: {e}", exc_info=True)
@@ -383,7 +382,7 @@ def connect_to_endpoint(url, headers, max_retries=5, base_delay=5, max_delay=60)
             raise Exception("Max retries reached for the API request.")
 
 
-# New function to handle API requests with a retry mechanism
+# Funtion to handle API requests with a retry mechanism
 def make_api_request(url, headers, retries=3, delay=5):
     for _ in range(retries):
         try:
@@ -410,10 +409,9 @@ def process_api_response(response, session, protected_channel):
     if not response:
         logging.error("No response received from the API.")
         return
-    logging.info(f"Raw API response: {response}")  # Added this line to log the raw API response
-    print("\n_____________________________________________")
-    print(f"Processing API response... for {protected_channel}")
-    print("_____________________________________________")
+    logging.info(f"Raw API response: {response}")
+    print("\n_____________________________________________\nProcessing API response... for {protected_channel}\n"
+          "_____________________________________________")
     suspended_accounts = []
     active_impersonators = []
     not_found_users = []
@@ -431,7 +429,6 @@ def process_api_response(response, session, protected_channel):
                 process_suspended_user(account, username, error, protected_channel, session)
                 continue
 
-            # Handling username not found
             if 'Could not find user with usernames' in detail or 'not be found' in detail.lower():
                 if account and account.twitter_id:
                     url = f"https://api.twitter.com/2/users/{account.twitter_id}"
@@ -466,7 +463,6 @@ def process_api_response(response, session, protected_channel):
 
             if account:
                 # print(f"Before update: {account.username}, {account.api_response}")  # Debug print
-
                 if not account.suspended:
                     if account.username != user_data['username']:
                         print(f"{account.username} changed username to {user_data['username']}. Updating Database")
@@ -475,7 +471,6 @@ def process_api_response(response, session, protected_channel):
                 account.update_api_response(user_data)
                 if not commit_session(session):
                     print("An error occurred while committing to the database.")
-
                 # print(f"After update: {account.username}, {account.api_response}")  # Debug print
                 active_impersonators.append(f"{protected_channel} is impersonated by: {user_data['username']}.")
             else:
@@ -492,8 +487,8 @@ def process_api_response(response, session, protected_channel):
 def process_user_choice(choice, txt_files):
     if not choice or not choice.strip():
         print(
-            "Invalid input. Please enter a number corresponding to the protected channels, or type 'ALL' to select "
-            "all channels.")
+            "Invalid input. Please enter a number or name corresponding to the protected channels,"
+            " or type 'ALL' to select all channels.")
         return
 
     def process_choice(inner_choice):
@@ -514,13 +509,30 @@ def process_user_choice(choice, txt_files):
                 logging.error(f"The usernames list is empty for file {selected_file}.")
                 return
 
+            errors = []
+
+            seen_usernames = set()
+            duplicate_usernames = set()
+            for username in usernames:
+                if username in seen_usernames:
+                    duplicate_usernames.add(username)
+                seen_usernames.add(username)
+
+            if duplicate_usernames:
+                errors.append(
+                    f"Error: The following usernames are duplicated: {', '.join(duplicate_usernames)}"
+                )
+
             invalid_usernames = [username for username in usernames if len(username) > 15]
             if invalid_usernames:
-                print(
-                    f"Error: The following usernames are too "
-                    f"long (more than 15 characters): {', '.join(invalid_usernames)}")
-                print("Please correct the usernames in the .txt file and try again.")
-                return  # Stop the execution if invalid usernames are found
+                errors.append(f"Error: The following usernames are too long: {', '.join(invalid_usernames)}")
+
+            if errors:
+                print(f"\n____________________________________________________________________________\n"
+                      f"Error(s) found. Correct the Active-{protected_channel}.txt file and try again.")
+                for error in errors:
+                    print(error)
+                return
 
             with (Session() as session):
                 chunks = list(chunked_usernames(usernames))
@@ -539,9 +551,8 @@ def process_user_choice(choice, txt_files):
                     all_not_found_users.extend(not_found_users)
                     time.sleep(1)
 
-                print(f"\n_____________________________________________\n"
-                      f"All information processed for {protected_channel}:\n"
-                      f"_____________________________________________")
+                print(f"\n_____________________________________________\nAll information processed for "
+                      f"{protected_channel}:\n_____________________________________________")
                 if all_suspended_accounts:
                     print("\n".join(all_suspended_accounts))
                 if all_active_impersonators:
@@ -550,8 +561,7 @@ def process_user_choice(choice, txt_files):
                     print("\n".join(all_not_found_users))
 
         except ValueError as e:
-            print(f"ValueError occurred: {e}")
-            print("Invalid input. Please enter a number.")
+            print(f"ValueError occurred: {e}\nInvalid input. Please enter a number.")
         except IndexError:
             print("Invalid selection. Please enter a number corresponding to the available options.")
         except Exception as e:
@@ -613,8 +623,7 @@ def validate_user_choice(choice, txt_files):
         return True
 
     channel_names = [os.path.basename(txt_file).replace(
-        'Active-', '').replace(
-        '.txt', '').lower() for txt_file in txt_files]
+        'Active-', '').replace('.txt', '').lower() for txt_file in txt_files]
     if choice.lower() in channel_names:
         return True
 
@@ -641,11 +650,11 @@ def main():
             print("No protected channels found.")
             return
 
-        print("Select a protected channel to process:")
+        print("\nSelect a protected channel to process:")
         for index, txt_file in enumerate(txt_files, start=1):
             print(f"{index}. {os.path.basename(txt_file).replace('Active-', '').replace('.txt', '')}")
 
-        user_choice = input("Comma separated Nr or Name. Or type ALL: ").strip()
+        user_choice = input("\nMake a choice by entering Number(s) or Name(s) comma separated. Or type ALL: ").strip()
         if validate_user_choice(user_choice, txt_files):
             process_user_choice(user_choice, txt_files)
         else:
@@ -660,6 +669,5 @@ def main():
         logging.error(f"An unexpected error occurred: {e}", exc_info=True)
 
 
-# Execute the main function if the script is run as the main program
 if __name__ == "__main__":
     main()
