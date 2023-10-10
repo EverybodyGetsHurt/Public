@@ -47,11 +47,6 @@ tokens_list = [main_token, backup_token]
 
 # Token Manager for handling the token rotation
 class TokenManager:
-    """
-    Manages the rotation and retrieval of API tokens to handle rate limiting.
-    Initializes with a list of tokens and provides methods to get the current token
-    and rotate to the next token in a round-robin manner.
-    """
 
     # Initialization of TokenManager with a list of tokens
     def __init__(self, tokens):
@@ -403,8 +398,7 @@ def make_api_request(url, headers, retries=3, delay=5):
     return None  # Return None if the request fails
 
 
-# This function processes the API response, handling various scenarios like suspended accounts,
-# active impersonators, and not found users. It updates the database accordingly.
+# This function processes the API response, handling various scenarios like active/suspended/not-found accounts.
 def process_api_response(response, session, protected_channel):
     if not response:
         logging.error("No response received from the API.")
@@ -418,7 +412,6 @@ def process_api_response(response, session, protected_channel):
 
     if 'errors' in response:
         for error in response['errors']:
-            # Handling specific error types and updating the database accordingly
             detail = error.get('detail', 'No detail provided')
             logging.error(f"API Error: {detail}")
 
@@ -451,7 +444,6 @@ def process_api_response(response, session, protected_channel):
                             print("An error occurred while committing to the database.")
 
                 else:
-                    # This part should handle the case when the user isn't found and there's no existing account info
                     process_not_found_user(username, error, protected_channel, session)
                 continue
 
