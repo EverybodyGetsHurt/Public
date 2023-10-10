@@ -21,7 +21,7 @@ logger = logging.getLogger()  # Creating a custom logger
 logger.setLevel(logging.DEBUG)  # You can set this to the lowest level of logging messages you want to handle
 # Create handler that writes log messages to a file, with a maximum
 # log file size of 2.5MB, keeping 1 backup old log file by {backupCount}.
-handler = RotatingFileHandler(log_filename, maxBytes=int(2.5 * 1024 * 1024), backupCount=1, encoding='utf-8')
+handler = RotatingFileHandler(log_filename, maxBytes=int(2.4 * 1024 * 1024), backupCount=1, encoding='utf-8')
 # Create formatter
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 handler.setFormatter(formatter)  # Add formatter to handler
@@ -481,7 +481,7 @@ def process_api_response(response, session, protected_channel):
             else:
                 create_new_account(user_data, session)
                 active_impersonators.append(
-                    f"Added new account {user_data['username']} impersonating {protected_channel}")
+                    f"Added new impersonator for {protected_channel}: {user_data['username']}")
                 if not commit_session(session):
                     print("An error occurred while committing to the database.")
 
@@ -663,4 +663,3 @@ def main():
 # Execute the main function if the script is run as the main program
 if __name__ == "__main__":
     main()
-
