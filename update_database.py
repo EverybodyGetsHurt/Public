@@ -92,6 +92,7 @@ class SafeEncoder(json.JSONEncoder):
             return str(obj)
 
 
+# Class for the SQL-Alchemy database schema for ImpersonatorAccounts
 class TwitterAccount(Base):
     __tablename__ = "ImpersonatorAccounts"
     id = Column(Integer, primary_key=True, index=True)
@@ -291,7 +292,6 @@ def process_not_found_user(username, error, protected_channel, session):
                 setattr(existing_account, key, value)
             logging.info(f"Updated {username} in the database as not found.")
         else:
-            # Create new account
             new_account = TwitterAccount(**user_data)
             session.add(new_account)
             logging.info(f"Added {username} to the database as not found.")
@@ -341,9 +341,11 @@ def connect_to_endpoint(url, headers, max_retries=5):
                 current_token[5:-5]) + current_token[-5:]  # Mask the middle part of the token for security
 
             if e.response.status_code == 429:  # Handling rate limit errors
-                print(f"_______________________________________________________________________________________________"
-                      "______________________________________________\nRate-Limit hit for Token: {masked_token}\nSwitch"
-                      "ing Token...")
+                print(f"\n_____________________________________________________________________________________________"
+                      f"________________________________________________\nGenerating API request... Failed\n___________"
+                      f"_______________________________________________________________________________________________"
+                      f"___________________________________\nRate-Limit hit for Token: {masked_token}\nSwitching Token."
+                      f"..")
                 token_manager.mark_token_as_rate_limited(current_token)  # Mark the current token as rate-limited
 
                 if token_manager.all_tokens_rate_limited():
@@ -353,8 +355,8 @@ def connect_to_endpoint(url, headers, max_retries=5):
                 token_manager.rotate_token()  # Rotate the token when rate limit exceeded
                 headers[
                     'Authorization'] = f'Bearer {token_manager.get_current_token()}'  # Update headers with new token
-                print("Token switched successfully.\n__________________________________________________________________"
-                      "___________________________________________________________________________")
+                print("Token switch successful.\nRetrying Request...\n_________________________________________________"
+                      "____________________________________________________________________________________________")
                 retries += 1
                 continue
             else:
@@ -398,14 +400,14 @@ def make_api_request(url, headers, retries=3, delay=5):
     return None  # Return None if the request fails
 
 
-# This function processes the API response, handling various scenarios like active/suspended/not-found accounts.
+# Fnction to process the API response, handling various scenarios like active/suspended/not-found accounts.
 def process_api_response(response, session, protected_channel):
     if not response:
         logging.error("No response received from the API.")
         return
     logging.info(f"Raw API response: {response}")
-    print("\n_____________________________________________\nProcessing API response... for {protected_channel}\n"
-          "_____________________________________________")
+    print(f"\n_____________________________________________\nProcessing API response... for {protected_channel}\n"
+          f"_____________________________________________")
     suspended_accounts = []
     active_impersonators = []
     not_found_users = []
@@ -459,7 +461,6 @@ def process_api_response(response, session, protected_channel):
                     if account.username != user_data['username']:
                         print(f"{account.username} changed username to {user_data['username']}. Updating Database")
                         account.update_username(user_data['username'])
-
                 account.update_api_response(user_data)
                 if not commit_session(session):
                     print("An error occurred while committing to the database.")
@@ -511,17 +512,16 @@ def process_user_choice(choice, txt_files):
                 seen_usernames.add(username)
 
             if duplicate_usernames:
-                errors.append(
-                    f"Error: The following usernames are duplicated: {', '.join(duplicate_usernames)}"
-                )
+                errors.append(f"Error: The following usernames are duplicated: {', '.join(duplicate_usernames)}")
 
             invalid_usernames = [username for username in usernames if len(username) > 15]
             if invalid_usernames:
                 errors.append(f"Error: The following usernames are too long: {', '.join(invalid_usernames)}")
 
             if errors:
-                print(f"\n____________________________________________________________________________\n"
-                      f"Error(s) found. Correct the Active-{protected_channel}.txt file and try again.")
+                print(f"\n____________________________________________________________________________\nProcessing TXT "
+                      f"content... for {protected_channel}\n__________________________________________________________"
+                      f"__________________\nError(s) found. Correct the Active-{protected_channel}.txt file and retry.")
                 for error in errors:
                     print(error)
                 return
