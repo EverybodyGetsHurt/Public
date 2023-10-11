@@ -497,7 +497,7 @@ def process_user_choice(choice, txt_files):
             with open(selected_file, 'r') as file:
                 urls = [line.strip() for line in file if line.strip()]
 
-            usernames = [get_username_from_url(url) for url in urls if url.strip()]
+            usernames = [get_username_from_url(url).lower() for url in urls if url.strip()]  # Added .lower() here
             if not usernames:
                 logging.error(f"The usernames list is empty for file {selected_file}.")
                 return
