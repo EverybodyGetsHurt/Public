@@ -19,21 +19,16 @@ if not os.path.exists(os.path.dirname(log_filename)):
     os.makedirs(os.path.dirname(log_filename))
 logger = logging.getLogger()  # Creating a custom logger
 logger.setLevel(logging.DEBUG)  # You can set this to the lowest level of logging messages you want to handle
-# Create handler that writes log messages to a file, with a maximum
-# log file size of 2.5MB, keeping 1 backup old log file by {backupCount}.
 handler = RotatingFileHandler(log_filename, maxBytes=int(49.9 * 1024 * 1024), backupCount=1, encoding='utf-8')
-# Create formatter
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 handler.setFormatter(formatter)  # Add formatter to handler
 logger.addHandler(handler)  # Add handler to logger
 logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
-# Directory and database setup
+# Directory, database and SQLAlchemy setup
 base_dir = os.path.dirname(os.path.abspath(__file__))
 DATABASE_PATH = os.path.join(base_dir, "TwitterData", "SQL-ImpersonatorAccounts", "ImpersonatorAccounts.sqlite")
 DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
-
-# SQLAlchemy setup
 Base = declarative_base()
 engine = create_engine(DATABASE_URL)
 Session = scoped_session(sessionmaker(bind=engine))
@@ -47,41 +42,33 @@ tokens_list = [main_token, backup_token]
 
 # Token Manager for handling the token rotation
 class TokenManager:
-
-    # Initialization of TokenManager with a list of tokens
     def __init__(self, tokens):
         self.tokens_list = tokens
         self.current_token_index = 0
-        self.rate_limited_tokens = set()  # Added to keep track of rate-limited tokens
+        self.rate_limited_tokens = set()
 
-    # Get the current token from the list
     def get_current_token(self):
         return self.tokens_list[self.current_token_index]
 
-    # Rotate to the next token in the list
     def rotate_token(self):
         self.current_token_index = (self.current_token_index + 1) % len(self.tokens_list)
         masked_token = mask_token(f'Bearer {self.tokens_list[self.current_token_index]}')
         logging.debug(f"Rotated to token {self.current_token_index}: {masked_token}")
 
-    # Mark a token as rate-limited
     def mark_token_as_rate_limited(self, token):
         self.rate_limited_tokens.add(token)
         masked_token = mask_token(f'Bearer {token}')
         logging.debug(f"Marked token as rate-limited: {masked_token}")
 
-    # Check if all tokens are rate-limited
     def all_tokens_rate_limited(self):
         all_rate_limited = len(self.rate_limited_tokens) == len(self.tokens_list)
         logging.debug(f"All tokens rate-limited: {all_rate_limited}")
         return all_rate_limited
 
-    # Reset rate-limited tokens (optional, you can use this after all tokens get reset)
     def reset_rate_limited_tokens(self):
         self.rate_limited_tokens.clear()
 
 
-# Instantiate the TokenManager with the list of tokens
 token_manager = TokenManager(tokens_list)
 
 
@@ -510,11 +497,16 @@ def process_user_choice(choice, txt_files):
                 seen_usernames.add(username)
 
             if duplicate_usernames:
-                errors.append(f"Error: The following usernames are duplicated: {', '.join(duplicate_usernames)}")
+                duplicate_usernames = list(duplicate_usernames)
+                formatted_usernames = ', '.join(duplicate_usernames[:2]) + ',\n' + ',\n'.join(
+                    [', '.join(duplicate_usernames[i:i + 5]) for i in range(2, len(duplicate_usernames), 5)])
+                errors.append(f"Error: The following usernames are duplicated: {formatted_usernames}")
 
             invalid_usernames = [username for username in usernames if len(username) > 15]
             if invalid_usernames:
-                errors.append(f"Error: The following usernames are too long: {', '.join(invalid_usernames)}")
+                formatted_usernames = ', '.join(invalid_usernames[:2]) + ',\n' + ',\n'.join(
+                    [', '.join(invalid_usernames[i:i + 5]) for i in range(2, len(invalid_usernames), 5)])
+                errors.append(f"Error: The following usernames are too long: {formatted_usernames}")
 
             if errors:
                 print(f"\n____________________________________________________________________________\nProcessing TXT "
