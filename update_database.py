@@ -324,7 +324,7 @@ def process_active_user(account, user_data, protected_channel, session):
 
 
 # Function to connect to the Twitter API endpoint with enhanced error handling and token rotation
-def connect_to_endpoint(url, headers, max_retries=5):
+def connect_to_endpoint(url, headers, max_retries=1):
     retries = 0
     while retries <= max_retries:
         try:
@@ -337,15 +337,12 @@ def connect_to_endpoint(url, headers, max_retries=5):
 
         except requests.HTTPError as e:
             current_token = token_manager.get_current_token()  # Get the current token
-            masked_token = current_token[:5] + '*' * len(
-                current_token[5:-5]) + current_token[-5:]  # Mask the middle part of the token for security
+            masked_token = '*' * 18 + current_token[-5:]  # Mask all except the last 5 characters
 
             if e.response.status_code == 429:  # Handling rate limit errors
-                print(f"\n_____________________________________________________________________________________________"
-                      f"________________________________________________\nGenerating API request... Failed\n___________"
-                      f"_______________________________________________________________________________________________"
-                      f"___________________________________\nRate-Limit hit for Token: {masked_token}\nSwitching Token."
-                      f"..")
+                print(f"\n____________________________________________________________________________\nGenerating API "
+                      f"request... Failed\n____________________________________________________________________________"
+                      f"\nRate-Limit hit for Token: {masked_token}\nSwitching Token...")
                 token_manager.mark_token_as_rate_limited(current_token)  # Mark the current token as rate-limited
 
                 if token_manager.all_tokens_rate_limited():
@@ -355,8 +352,7 @@ def connect_to_endpoint(url, headers, max_retries=5):
                 token_manager.rotate_token()  # Rotate the token when rate limit exceeded
                 headers[
                     'Authorization'] = f'Bearer {token_manager.get_current_token()}'  # Update headers with new token
-                print("Token switch successful.\nRetrying Request...\n_________________________________________________"
-                      "____________________________________________________________________________________________")
+                print("Token switch successful.\nRetrying Request...")
                 retries += 1
                 continue
             else:
@@ -380,7 +376,7 @@ def connect_to_endpoint(url, headers, max_retries=5):
 
 
 # Funtion to handle API requests with a retry mechanism
-def make_api_request(url, headers, retries=3, delay=5):
+def make_api_request(url, headers, retries=3, delay=1):
     for _ in range(retries):
         try:
             response = requests.get(url, headers=headers)
@@ -411,7 +407,6 @@ def process_api_response(response, session, protected_channel):
     suspended_accounts = []
     active_impersonators = []
     not_found_users = []
-
     if 'errors' in response:
         for error in response['errors']:
             detail = error.get('detail', 'No detail provided')
@@ -419,7 +414,6 @@ def process_api_response(response, session, protected_channel):
 
             username = error.get('value')
             account = session.query(TwitterAccount).filter_by(username=username).first()
-
             if 'has been suspended' in detail:
                 process_suspended_user(account, username, error, protected_channel, session)
                 continue
@@ -456,7 +450,6 @@ def process_api_response(response, session, protected_channel):
             account = session.query(TwitterAccount).filter_by(twitter_id=user_data['id']).first()
 
             if account:
-                # print(f"Before update: {account.username}, {account.api_response}")  # Debug print
                 if not account.suspended:
                     if account.username != user_data['username']:
                         print(f"{account.username} changed username to {user_data['username']}. Updating Database")
@@ -464,7 +457,6 @@ def process_api_response(response, session, protected_channel):
                 account.update_api_response(user_data)
                 if not commit_session(session):
                     print("An error occurred while committing to the database.")
-                # print(f"After update: {account.username}, {account.api_response}")  # Debug print
                 active_impersonators.append(f"{protected_channel} is impersonated by: {user_data['username']}.")
             else:
                 create_new_account(user_data, session)
@@ -493,7 +485,6 @@ def process_user_choice(choice, txt_files):
             choice_number = int(inner_choice)
             selected_file = txt_files[choice_number - 1]
             protected_channel = os.path.basename(selected_file).replace('Active-', '').replace('.txt', '')
-
             with open(selected_file, 'r') as file:
                 urls = [line.strip() for line in file if line.strip()]
 
@@ -503,7 +494,6 @@ def process_user_choice(choice, txt_files):
                 return
 
             errors = []
-
             seen_usernames = set()
             duplicate_usernames = set()
             for username in usernames:
@@ -538,9 +528,20 @@ def process_user_choice(choice, txt_files):
                             response_data, session, protected_channel)
                     else:
                         logging.error("Response data is None, skipping...")
-                    all_suspended_accounts.extend(suspended_accounts)
-                    all_active_impersonators.extend(active_impersonators)
-                    all_not_found_users.extend(not_found_users)
+
+                    try:  # Add this try-except block here
+                        all_suspended_accounts.extend(suspended_accounts)
+                        all_active_impersonators.extend(active_impersonators)
+                        all_not_found_users.extend(not_found_users)
+                    except UnboundLocalError:
+                        print(f"\n____________________________________________________________________________\nProcess"
+                              f"ing API request... for {protected_channel}\n___________________________________________"
+                              f"_________________________________\nError: The request failed because both tokens are ra"
+                              f"te-limited.\nError: Could not process information for {protected_channel}.\nInformation"
+                              f" update Failed.\nPlease try again later...")
+                        logging.warning("The request failed because both tokens are rate-limited.")
+                        return  # Or continue, depending on the loop or process flow
+
                     time.sleep(1)
 
                 print(f"\n_____________________________________________\nAll information processed for "
@@ -637,7 +638,6 @@ def main():
 
         txt_files_directory = os.path.join(base_dir, "TwitterData", "TXT-ImpersonatorAccounts", "ImpersonatorURLs")
         txt_files = glob.glob(f"{txt_files_directory}/Active-*.txt")
-
         if not txt_files:
             print("No protected channels found.")
             return
