@@ -61,12 +61,14 @@ class TokenManager:
     # Rotate to the next token in the list
     def rotate_token(self):
         self.current_token_index = (self.current_token_index + 1) % len(self.tokens_list)
-        logging.debug(f"Rotated to token {self.current_token_index}: {self.tokens_list[self.current_token_index]}")
+        masked_token = mask_token(f'Bearer {self.tokens_list[self.current_token_index]}')
+        logging.debug(f"Rotated to token {self.current_token_index}: {masked_token}")
 
     # Mark a token as rate-limited
     def mark_token_as_rate_limited(self, token):
         self.rate_limited_tokens.add(token)
-        logging.debug(f"Marked token as rate-limited: {token}")
+        masked_token = mask_token(f'Bearer {token}')
+        logging.debug(f"Marked token as rate-limited: {masked_token}")
 
     # Check if all tokens are rate-limited
     def all_tokens_rate_limited(self):
@@ -81,6 +83,12 @@ class TokenManager:
 
 # Instantiate the TokenManager with the list of tokens
 token_manager = TokenManager(tokens_list)
+
+
+def mask_token(authorization_header):
+    token = authorization_header.split(' ')[1]  # Extract the actual token from the header
+    masked_token = '*' * 18 + token[-5:]  # Mask all characters of the token except for the last 5
+    return masked_token
 
 
 # Custom JSON encoder to handle non-serializable objects
@@ -326,40 +334,41 @@ def process_active_user(account, user_data, protected_channel, session):
 # Function to connect to the Twitter API endpoint with enhanced error handling and token rotation
 def connect_to_endpoint(url, headers, max_retries=1):
     retries = 0
+    masked_token = None  # Initialize masked_token before the try block
     while retries <= max_retries:
         try:
-            logging.info(f"Connecting to URL: {url} with headers: {headers}")
+            masked_token = mask_token(headers['Authorization'])
+            logging.info(f"Connecting to URL: {url} with token: {masked_token}")
             response = requests.get(url, headers=headers)
-            response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+            response.raise_for_status()
 
             if response.status_code != 429:
                 return response.json()
 
         except requests.HTTPError as e:
-            current_token = token_manager.get_current_token()  # Get the current token
-            masked_token = '*' * 18 + current_token[-5:]  # Mask all except the last 5 characters
+            current_token = token_manager.get_current_token()
 
-            if e.response.status_code == 429:  # Handling rate limit errors
+            if e.response.status_code == 429:
                 print(f"\n____________________________________________________________________________\nGenerating API "
                       f"request... Failed\n____________________________________________________________________________"
                       f"\nRate-Limit hit for Token: {masked_token}\nSwitching Token...")
-                token_manager.mark_token_as_rate_limited(current_token)  # Mark the current token as rate-limited
+                token_manager.mark_token_as_rate_limited(current_token)
 
                 if token_manager.all_tokens_rate_limited():
                     logging.error("All tokens are rate-limited. Halting operation.")
                     raise Exception("All tokens are rate-limited. Halting operation.")
 
-                token_manager.rotate_token()  # Rotate the token when rate limit exceeded
-                headers[
-                    'Authorization'] = f'Bearer {token_manager.get_current_token()}'  # Update headers with new token
+                token_manager.rotate_token()
+                headers['Authorization'] = f'Bearer {token_manager.get_current_token()}'
+                masked_token = mask_token(headers['Authorization'])  # Update the masked token
                 print("Token switch successful.\nRetrying Request...")
                 retries += 1
                 continue
             else:
                 error_message = f"HTTP error occurred for URL {url} with token {masked_token}: {e}"
                 logging.error(f"HTTP error occurred: {e}", exc_info=True)
-                print(error_message)  # Printing the error message for immediate feedback
-                raise  # Re-raise the exception if it is not a rate limit error
+                print(error_message)
+                raise
 
         except requests.ConnectionError as e:
             logging.error(f"Connection error occurred: {e}", exc_info=True)
@@ -367,9 +376,8 @@ def connect_to_endpoint(url, headers, max_retries=1):
 
         except Exception as e:
             logging.error(f"An unexpected error occurred: {e}", exc_info=True)
-            raise  # Re-raise the exception for any other errors
+            raise
 
-        # If retries exceeded, raise an exception
         if retries > max_retries:
             logging.error("Max retries reached for the API request.")
             raise Exception("Max retries reached for the API request.")
