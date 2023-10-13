@@ -163,3 +163,4 @@ def oauth20pkcecallback():
 
     flash('Authorization successful', 'success')
     return render_template("oauth20pkcecallback.html", user_data=user_data, user=current_user, email=email)
+
