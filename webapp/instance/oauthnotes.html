@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% block title %}Notes{% endblock %}
+{% block body %}
+    <nav class="nav-container">
+        <div class="note-container">
+            <div class="note-content">
+                <h1>Notes</h1>
+                <div class="list-container">
+                    <ul class="list-group list-group-flush" id="notes">
+                        {% for note in user.notes %}
+                            <li class="list-group-item">
+                                {{ note.data }}
+                                <button type="button" class="close" data-note-id="{{ note.id }}" nonce="{{ csp_nonce }}">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="note-form">
+                        <form method="POST">
+                            <label for="note"></label><textarea name="note" id="note" class="form-control"></textarea>
+                            <br />
+                            <button type="submit" class="btn btn-primary" nonce="{{ csp_nonce }}">Add Note</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <script
+        nonce="{{ csp_nonce() }}"
+        type="application/javascript"
+        crossorigin="anonymous"
+        integrity="sha512-w3/oIfEMl6l6HbFaowGbvt1Mq6wbaiG1Wln0Q8igQt3T0KJNgEtJO6cokV+jUNhYcszTJqnppGXItKx8FOKxHw=="
+        src="{{ url_for('static', filename='notes.js') }}"
+    ></script>
+
+{% endblock body %}

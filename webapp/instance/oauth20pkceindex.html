@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block title %}OAuth 2.0 PKCE{% endblock title %}
+{% block body %}
+    <nav class="nav-container">
+        <div class="site-header post-container">
+            <div class="report-heading">
+                <h1>
+                    OAuth 2.0 Authorization Flow (Proof Key for Code Exchange)
+                </h1>
+                <h6 class="heading-text">
+                <i>
+                <b>
+                  <small>For the technical details see
+                  <a class="heading-text link-color" href="https://www.rfc-editor.org/rfc/rfc6749.txt">
+                      <strong>RFC6749</strong></a>,
+                  <a class="heading-text link-color" href="https://www.rfc-editor.org/rfc/rfc7636.txt">
+                      <strong>RFC7636</strong></a>
+                      and Twitter's
+                  <a class="heading-text link-color" href="https://developer.twitter.com/en/docs/authentication/oauth-2-0/user-access-token">
+                      <strong>Auth2(PKCE)</strong></a>
+                      documentation.
+                  </small>
+                </b>
+                </i>
+                </h6>
+                <h6>
+                    <i>To be able to use the app with Twitter's API V2, you will need to authorize
+                        <strong>Benemortasia.com</strong> to be able to make requests on your behalf.
+                    </i>
+                </h6>
+            </div>
+            <div class="report-form-container">
+                <hr>
+                <h5>Continue the process by completing the following steps:</h5>
+                <ol>
+                    <li>We will direct you to Twitter.com where you can authorize our application for V2.</li>
+                    <li>After authorizing the application via the Twitter website, you will automatically be redirected back here.</li>
+                    <li>Finally, you have to confirm that you want to add your account to my system(database) to mute and block on your behalf.</li>
+                </ol>
+                <div class="d-grid gap-3 col-4 mx-auto auth-button">
+					<a href="{{ authorization_url }}" class="btn btn-primary report-button">
+						Generate access token
+					</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+{% endblock body %}

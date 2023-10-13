@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+{% block title %}Report Impersonators{% endblock title %}
+{% block body %}
+<div class="oauth10a-report-container">
+    <div class="oauth10a-report-header">
+        <strong>Report All Known / Active Impersonators</strong>
+    </div>
+    <div class="oauth10a-report-subheader">
+        <i>per specific Twitter channel.</i>
+    </div>
+    <hr>
+    <form id="impersonated-channel-form" method="POST" action="{{ url_for('oauth10a.oauth10areportimpersonators') }}" class="oauth10a-report-form">
+        <label for="impersonated_channel"><strong>Select channel being impersonated:</strong></label>
+        <br>
+        <select name="impersonated_channel" id="impersonated_channel" aria-labelledby="impersonated_channel_label">
+			<option value="100trillionUSD">100trillionUSD</option>
+			<option value="fossGregFoss">fossGregFoss</option>
+			<option value="hodlonaut">hodlonaut</option>
+			<option value="intocryptoverse1">intocryptoverse1(0-100)</option>
+			<option value="intocryptoverse2">intocryptoverse2(101+)</option>
+			<option value="invest_answers">invest_answers</option>
+			<option value="iWantCoinNews">iWantCoinNews</option>
+			<option value="JasonPLowery">JasonPLowery</option>
+			<option value="missteencrypto">missteencrypto</option>
+			<option value="jasonpizzino">jasonpizzino</option>
+			<option value="Sheldon_Sniper">Sheldon_Sniper</option>
+			<option value="SimonDixonTwitt">SimonDixonTwitt</option>
+			<option value="TomCrownCrypto">TomCrownCrypto</option>
+			<option value="scottmelker">scottmelker</option>
+			<option value="StandfieldKen">StandfieldKen</option>
+			<option value="PizzinoMichael">PizzinoMichael</option>
+			<option value="NewsAsset">NewsAsset</option>
+			<option value="TiffanyFong_">TiffanyFong_</option>
+			<option value="jayson_casper">jayson_casper</option>
+			<option value="thetrocro">thetrocro</option>
+			<option value="StandfieldKen">StandfieldKen</option>
+			<option value="planb_bitcoin">planb_bitcoin</option>
+			<option value="ctoLarsson">ctoLarsson</option>
+        </select>
+        <button type="submit" class="btn btn-primary" title="Mute, Block & Report Button">Mute, Block & Report</button>
+    </form>
+    <div class="error-section"></div>
+    <div class="oauth10a-report-response-frame">
+        <iframe id="response-frame" srcdoc="{{ response }}" title="Response Frame"></iframe>
+    </div>
+</div>
+<script nonce="{{ csp_nonce() }}" type="application/javascript" crossorigin="anonymous" integrity="sha512-iB79GgXkp6A3ZxU6BP16zwAjTKG0wMP2zrMe30+oN+YXqXkJwHjf8uf+3mkXtArP/trKTyWW1Q8J6TgC7qniDg==" src="{{ url_for('static', filename='oauth10a_report.js') }}"></script>
+{% endblock body %}
+

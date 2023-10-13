@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+{% block title %}Sign Up{% endblock title %}
+{% block body %}
+    <nav>
+        <div class="auth-container border-container">
+            <h1 class="center-text">Sign Up</h1>
+            <hr>
+            <br>
+            <div class="container">
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input
+                                type="email"
+                                class="form-control"
+                                id="email"
+                                name="email"
+                                placeholder="Enter email address"
+                                autocomplete="username"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="accountName">Account Name</label>
+                        <input
+                                type="text"
+                                class="form-control"
+                                id="accountName"
+                                name="accountName"
+                                placeholder="Enter account name"
+                                autocomplete="username"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="password1">Password</label>
+                        <input
+                                type="password"
+                                class="form-control"
+                                id="password1"
+                                name="password1"
+                                placeholder="Enter password"
+                                autocomplete="new-password"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="password2">Password (Confirm)</label>
+                        <input
+                                type="password"
+                                class="form-control"
+                                id="password2"
+                                name="password2"
+                                placeholder="Confirm password"
+                                autocomplete="new-password"
+                        />
+                    </div>
+                    <br>
+                    <button
+                            type="submit"
+                            class="btn btn-primary">
+                        Submit
+                    </button>
+                    <br>
+                    <br>
+                </form>
+            </div>
+        </div>
+    </nav>
+{% endblock body %}

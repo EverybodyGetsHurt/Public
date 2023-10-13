@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+{% block title %}OAuth 1.0a{% endblock title %}
+{% block body %}
+    <nav class="nav-container">
+        <div class="site-header post-container">
+            <div class="report-heading">
+                <h1>
+                    OAuth 1.0a Authorization Flow with 3-Legged Authentication
+                </h1>
+                <h6 class="heading-text">
+                <i>
+                <b>
+                  <small>Better known as "sign-in with Twitter". For the technical details see 
+                  <a class="heading-text link-color" href="https://www.rfc-editor.org/rfc/rfc5849.txt">
+                      <strong>RFC5849</strong></a>, 
+                  the 
+                  <a class="heading-text link-color" href="https://oauth.net/core/1.0a/">
+                      <strong>OAuth1.0a Core</strong></a> documentation,
+                  and Twitter's
+                  <a class="heading-text link-color" href="https://developer.twitter.com/en/docs/authentication/oauth-1-0a/obtaining-user-access-tokens">
+                      <strong>OAuth1.0a</strong></a> documentation.
+                  </small>
+                </b>
+                </i>
+                </h6>
+                <h6>
+                    <i>
+                        To be able to use the app with Twitter's API V1, you will need to authorize 
+                        <strong>Benemortasia.com</strong> to be able to make requests on your behalf.
+                    </i>
+                </h6>
+            </div>
+            <div class="report-form-container">
+                <hr>
+                <h5>We've generated this OAuth1 request token (<code>{{ oauth_token }}</code>) needed for the authorization process.</h5>
+                <p>
+                    <i>
+                        <u>
+                            After completing the process, you can always revoke our token from your
+                            <a href="https://twitter.com/settings/connected_apps">
+                                account settings
+                            </a>
+                            on Twitter!
+                        </u>
+                    </i>
+                </p>
+                <h5>Continue the process by completing the following steps:</h5>
+                <ol>
+                    <li>We will direct you to Twitter.com using this request token, for you to authorize our application.</li>
+                    <li>After authorizing the application via the Twitter website, you will automatically be redirected back here.</li>
+                    <li>Finally you have to confirm that you want to add your account to our system(database) to make future requests on your behalf.</li>
+                </ol>
+                <div class="d-grid gap-3 col-4 mx-auto auth-button">
+                    <a href="{{ authorize_url }}?oauth_token={{ oauth_token }}"
+                       class="btn btn-primary">
+                        Authorize Benemortasia.com
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+{% endblock body %}
