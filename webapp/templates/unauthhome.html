@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block title %}Home{% endblock title %}
+{% block body %}
+    <nav class="nav-container">
+        <div nonce="{{ csp_nonce() }}" class="site-header about-style">
+            <h1>Home</h1>
+        </div>
+    </nav>
+{% endblock body %}
