@@ -89,28 +89,19 @@
 
   <body nonce="{{ csp_nonce() }}" class="custom-body">
     <header nonce="{{ csp_nonce() }}" class="header-container">
-      <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+      <nav class="navbar navbar-expand-md navbar-dark navbar-background fixed-top">
         <div class="container">
           <img nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='banner-icon.png') }}" width="50" height="50" class="d-inline-block align-top" alt="">
-          <a nonce="{{ csp_nonce() }}" class="navbar-brand mr-4" href="/">Benemortasia.com
-            <small>
-              <i>
-                <span nonce="{{ csp_nonce() }}" class="beta-text">(beta)</span>
-              </i>
-            </small>
-          </a>
-          <button
-            nonce="{{ csp_nonce() }}"
-            class="navbar-toggler"
-            type="button"
-            data-toggle="collapse"
-            data-target="#navbarToggle"
-            aria-controls="navbarToggle"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          />
-            <span class="navbar-toggler-icon"></span>
-          </button>
+            <a nonce="{{ csp_nonce() }}" class="navbar-brand mr-4" href="/">Benemortasia.com
+              <small>
+                <i>
+                  <span nonce="{{ csp_nonce() }}" class="beta-text">(beta)</span>
+                </i>
+              </small>
+            </a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
           <div class="collapse navbar-collapse" id="navbarToggle">
             {% if user.is_authenticated %}
             <div class="navbar-nav mr-auto">
