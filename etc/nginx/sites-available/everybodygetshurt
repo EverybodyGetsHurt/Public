@@ -13,32 +13,32 @@
 #####################################################################################################################
                 # HTTP ECDSA+RSA server block for main server Benemoratsia:
 server {
-    # modsecurity on;
-    # modsecurity_rules_file /etc/nginx/modsec/main.conf;
+    # modsecurity                                 on;
+    # modsecurity_rules_file                      /etc/nginx/modsec/main.conf;
 
-    listen 80 reuseport;
-    listen [::]:80 reuseport ipv6only=on;
+    listen                                      80 reuseport;
+    listen                                      [::]:80 reuseport ipv6only=on;
 
-    server_name lifelessandcalm.com www.lifelessandcalm.com;
+    server_name                                 lifelessandcalm.com www.lifelessandcalm.com;
 
-    # Remove server information header details, only showing "nginx"
-    # server_tokens off;
-
+    # Remove server information header details,   only showing "nginx"
+    # server_tokens                               off;
     # Completely remove server information
-    # more_clear_headers Server;
-    # add_header Server "Gorefest";
-    # add_header Set-Cookie "__Host=ChewbaccaTheCookie; Secure; Path=/; HttpOnly; SameSite=Strict";
+    # more_clear_headers                          Server;
+    # add_header                                  Server "Gorefest";
+	
+    # add_header                                  Set-Cookie "__Host=ChewbaccaTheCookie; Secure; Path=/; HttpOnly; SameSite=Strict";
 
                 ##
                 # QUIC-HTTP/3 SETTINGS: Informs the client that HTTP/3 is available and advertises that QUIC is available on the configured port
                 ##
-    # add_header alt-svc 'h3=":$server_port"; ma=2592000, h3-46=":$server_port"; ma=2592000, h3-43":$server_port"; ma=2592000, h3-39=":$server_port"; ma=2592000, h3-34=":$server_port"; ma=2592000, h3-33=":$server_port"; ma=2592000, h3-32=":$server_port"; ma=2592000, h3-31=":$server_port"; ma=2592000, h3-30=":$server_port"; ma=2592000, h3-29=":$server_port"; ma=2592000, h3-28=":$server_port"; ma=2592000, h3-27=":$server_port"; ma=2592000, h3-26=":$server_port"; ma=2592000, h3-25=":$server_port"; ma=2592000, h3-24=":$server_port"; ma=2592000, h3-23=":$server_port"; ma=2592000, h3-22=":$server_port"; ma=2592000, h3-21=":$server_port"; ma=2592000, h3-20=":$server_port"; ma=2592000, h3-18=":$server_port"; ma=2592000, h3-Q039=":$server_port"; ma=2592000, h3-Q043=":$server_port"; ma=2592000, h3-Q046=":$server_port"; ma=2592000, h3-Q048=":$server_port"; ma=2592000, h3-Q049=":$server_port"; ma=2592000, h3-Q050=":$server_port"; ma=2592000, h3-T050=":$server_port"; ma=2592000, h3-T051=":$server_port"; ma=2592000, quic=":$server_port"; ma=2592000; v="43,46"';
+    # add_header                                  alt-svc 'h3=":$server_port"; ma=2592000, h3-46=":$server_port"; ma=2592000, h3-43":$server_port"; ma=2592000, h3-39=":$server_port"; ma=2592000, h3-34=":$server_port"; ma=2592000, h3-33=":$server_port"; ma=2592000, h3-32=":$server_port"; ma=2592000, h3-31=":$server_port"; ma=2592000, h3-30=":$server_port"; ma=2592000, h3-29=":$server_port"; ma=2592000, h3-28=":$server_port"; ma=2592000, h3-27=":$server_port"; ma=2592000, h3-26=":$server_port"; ma=2592000, h3-25=":$server_port"; ma=2592000, h3-24=":$server_port"; ma=2592000, h3-23=":$server_port"; ma=2592000, h3-22=":$server_port"; ma=2592000, h3-21=":$server_port"; ma=2592000, h3-20=":$server_port"; ma=2592000, h3-18=":$server_port"; ma=2592000, h3-Q039=":$server_port"; ma=2592000, h3-Q043=":$server_port"; ma=2592000, h3-Q046=":$server_port"; ma=2592000, h3-Q048=":$server_port"; ma=2592000, h3-Q049=":$server_port"; ma=2592000, h3-Q050=":$server_port"; ma=2592000, h3-T050=":$server_port"; ma=2592000, h3-T051=":$server_port"; ma=2592000, quic=":$server_port"; ma=2592000; v="43,46"';
 
                 # signal whether we are using UIC+HTTP/3
-    add_header X-protocol $server_protocol always;
+    add_header                                  X-protocol $server_protocol always;
 
     # Redirect all HTTP requests to HTTPS
-    return 301 https://$host$request_uri;
+    return                                      301 https://$host$request_uri;
 }
 
 
@@ -46,36 +46,36 @@ server {
 
                 # HTTPS ECDSA+RSA server block for Benemortasia main server:
 server {
-    # modsecurity on;
-    # modsecurity_rules_file /etc/nginx/modsec/main.conf;
+    # modsecurity                                 on;
+    # modsecurity_rules_file                      /etc/nginx/modsec/main.conf;
 
-    ###############################################
-    # for better compatibility we recommend       #
-    # using the same port number for QUIC and TCP #
-    listen 443 quic reuseport;                    # QUIC   UDP
-    listen 443 http2 ssl;                         # HTTP/2 TCP
-    listen [::]:443 quic reuseport ipv6only=on;   # QUIC   UDP
-    listen [::]:443 http2 ssl ipv6only=on;        # HTTP/2 TCP
+    ###############################################################################################
+    #     For better compatibility its recommended using the same port number for QUIC and TCP    #
 
-    server_name lifelessandcalm.com www.lifelessandcalm.com;
+    listen                                      443 quic reuseport;                    # QUIC   UDP
+    listen                                      443 http2 ssl;                         # HTTP/2 TCP
+    listen                                      [::]:443 quic reuseport ipv6only=on;   # QUIC   UDP
+    listen                                      [::]:443 http2 ssl ipv6only=on;        # HTTP/2 TCP
+
+    server_name                                 lifelessandcalm.com www.lifelessandcalm.com;
 
                 ##
                 # QUIC-HTTP/3 Settings
                 ##
 
                 # Advertise that QUIC is available on the configured port - Informs the client that HTTP/3 is available.
-    add_header alt-svc 'h3=":$server_port"; ma=2592000, h3-46=":$server_port"; ma=2592000, h3-43":$server_port"; ma=2592000, h3-39=":$server_port"; ma=2592000, h3-34=":$server_port"; ma=2592000, h3-33=":$server_port"; ma=2592000, h3-32=":$server_port"; ma=2592000, h3-31=":$server_port"; ma=2592000, h3-30=":$server_port"; ma=2592000, h3-29=":$server_port"; ma=2592000, h3-28=":$server_port"; ma=2592000, h3-27=":$server_port"; ma=2592000, h3-26=":$server_port"; ma=2592000, h3-25=":$server_port"; ma=2592000, h3-24=":$server_port"; ma=2592000, h3-23=":$server_port"; ma=2592000, h3-22=":$server_port"; ma=2592000, h3-21=":$server_port"; ma=2592000, h3-20=":$server_port"; ma=2592000, h3-18=":$server_port"; ma=2592000, h3-Q039=":$server_port"; ma=2592000, h3-Q043=":$server_port"; ma=2592000, h3-Q046=":$server_port"; ma=2592000, h3-Q048=":$server_port"; ma=2592000, h3-Q049=":$server_port"; ma=2592000, h3-Q050=":$server_port"; ma=2592000, h3-T050=":$server_port"; ma=2592000, h3-T051=":$server_port"; ma=2592000, quic=":$server_port"; ma=2592000; v="43,46"';
+    add_header                                  alt-svc 'h3=":$server_port"; ma=2592000, h3-46=":$server_port"; ma=2592000, h3-43":$server_port"; ma=2592000, h3-39=":$server_port"; ma=2592000, h3-34=":$server_port"; ma=2592000, h3-33=":$server_port"; ma=2592000, h3-32=":$server_port"; ma=2592000, h3-31=":$server_port"; ma=2592000, h3-30=":$server_port"; ma=2592000, h3-29=":$server_port"; ma=2592000, h3-28=":$server_port"; ma=2592000, h3-27=":$server_port"; ma=2592000, h3-26=":$server_port"; ma=2592000, h3-25=":$server_port"; ma=2592000, h3-24=":$server_port"; ma=2592000, h3-23=":$server_port"; ma=2592000, h3-22=":$server_port"; ma=2592000, h3-21=":$server_port"; ma=2592000, h3-20=":$server_port"; ma=2592000, h3-18=":$server_port"; ma=2592000, h3-Q039=":$server_port"; ma=2592000, h3-Q043=":$server_port"; ma=2592000, h3-Q046=":$server_port"; ma=2592000, h3-Q048=":$server_port"; ma=2592000, h3-Q049=":$server_port"; ma=2592000, h3-Q050=":$server_port"; ma=2592000, h3-T050=":$server_port"; ma=2592000, h3-T051=":$server_port"; ma=2592000, quic=":$server_port"; ma=2592000; v="43,46"';
 
                 # signal whether we are using QUIC+HTTP/3
-    add_header X-protocol $server_protocol always;
+    add_header                                  X-protocol $server_protocol always;
 
                 # Remove server information header details, only showing "nginx"
     server_tokens off;
 
                 # Completely remove server information
     #more_clear_headers                         Server;
-    add_header Server 							"Gorefest";
-    add_header Cache-Control                    "max-age=86400" always;
+    add_header                                  Server "Gorefest";
+    add_header                                  Cache-Control "max-age=86400" always;
 
 
                 ##
@@ -96,7 +96,7 @@ server {
                 # Created using command: openssl rand 80 > ticket.key
                 # This key can only be used once and should be auto regenerated for each request
                 # TODO: Implementation (note, more keys defined, will rotate them)
-    ssl_session_ticket_key /home/everybodygetshurt/.ssl/ticket.key;
+    ssl_session_ticket_key                      /home/everybodygetshurt/.ssl/ticket.key;
 
                 # proxy_set_header Early-Data $ssl_early_data;
                 #  if ($host != "benemortasia.com, benemortasia.us, benemortasia.eu, benemortasia.nl") {
@@ -106,26 +106,26 @@ server {
                 ##
                 # SSL-STAPLING OCSP/MUST-STAPLE
                 ##
-    ssl_trusted_certificate /home/everybodygetshurt/.ssl/RSA/RSA8192-ROOTCA.pem; 
+    ssl_trusted_certificate                     /home/everybodygetshurt/.ssl/RSA/RSA8192-ROOTCA.pem; 
 
                 ##
                 # LET'S ENCRYPT 90 DAY ECC 384 CERTIFICATE
                 ##
-    ssl_certificate /home/everybodygetshurt/.ssl/ECC/ECC384-ALL.pem;
-    ssl_certificate_key /home/everybodygetshurt/.ssl/ECC/ECC384-PRIVATEKEY.pem;
+    ssl_certificate                             /home/everybodygetshurt/.ssl/ECC/ECC384-ALL.pem;
+    ssl_certificate_key                         /home/everybodygetshurt/.ssl/ECC/ECC384-PRIVATEKEY.pem;
 
                 ##
                 # COMODO 1 YEAR RSA 4096 CERTIFICATE
                 ##
-    ssl_certificate /home/everybodygetshurt/.ssl/RSA/comodocert.pem;
-    ssl_certificate_key /home/everybodygetshurt/.ssl/RSA/comodokey.pem;
+    ssl_certificate                             /home/everybodygetshurt/.ssl/RSA/comodocert.pem;
+    ssl_certificate_key                         /home/everybodygetshurt/.ssl/RSA/comodokey.pem;
 
 
                 # CLOUDFLARE TLS/SLL
-                # ssl_certificate /home/everybodygetshurt/.ssl/CF/origin-server-crt.pem;
-                # ssl_certificate_key /home/everybodygetshurt/.ssl/CF/keyfile.pem;
-                # ssl_client_certificate ssl_certificate_key /home/everybodygetshurt/.ssl/CF/origin-client-crt.pem;
-                # ssl_verify_client on;
+                # ssl_certificate                 /home/everybodygetshurt/.ssl/CF/origin-server-crt.pem;
+                # ssl_certificate_key             /home/everybodygetshurt/.ssl/CF/keyfile.pem;
+                # ssl_client_certificate          ssl_certificate_key /home/everybodygetshurt/.ssl/CF/origin-client-crt.pem;
+                # ssl_verify_client               on;
 
 
                 ##
@@ -133,14 +133,14 @@ server {
                 ##                 AND
                 # CROSS-ORIGIN-OPENER-POLICY-REPORT-ONLY
                 ##
-    add_header Cross-Origin-Embedder-Policy-Report-Only "require-corp; report-to embedder-violations;";                
-    add_header Cross-Origin-Opener-Policy-Report-Only "same-origin; report-to opener-violations;";
+    add_header                                  Cross-Origin-Embedder-Policy-Report-Only "require-corp; report-to embedder-violations;";                
+    add_header                                  Cross-Origin-Opener-Policy-Report-Only "same-origin; report-to opener-violations;";
                 ##
-                # add_header Cross-Origin-Embedder-Policy-Report-Only: (unsafe-none|require-corp); report-to="default"
-                # add_header Cross-Origin-Embedder-Policy: (unsafe-none|require-corp); report-to="default"
-                # add_header Cross-Origin-Resource-Policy: (same-site|same-origin|cross-origin)
-                # add_header Cross-Origin-Opener-Policy-Report-Only: (same-origin|same-origin-allow-popups|unsafe-none); report-to="default"
-                # add_header Cross-Origin-Opener-Policy: (same-origin|same-origin-allow-popups|unsafe-none); report-to="default"
+                # add_header                      Cross-Origin-Embedder-Policy-Report-Only: (unsafe-none|require-corp); report-to="default"
+                # add_header                      Cross-Origin-Embedder-Policy: (unsafe-none|require-corp); report-to="default"
+                # add_header                      Cross-Origin-Resource-Policy: (same-site|same-origin|cross-origin)
+                # add_header                      Cross-Origin-Opener-Policy-Report-Only: (same-origin|same-origin-allow-popups|unsafe-none); report-to="default"
+                # add_header                      Cross-Origin-Opener-Policy: (same-origin|same-origin-allow-popups|unsafe-none); report-to="default"
                 ##
 
 
@@ -150,7 +150,7 @@ server {
                 # Logic dictates we put all the deny options here because then it will be denied with backwards compatability.
                 # 
                 ##
-    add_header Feature-Policy "accelerometer 'none'; autoplay 'none'; camera 'none'; display-capture 'none'; encrypted-media 'none'; geolocation 'none'; gyroscope 'none'; magnetometer 'none'; microphone 'none'; midi 'none'; payment 'none'; publickey-credentials-get 'none'; screen-wake-lock 'none'; sync-xhr 'none'; usb 'none'; web-share 'none';";
+    add_header                                  Feature-Policy "accelerometer 'none'; autoplay 'none'; camera 'none'; display-capture 'none'; encrypted-media 'none'; geolocation 'none'; gyroscope 'none'; magnetometer 'none'; microphone 'none'; midi 'none'; payment 'none'; publickey-credentials-get 'none'; screen-wake-lock 'none'; sync-xhr 'none'; usb 'none'; web-share 'none';";
 
                 ##
                 # PERMISSIONS-POLICY
@@ -158,14 +158,14 @@ server {
                 # Because this is the replacement that overrules Feature-Policy settings that would be duplicate, we set all the things we do not disable in this permissions policy
                 #
                 ##
-    add_header Permissions-Policy "fullscreen=(), picture-in-picture=()";
+    add_header                                  Permissions-Policy "fullscreen=(), picture-in-picture=()";
 
 
                 ##
                 # PERMISSIONS-POLICY
                 ##
 
-    # add_header Permissions-Policy "accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=()";
+    # add_header                                  Permissions-Policy "accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=()";
 
 
 
