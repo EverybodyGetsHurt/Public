@@ -9,7 +9,7 @@
         rel="stylesheet"
         type="text/css"
         crossorigin="anonymous"
-        integrity="sha512-q5hbfJFmXq8pO5ZzKqPEUEssbc2vFBVpzn8/d4Cg40zm5m1fU3j50a0qdZDJZT4kbwWjHiOIPvYoXDrcih8Gkw=="
+        integrity="sha512-b2QcS5SsA8tZodcDtGRELiGv5SaKSk1vDHDaQRda0htPYWZ6046lr3kJ5bAAQdpV2mmA/4v0wQF9MyU6/pDIAg=="
         href="{{ url_for('static', filename='bootstrap.min.css') }}"
     />
     <link
@@ -23,7 +23,7 @@
         rel="stylesheet"
         type="text/css"
         crossorigin="anonymous"
-        integrity="sha512-APq977Zjuy1Y/gTVDHDsa4/aZwJMlcarnWUcpKGI4k1MRE/Z2lOkVyDpkATovXlKrqpeivjkBZXfDx2Kpu4nWQ=="
+        integrity="sha512-5LBR29UWgD+MEQItFbnh+h3zPfOVzXrGcG1Sz4rIy0zYC3l/GfAUKmBbIQcQVOHXXrI9afVFcYNm2ZQPRWpX2A=="
         href="{{ url_for('static', filename='main.css') }}"
     />
     <link
@@ -107,10 +107,7 @@
             <div class="navbar-nav mr-auto">
               <a class="nav-item nav-link" id="home" href="/unauthhome">Home</a>
               <a class="nav-item nav-link" id="about" href="/unauthabout">About</a>
-              <a class="nav-item nav-link" id="notes" href="/authnoteshome">Notes</a>
-              <a class="nav-item nav-link" id="posts" href="/authpostshome">Posts</a>
               <a class="nav-item nav-link" id="Report" href="/oauth10areport">Report</a>
-              <a class="nav-item nav-link" id="json" href="/oauth10ajson">json</a>
             </div>
             <div class="navbar-nav">
               <a class="nav-item nav-link" id="oauth10aIndex" href="/oauth10aindex">OAuth1.0a</a>
@@ -121,6 +118,7 @@
             <div class="navbar-nav mr-auto">
               <a class="nav-item nav-link" id="home" href="/">Home</a>
               <a class="nav-item nav-link" id="about" href="/unauthabout">About</a>
+              <a class="nav-item nav-link" id="privacypolicy" href="/privacypolicy">Privacy Policy</a>
             </div>
             <div class="navbar-nav">
               <a class="nav-item nav-link" id="signUp" href="/authsignup">Register</a>
@@ -142,16 +140,10 @@
                 {% if category == 'error' %}
                   <div class="alert alert-danger alter-dismissible fade show" role="alert">
                     {{ message }}
-                      <button nonce="{{ csp_nonce() }}" type="button" class="close" data-dismiss="alert">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
                   </div>
                 {% else %}
                   <div class="alert alert-success alter-dismissible fade show" role="alert">
                     {{ message }}
-                      <button nonce="{{ csp_nonce() }}" type="button" class="close" data-dismiss="alert">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
                   </div>
                 {% endif %}
               {% endfor %}
@@ -181,68 +173,53 @@
       <hr>
     </main>
 
-
     <script
         nonce="{{ csp_nonce() }}"
         type="application/javascript"
         crossorigin="anonymous"
-        integrity="sha512-d5zWJIoaL4Llb6XsQ7IQQge62c3WMDiieKxThiyxdrmXR2VnNxi5KvfRamguYROhBMZSC6Ao+0TRk+A+7x2l5w=="
-        src="{{ url_for('static', filename='index.js') }}"
-    ></script>
-    <script
-        nonce="{{ csp_nonce() }}"
-        type="application/javascript"
-        crossorigin="anonymous"
-        integrity="sha512-qzyY0Mc7kaj4NIY43XdcrTPnCLN00fZJNNWCkaEhFbXHnAbOvNKCcb+2csKhC3xtnuZBY0tqMUtJubiO9HBMcg=="
+        integrity="sha512-l4ckb4OSghMf1MAUuppH/vBmisbElTCxTxscMC1bcaqn2PF3vvTETXdC014iDCZqfkwuF3TTWKZrG64pxkf0hg=="
         src="{{ url_for('static', filename='trustedtypes.js') }}"
     ></script>
     <script
         nonce="{{ csp_nonce() }}"
         type="application/javascript"
         crossorigin="anonymous"
-        integrity="sha512-UjVPzFTQuvVrrAFfLWII9KRagSpQ7O5xlkxayIWtoIlo18oKySSRt/VbCNfqqjhGVBhcGDp05xLS1TcpOPoAeg=="
-        src="{{ url_for('static', filename='jsonpopup.js') }}"
+        integrity="sha512-xQM0H6OnF2/RC9jNelcXyPr5cfh/oMFY8tlPzUhK4+1QMfSUFNroM/uAa3NltWmcIdLmVTdvaa2wUrIvb2mCpw=="
+        src="{{ url_for('static', filename='jquery-3.7.1.min.js') }}"
     ></script>
     <script
         nonce="{{ csp_nonce() }}"
         type="application/javascript"
         crossorigin="anonymous"
-        integrity="sha512-HxCTB7o8M42g5N4b2SwHOZ83idX6h51519ClGUmRnz07yEgmLWoYXnpIa6OE/H1P82bYyaqGce/xdL71Ss74xQ=="
-        src="{{ url_for('static', filename='deleteknop.js') }}"
+        integrity="sha512-jr7PV3ljGS5eZZynhr9MmFLu1dQrx3/LHTSy9qQpHyVTtPmuQmRAL3tBl59UiikEzDDgcqSXJq+EyqCujTfeRg=="
+        src="{{ url_for('static', filename='index.js') }}"
     ></script>
     <script
         nonce="{{ csp_nonce() }}"
         type="application/javascript"
         crossorigin="anonymous"
-        integrity="sha512-w3/oIfEMl6l6HbFaowGbvt1Mq6wbaiG1Wln0Q8igQt3T0KJNgEtJO6cokV+jUNhYcszTJqnppGXItKx8FOKxHw=="
-        src="{{ url_for('static', filename='notes.js') }}"
-    ></script>
-    <script
-        nonce="{{ csp_nonce() }}"
-        type="application/javascript"
-        crossorigin="anonymous"
-        integrity="sha512-em3myfGbK3HGp06MmyTD3Tw9mIebAg5+g7A6wXUwQbVHKS5JUG7nPeLTX0iYdolty0BBsTU/AZpaXyRll6lezQ=="
+        integrity="sha512-brItnb27PGxPsxIAH5BGOLwD5sAJo2J38TUsiKIXhhM5VPOq+3SM4m9MUzrRR3hXRElHEssxROeuKoCJEH9dCA=="
         src="{{ url_for('static', filename='sizzle.js') }}"
     ></script>
     <script
         nonce="{{ csp_nonce() }}"
         type="application/javascript"
         crossorigin="anonymous"
-        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
-        src="{{ url_for('static', filename='jquery-3.7.0.min.js') }}"
-    ></script>
-    <script
-        nonce="{{ csp_nonce() }}"
-        type="application/javascript"
-        crossorigin="anonymous"
-        integrity="sha512-ToL6UYWePxjhDQKNioSi4AyJ5KkRxY+F1+Fi7Jgh0Hp5Kk2/s8FD7zusJDdonfe5B00Qw+B8taXxF6CFLnqNCw=="
+        integrity="sha512-X/YkDZyjTf4wyc2Vy16YGCPHwAY8rZJY+POgokZjQB2mhIRFJCckEGc6YyX9eNsPfn0PzThEuNs+uaomE5CO6A=="
         src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}"
     ></script>
     <script
         nonce="{{ csp_nonce() }}"
         type="application/javascript"
         crossorigin="anonymous"
-        integrity="sha512-hHpe453quJyKo91ErdJSDUtbsUYjZbCVKOGFrXjS7tSZPfPwhBF8udiZnMl8i2hBX/n6q/4CakyITYqKW2tOuQ=="
+        integrity="sha512-sfFeniEKfxYQQwh+gKi310qb9unKnzuc2aMOm1Og/6hLJIVthgOS2gClmERHmYjLIpyS7+YaSuA8hZamQOM7/w=="
+        src="{{ url_for('static', filename='autoclosealerts.js') }}"
+    ></script>
+    <script
+        nonce="{{ csp_nonce() }}"
+        type="application/javascript"
+        crossorigin="anonymous"
+        integrity="sha512-zFcFNL4DXcsnkWzNIZ7bLkiYNTRFPhsbDBOqy1xiZJC0jslZBrEiIUrCbhpMLxCoG/9TZhCZn6yZXlRAchLjhQ=="
         src="{{ url_for('static', filename='GDPRrrrAAHrRRhHrAaahrrrrr.js') }}"
     ></script>
 
