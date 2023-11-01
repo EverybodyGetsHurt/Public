@@ -89,7 +89,7 @@ server {
 					
 
                 # SECURITY-BEST-PRACTICE: Strict Secure Secret Cookie header 
-    add_header Set-Cookie 						"__Host=ChewbaccaTheCookie; Secure; Path=\; HttpOnly; SameSite=Strict";
+    add_header Set-Cookie 						"__Host=ChewbaccaTheCookie; Secure; Path=/; HttpOnly; SameSite=Strict";
 
 
 
@@ -182,7 +182,7 @@ server {
     # index.js = sha512-jr7PV3ljGS5eZZynhr9MmFLu1dQrx3/LHTSy9qQpHyVTtPmuQmRAL3tBl59UiikEzDDgcqSXJq+EyqCujTfeRg==
     # sizzle.js = sha512-brItnb27PGxPsxIAH5BGOLwD5sAJo2J38TUsiKIXhhM5VPOq+3SM4m9MUzrRR3hXRElHEssxROeuKoCJEH9dCA==
     # bootstrap.bundle.min.js = sha512-X/YkDZyjTf4wyc2Vy16YGCPHwAY8rZJY+POgokZjQB2mhIRFJCckEGc6YyX9eNsPfn0PzThEuNs+uaomE5CO6A==
-	# autoclosealerts.js = sha512-sfFeniEKfxYQQwh+gKi310qb9unKnzuc2aMOm1Og/6hLJIVthgOS2gClmERHmYjLIpyS7+YaSuA8hZamQOM7/w==
+    # autoclosealerts.js = sha512-sfFeniEKfxYQQwh+gKi310qb9unKnzuc2aMOm1Og/6hLJIVthgOS2gClmERHmYjLIpyS7+YaSuA8hZamQOM7/w==
     # GDPRrrrAAHrRRhHrAaahrrrrr.js = sha512-zFcFNL4DXcsnkWzNIZ7bLkiYNTRFPhsbDBOqy1xiZJC0jslZBrEiIUrCbhpMLxCoG/9TZhCZn6yZXlRAchLjhQ==
 
 
