@@ -89,7 +89,7 @@ server {
 					
 
                 # SECURITY-BEST-PRACTICE: Strict Secure Secret Cookie header 
-    add_header Set-Cookie 						"__Host=ChewbaccaTheCookie; Secure; Path=/; HttpOnly; SameSite=Strict";
+    add_header Set-Cookie 						"__Host=ChewbaccaTheCookie; Secure; Path=\; HttpOnly; SameSite=Strict";
 
 
 
@@ -173,31 +173,28 @@ server {
                 ##
                 # CONTENT-SECURITY-POLICY
                 ##
-    # bootstrap.min.css = sha512-Z/def5z5u2aR89OuzYcxmDJ0Bnd5V1cKqBEbvLOiUNWdg9PQeXVvXLI90SE4QOHGlfLqUnDNVAYyZi8UwUTmWQ==
+    # bootstrap.min.css = sha512-b2QcS5SsA8tZodcDtGRELiGv5SaKSk1vDHDaQRda0htPYWZ6046lr3kJ5bAAQdpV2mmA/4v0wQF9MyU6/pDIAg==
     # fontawesome.min.css = sha512-giQeaPns4lQTBMRpOOHsYnGw1tGVzbAIHUyHRgn7+6FmiEgGGjaG0T2LZJmAPMzRCl+Cug0ItQ2xDZpTmEc+CQ=
-    # main.css = sha512-U7noo6QYRLbFLeaBZlmXxYY31FERO26VhuMO0Z+/3cvlUpQ9DGwhsZ9pKHYlp8e8NoyPPA/dZfeqybNQMp9Nqw==
-    # index.js = sha512-d5zWJIoaL4Llb6XsQ7IQQge62c3WMDiieKxThiyxdrmXR2VnNxi5KvfRamguYROhBMZSC6Ao+0TRk+A+7x2l5w==
-    # trustedtypes.js = sha512-qzyY0Mc7kaj4NIY43XdcrTPnCLN00fZJNNWCkaEhFbXHnAbOvNKCcb+2csKhC3xtnuZBY0tqMUtJubiO9HBMcg==
-    # jsonpopup.js = sha512-UjVPzFTQuvVrrAFfLWII9KRagSpQ7O5xlkxayIWtoIlo18oKySSRt/VbCNfqqjhGVBhcGDp05xLS1TcpOPoAeg==
-    # deleteknop.js = sha512-HxCTB7o8M42g5N4b2SwHOZ83idX6h51519ClGUmRnz07yEgmLWoYXnpIa6OE/H1P82bYyaqGce/xdL71Ss74xQ==
-    # notes.js = sha512-w3/oIfEMl6l6HbFaowGbvt1Mq6wbaiG1Wln0Q8igQt3T0KJNgEtJO6cokV+jUNhYcszTJqnppGXItKx8FOKxHw==
-    # sizzle.js = sha512-em3myfGbK3HGp06MmyTD3Tw9mIebAg5+g7A6wXUwQbVHKS5JUG7nPeLTX0iYdolty0BBsTU/AZpaXyRll6lezQ==
-    # jquery-3.7.0.min.js = sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw==
-    # jquery-3.7.1.min.js = sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==
-    # bootstrap.bundle.min.js = sha512-ToL6UYWePxjhDQKNioSi4AyJ5KkRxY+F1+Fi7Jgh0Hp5Kk2/s8FD7zusJDdonfe5B00Qw+B8taXxF6CFLnqNCw==
-    # GDPRrrrAAHrRRhHrAaahrrrrr.js = sha512-hHpe453quJyKo91ErdJSDUtbsUYjZbCVKOGFrXjS7tSZPfPwhBF8udiZnMl8i2hBX/n6q/4CakyITYqKW2tOuQ==
+    # main.css = sha512-5LBR29UWgD+MEQItFbnh+h3zPfOVzXrGcG1Sz4rIy0zYC3l/GfAUKmBbIQcQVOHXXrI9afVFcYNm2ZQPRWpX2A==
+	
+    # trustedtypes.js = sha512-l4ckb4OSghMf1MAUuppH/vBmisbElTCxTxscMC1bcaqn2PF3vvTETXdC014iDCZqfkwuF3TTWKZrG64pxkf0hg==
+    # jquery-3.7.1.min.js = sha512-xQM0H6OnF2/RC9jNelcXyPr5cfh/oMFY8tlPzUhK4+1QMfSUFNroM/uAa3NltWmcIdLmVTdvaa2wUrIvb2mCpw==	
+    # index.js = sha512-jr7PV3ljGS5eZZynhr9MmFLu1dQrx3/LHTSy9qQpHyVTtPmuQmRAL3tBl59UiikEzDDgcqSXJq+EyqCujTfeRg==
+    # sizzle.js = sha512-brItnb27PGxPsxIAH5BGOLwD5sAJo2J38TUsiKIXhhM5VPOq+3SM4m9MUzrRR3hXRElHEssxROeuKoCJEH9dCA==
+    # bootstrap.bundle.min.js = sha512-X/YkDZyjTf4wyc2Vy16YGCPHwAY8rZJY+POgokZjQB2mhIRFJCckEGc6YyX9eNsPfn0PzThEuNs+uaomE5CO6A==
+	# autoclosealerts.js = sha512-sfFeniEKfxYQQwh+gKi310qb9unKnzuc2aMOm1Og/6hLJIVthgOS2gClmERHmYjLIpyS7+YaSuA8hZamQOM7/w==
+    # GDPRrrrAAHrRRhHrAaahrrrrr.js = sha512-zFcFNL4DXcsnkWzNIZ7bLkiYNTRFPhsbDBOqy1xiZJC0jslZBrEiIUrCbhpMLxCoG/9TZhCZn6yZXlRAchLjhQ==
 
 
                 ##
                 # CONTENT-SECURITY-POLICY (EXCL. SHA3-512, NOT YET SUPPORTED)
                 ##
-    add_header Content-Security-Policy "img-src 'self' data: https://*.twimg.com; script-src 'self' https://platform.twitter.com https://cdn.syndication.twimg.com https://api.twitter.com https://lifelessandcalm.com/static/index.js https://lifelessandcalm.com/static/trustedtypes.js https://lifelessandcalm.com/static/jsonpopup.js https://lifelessandcalm.com/static/deleteknop.js https://lifelessandcalm.com/static/notes.js https://lifelessandcalm.com/static/sizzle.js https://lifelessandcalm.com/static/jquery-3.7.1.min.js https://lifelessandcalm.com/static/bootstrap.bundle.min.js https://lifelessandcalm.com/static/GDPRrrrAAHrRRhHrAaahrrrrr.js https://lifelessandcalm.com/static/oauth10a_report.js https://lifelessandcalm.com/static/autoclosealerts.js 'sha512-d5zWJIoaL4Llb6XsQ7IQQge62c3WMDiieKxThiyxdrmXR2VnNxi5KvfRamguYROhBMZSC6Ao+0TRk+A+7x2l5w==' 'sha512-a9/L8YgB86Uaeje6reAvQaoO28mWaCA96mcjJxz5mB+DtN3jZpKhKyEmIWlxgUZKDjJNgqBZyyMV4EktIjdU8w==' 'sha512-w3/oIfEMl6l6HbFaowGbvt1Mq6wbaiG1Wln0Q8igQt3T0KJNgEtJO6cokV+jUNhYcszTJqnppGXItKx8FOKxHw==' 'sha512-em3myfGbK3HGp06MmyTD3Tw9mIebAg5+g7A6wXUwQbVHKS5JUG7nPeLTX0iYdolty0BBsTU/AZpaXyRll6lezQ==' 'sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==' 'sha512-X/YkDZyjTf4wyc2Vy16YGCPHwAY8rZJY+POgokZjQB2mhIRFJCckEGc6YyX9eNsPfn0PzThEuNs+uaomE5CO6A==' 'sha512-hHpe453quJyKo91ErdJSDUtbsUYjZbCVKOGFrXjS7tSZPfPwhBF8udiZnMl8i2hBX/n6q/4CakyITYqKW2tOuQ==' 'sha512-iB79GgXkp6A3ZxU6BP16zwAjTKG0wMP2zrMe30+oN+YXqXkJwHjf8uf+3mkXtArP/trKTyWW1Q8J6TgC7qniDg==' 'sha512-nYBWx1nu2pppwDG9AKYgNYPpyBBkd9neoOp+urOGeeyW5SMvcu7wfNfmAH8bvwNBBXsWnDO2J9CJ4X3Ms5g4Nw==' 'nonce-${request_id}' 'strict-dynamic'; script-src-elem 'self' https://platform.twitter.com https://cdn.syndication.twimg.com https://api.twitter.com https://lifelessandcalm.com/static/index.js https://lifelessandcalm.com/static/trustedtypes.js https://lifelessandcalm.com/static/jsonpopup.js https://lifelessandcalm.com/static/deleteknop.js https://lifelessandcalm.com/static/GDPRrrrAAHrRRhHrAaahrrrrr.js https://lifelessandcalm.com/static/sizzle.js https://lifelessandcalm.com/static/notes.js https://lifelessandcalm.com/static/popper.js; style-src 'self' https://*.twimg.com https://lifelessandcalm.com/static/bootstrap.min.css https://lifelessandcalm.com/static/fontawesome.min.css https://lifelessandcalm.com/static/main.css 'sha512-Z/def5z5u2aR89OuzYcxmDJ0Bnd5V1cKqBEbvLOiUNWdg9PQeXVvXLI90SE4QOHGlfLqUnDNVAYyZi8UwUTmWQ==' 'sha512-giQeaPns4lQTBMRpOOHsYnGw1tGVzbAIHUyHRgn7+6FmiEgGGjaG0T2LZJmAPMzRCl+Cug0ItQ2xDZpTmEc+CQ==' 'sha512-VwXd7ylPtidpDSn41gmD5pO7vwy8KDr/nPT3DBSwRUo1q8QfFxWJTPzbOLcgHeeRCa1V9WOodnLIyuv0B5VgKQ==' 'sha512-b2QcS5SsA8tZodcDtGRELiGv5SaKSk1vDHDaQRda0htPYWZ6046lr3kJ5bAAQdpV2mmA/4v0wQF9MyU6/pDIAg==' 'nonce-${request_id}'; style-src-elem 'self' https://*.twimg.com https://lifelessandcalm.com/static/bootstrap.min.css https://lifelessandcalm.com/static/fontawesome.min.css https://lifelessandcalm.com/static/main.css; manifest-src 'self' https://lifelessandcalm.com/static/site.webmanifest; connect-src 'self' https://api.twitter.com; base-uri 'self'; frame-src 'self'; frame-ancestors 'self'; form-action 'self'; font-src 'self'; media-src 'self'; object-src 'none'; default-src 'none'; report-to csp-endpoint; upgrade-insecure-requests;";
-
-
+    add_header                                  Content-Security-Policy "img-src 'self' data:; script-src 'self' https://lifelessandcalm.com/static/trustedtypes.js https://lifelessandcalm.com/static/jquery-3.7.1.min.js https://lifelessandcalm.com/static/index.js https://lifelessandcalm.com/static/autoclosealerts.js https://lifelessandcalm.com/static/sizzle.js https://lifelessandcalm.com/static/bootstrap.bundle.min.js https://lifelessandcalm.com/static/GDPRrrrAAHrRRhHrAaahrrrrr.js 'sha512-l4ckb4OSghMf1MAUuppH/vBmisbElTCxTxscMC1bcaqn2PF3vvTETXdC014iDCZqfkwuF3TTWKZrG64pxkf0hg==' 'sha512-xQM0H6OnF2/RC9jNelcXyPr5cfh/oMFY8tlPzUhK4+1QMfSUFNroM/uAa3NltWmcIdLmVTdvaa2wUrIvb2mCpw==' 'sha512-jr7PV3ljGS5eZZynhr9MmFLu1dQrx3/LHTSy9qQpHyVTtPmuQmRAL3tBl59UiikEzDDgcqSXJq+EyqCujTfeRg==' 'sha512-nYBWx1nu2pppwDG9AKYgNYPpyBBkd9neoOp+urOGeeyW5SMvcu7wfNfmAH8bvwNBBXsWnDO2J9CJ4X3Ms5g4Nw==' 'sha512-brItnb27PGxPsxIAH5BGOLwD5sAJo2J38TUsiKIXhhM5VPOq+3SM4m9MUzrRR3hXRElHEssxROeuKoCJEH9dCA==' 'sha512-X/YkDZyjTf4wyc2Vy16YGCPHwAY8rZJY+POgokZjQB2mhIRFJCckEGc6YyX9eNsPfn0PzThEuNs+uaomE5CO6A==' 'sha512-zFcFNL4DXcsnkWzNIZ7bLkiYNTRFPhsbDBOqy1xiZJC0jslZBrEiIUrCbhpMLxCoG/9TZhCZn6yZXlRAchLjhQ==' 'sha512-sfFeniEKfxYQQwh+gKi310qb9unKnzuc2aMOm1Og/6hLJIVthgOS2gClmERHmYjLIpyS7+YaSuA8hZamQOM7/w==' 'nonce-${request_id}' 'report-sample' 'strict-dynamic'; script-src-elem 'self' https://lifelessandcalm.com/static/index.js https://lifelessandcalm.com/static/trustedtypes.js https://lifelessandcalm.com/static/jsonpopup.js https://lifelessandcalm.com/static/GDPRrrrAAHrRRhHrAaahrrrrr.js https://lifelessandcalm.com/static/sizzle.js https://lifelessandcalm.com/static/popper.js; style-src 'self' 'report-sample' https://lifelessandcalm.com/static/bootstrap.min.css https://lifelessandcalm.com/static/fontawesome.min.css https://lifelessandcalm.com/static/main.css 'sha512-b2QcS5SsA8tZodcDtGRELiGv5SaKSk1vDHDaQRda0htPYWZ6046lr3kJ5bAAQdpV2mmA/4v0wQF9MyU6/pDIAg==' 'sha512-giQeaPns4lQTBMRpOOHsYnGw1tGVzbAIHUyHRgn7+6FmiEgGGjaG0T2LZJmAPMzRCl+Cug0ItQ2xDZpTmEc+CQ==' 'sha512-5LBR29UWgD+MEQItFbnh+h3zPfOVzXrGcG1Sz4rIy0zYC3l/GfAUKmBbIQcQVOHXXrI9afVFcYNm2ZQPRWpX2A==' 'nonce-${request_id}'; style-src-elem 'self' https://lifelessandcalm.com/static/bootstrap.min.css https://lifelessandcalm.com/static/fontawesome.min.css https://lifelessandcalm.com/static/main.css; manifest-src 'self' https://lifelessandcalm.com/static/site.webmanifest; connect-src 'self'; base-uri 'self'; frame-src 'self'; frame-ancestors 'self'; form-action 'self'; font-src 'self'; media-src 'self'; object-src 'none'; default-src 'none'; report-to csp-endpoint; upgrade-insecure-requests; require-trusted-types-for 'script';";
+	
                 ##
                 # CONTENT-SECURITY-POLICY-REPORT-ONLY
                 ##
-    add_header Content-Security-Policy-Report-Only "img-src 'self' data:; script-src 'self' https://lifelessandcalm.com/static/index.js https://lifelessandcalm.com/static/trustedtypes.js https://lifelessandcalm.com/static/jsonpopup.js https://lifelessandcalm.com/static/deleteknop.js https://lifelessandcalm.com/static/notes.js https://lifelessandcalm.com/static/sizzle.js https://lifelessandcalm.com/static/jquery-3.7.1.min.js https://lifelessandcalm.com/static/bootstrap.bundle.min.js https://lifelessandcalm.com/static/GDPRrrrAAHrRRhHrAaahrrrrr.js https://lifelessandcalm.com/static/oauth10a_report.js https://lifelessandcalm.com/static/autoclosealerts.js 'sha512-d5zWJIoaL4Llb6XsQ7IQQge62c3WMDiieKxThiyxdrmXR2VnNxi5KvfRamguYROhBMZSC6Ao+0TRk+A+7x2l5w==' 'sha512-a9/L8YgB86Uaeje6reAvQaoO28mWaCA96mcjJxz5mB+DtN3jZpKhKyEmIWlxgUZKDjJNgqBZyyMV4EktIjdU8w==' 'sha512-w3/oIfEMl6l6HbFaowGbvt1Mq6wbaiG1Wln0Q8igQt3T0KJNgEtJO6cokV+jUNhYcszTJqnppGXItKx8FOKxHw==' 'sha512-em3myfGbK3HGp06MmyTD3Tw9mIebAg5+g7A6wXUwQbVHKS5JUG7nPeLTX0iYdolty0BBsTU/AZpaXyRll6lezQ==' 'sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==' 'sha512-X/YkDZyjTf4wyc2Vy16YGCPHwAY8rZJY+POgokZjQB2mhIRFJCckEGc6YyX9eNsPfn0PzThEuNs+uaomE5CO6A==' 'sha512-hHpe453quJyKo91ErdJSDUtbsUYjZbCVKOGFrXjS7tSZPfPwhBF8udiZnMl8i2hBX/n6q/4CakyITYqKW2tOuQ==' 'sha512-iB79GgXkp6A3ZxU6BP16zwAjTKG0wMP2zrMe30+oN+YXqXkJwHjf8uf+3mkXtArP/trKTyWW1Q8J6TgC7qniDg==' 'sha512-nYBWx1nu2pppwDG9AKYgNYPpyBBkd9neoOp+urOGeeyW5SMvcu7wfNfmAH8bvwNBBXsWnDO2J9CJ4X3Ms5g4Nw==' 'nonce-${request_id}' 'strict-dynamic'; script-src-elem 'self' https://lifelessandcalm.com/static/index.js https://lifelessandcalm.com/static/trustedtypes.js https://lifelessandcalm.com/static/jsonpopup.js https://lifelessandcalm.com/static/deleteknop.js https://lifelessandcalm.com/static/GDPRrrrAAHrRRhHrAaahrrrrr.js https://lifelessandcalm.com/static/sizzle.js https://lifelessandcalm.com/static/notes.js https://lifelessandcalm.com/static/popper.js https://lifelessandcalm.com/static/jquery-3.7.1.min.js https://lifelessandcalm.com/static/bootstrap.bundle.min.js https://lifelessandcalm.com/static/oauth10a_report.js 'nonce-${request_id}'; object-src 'none'; base-uri 'self'; frame-src 'self'; frame-ancestors 'self'; form-action 'self'; style-src 'self' https://lifelessandcalm.com/static/bootstrap.min.css https://lifelessandcalm.com/static/fontawesome.min.css https://lifelessandcalm.com/static/main.css 'sha512-b2QcS5SsA8tZodcDtGRELiGv5SaKSk1vDHDaQRda0htPYWZ6046lr3kJ5bAAQdpV2mmA/4v0wQF9MyU6/pDIAg==' 'sha512-giQeaPns4lQTBMRpOOHsYnGw1tGVzbAIHUyHRgn7+6FmiEgGGjaG0T2LZJmAPMzRCl+Cug0ItQ2xDZpTmEc+CQ==' 'sha512-APq977Zjuy1Y/gTVDHDsa4/aZwJMlcarnWUcpKGI4k1MRE/Z2lOkVyDpkATovXlKrqpeivjkBZXfDx2Kpu4nWQ==' 'nonce-${request_id}'; font-src 'self'; media-src 'self'; manifest-src 'self' https://lifelessandcalm.com/static/site.webmanifest; connect-src 'self'; default-src 'none'; report-uri https://lifelessandcalm.com/csp-violations; block-all-mixed-content; require-trusted-types-for 'script';";
+    add_header                                  Content-Security-Policy-Report-Only "img-src 'self' data:; script-src 'self' https://lifelessandcalm.com/static/trustedtypes.js https://lifelessandcalm.com/static/jquery-3.7.1.min.js https://lifelessandcalm.com/static/index.js https://lifelessandcalm.com/static/autoclosealerts.js https://lifelessandcalm.com/static/sizzle.js https://lifelessandcalm.com/static/bootstrap.bundle.min.js https://lifelessandcalm.com/static/GDPRrrrAAHrRRhHrAaahrrrrr.js 'sha512-l4ckb4OSghMf1MAUuppH/vBmisbElTCxTxscMC1bcaqn2PF3vvTETXdC014iDCZqfkwuF3TTWKZrG64pxkf0hg==' 'sha512-xQM0H6OnF2/RC9jNelcXyPr5cfh/oMFY8tlPzUhK4+1QMfSUFNroM/uAa3NltWmcIdLmVTdvaa2wUrIvb2mCpw==' 'sha512-jr7PV3ljGS5eZZynhr9MmFLu1dQrx3/LHTSy9qQpHyVTtPmuQmRAL3tBl59UiikEzDDgcqSXJq+EyqCujTfeRg==' 'sha512-nYBWx1nu2pppwDG9AKYgNYPpyBBkd9neoOp+urOGeeyW5SMvcu7wfNfmAH8bvwNBBXsWnDO2J9CJ4X3Ms5g4Nw==' 'sha512-brItnb27PGxPsxIAH5BGOLwD5sAJo2J38TUsiKIXhhM5VPOq+3SM4m9MUzrRR3hXRElHEssxROeuKoCJEH9dCA==' 'sha512-X/YkDZyjTf4wyc2Vy16YGCPHwAY8rZJY+POgokZjQB2mhIRFJCckEGc6YyX9eNsPfn0PzThEuNs+uaomE5CO6A==' 'sha512-zFcFNL4DXcsnkWzNIZ7bLkiYNTRFPhsbDBOqy1xiZJC0jslZBrEiIUrCbhpMLxCoG/9TZhCZn6yZXlRAchLjhQ==' 'sha512-sfFeniEKfxYQQwh+gKi310qb9unKnzuc2aMOm1Og/6hLJIVthgOS2gClmERHmYjLIpyS7+YaSuA8hZamQOM7/w==' 'nonce-${request_id}' 'report-sample' 'strict-dynamic'; script-src-elem 'self' https://lifelessandcalm.com/static/index.js https://lifelessandcalm.com/static/trustedtypes.js https://lifelessandcalm.com/static/jsonpopup.js https://lifelessandcalm.com/static/GDPRrrrAAHrRRhHrAaahrrrrr.js https://lifelessandcalm.com/static/sizzle.js https://lifelessandcalm.com/static/popper.js; style-src 'self' 'report-sample' https://lifelessandcalm.com/static/bootstrap.min.css https://lifelessandcalm.com/static/fontawesome.min.css https://lifelessandcalm.com/static/main.css 'sha512-b2QcS5SsA8tZodcDtGRELiGv5SaKSk1vDHDaQRda0htPYWZ6046lr3kJ5bAAQdpV2mmA/4v0wQF9MyU6/pDIAg==' 'sha512-giQeaPns4lQTBMRpOOHsYnGw1tGVzbAIHUyHRgn7+6FmiEgGGjaG0T2LZJmAPMzRCl+Cug0ItQ2xDZpTmEc+CQ==' 'sha512-5LBR29UWgD+MEQItFbnh+h3zPfOVzXrGcG1Sz4rIy0zYC3l/GfAUKmBbIQcQVOHXXrI9afVFcYNm2ZQPRWpX2A==' 'nonce-${request_id}'; style-src-elem 'self' https://lifelessandcalm.com/static/bootstrap.min.css https://lifelessandcalm.com/static/fontawesome.min.css https://lifelessandcalm.com/static/main.css; manifest-src 'self' https://lifelessandcalm.com/static/site.webmanifest; connect-src 'self'; default-src 'none'; report-uri https://lifelessandcalm.com/csp-violations; block-all-mixed-content; require-trusted-types-for 'script';";
 
 
                 ##
@@ -205,26 +202,26 @@ server {
                 ##
     location / {
                 # Include default uwsgi_params and extra uwsgi settings:
-        include                       uwsgi_params;
-        uwsgi_pass                    unix:/home/everybodygetshurt/everybodygetshurt/everybodygetshurt.sock;
-        uwsgi_param Host              $host;
-        uwsgi_param X-Real-IP         $remote_addr;
-        uwsgi_param X-Forwarded-For   $proxy_add_x_forwarded_for;
-        uwsgi_param X-Forwarded-Proto $http_x_forwarded_proto;
+        include                                 uwsgi_params;
+        uwsgi_pass                              unix:/home/everybodygetshurt/everybodygetshurt/everybodygetshurt.sock;
+        uwsgi_param                             Host              $host;
+        uwsgi_param                             X-Real-IP         $remote_addr;
+        uwsgi_param                             X-Forwarded-For   $proxy_add_x_forwarded_for;
+        uwsgi_param                             X-Forwarded-Proto $http_x_forwarded_proto;
     }
 
 
     #             # assets, media
     # location ~* \.(?:css(\.map)?|js(\.map)?|jpg|jpeg|jpe?g|png|gif|ico|cur|heic|webp|tiff?|mp3|m4a|aac|ogg|midi?|wav|mp4|mov|webm|mpe?g|avi|ogv|flv|wmv)$ {
-    #     expires 24h;
-    #     add_header Cache-Control "public, no-transform";
+    #     expires                               24h;
+    #     add_header                            Cache-Control     "public, no-transform";
     # }
 
     #             # svg, fonts
     # location ~* \.(?:svgz?|ttf|ttc|otf|eot|woff2?)$ {
-    #     add_header Access-Control-Allow-Origin "*";
-    #     add_header Cache-Control "public, no-transform";
-    #     expires    24h;
+    #     add_header                            Access-Control-Allow-Origin "*";
+    #     add_header                            Cache-Control     "public, no-transform";
+    #     expires                               24h;
     # }
 
 
