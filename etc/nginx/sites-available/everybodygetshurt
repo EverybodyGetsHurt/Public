@@ -213,15 +213,15 @@ server {
 
     #             # assets, media
     # location ~* \.(?:css(\.map)?|js(\.map)?|jpg|jpeg|jpe?g|png|gif|ico|cur|heic|webp|tiff?|mp3|m4a|aac|ogg|midi?|wav|mp4|mov|webm|mpe?g|avi|ogv|flv|wmv)$ {
-    #     expires                               24h;
-    #     add_header                            Cache-Control     "public, no-transform";
+    #     expires                                24h;
+    #     add_header                             Cache-Control     "public, no-transform";
     # }
 
     #             # svg, fonts
     # location ~* \.(?:svgz?|ttf|ttc|otf|eot|woff2?)$ {
-    #     add_header                            Access-Control-Allow-Origin "*";
-    #     add_header                            Cache-Control     "public, no-transform";
-    #     expires                               24h;
+    #     add_header                             Access-Control-Allow-Origin "*";
+    #     add_header                             Cache-Control     "public, no-transform";
+    #     expires                                24h;
     # }
 
 
