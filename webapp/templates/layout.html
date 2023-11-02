@@ -5,6 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="darkreader-lock">
+    <meta name="description" content="Explore Benemortasia.com, a tool to manage Twitter Impersonators for our beloved Crypto Channels with ease." />
+    <link
+        rel="canonical"
+		href="https://lifelessandcalm.com/"
+    />
     <link
         rel="stylesheet"
         type="text/css"
@@ -173,6 +178,10 @@
       <hr>
     </main>
 
+    {% if not cookies_accepted %}
+        {% include 'GDPRrrrAAHrRRhHrAaahrrrrr.html' %}
+    {% endif %}
+
     <script
         nonce="{{ csp_nonce() }}"
         type="application/javascript"
@@ -222,10 +231,5 @@
         integrity="sha512-zFcFNL4DXcsnkWzNIZ7bLkiYNTRFPhsbDBOqy1xiZJC0jslZBrEiIUrCbhpMLxCoG/9TZhCZn6yZXlRAchLjhQ=="
         src="{{ url_for('static', filename='GDPRrrrAAHrRRhHrAaahrrrrr.js') }}"
     ></script>
-
-    {% if not cookies_accepted %}
-        {% include 'GDPRrrrAAHrRRhHrAaahrrrrr.html' %}
-    {% endif %}
-
 </body>
 </html>
