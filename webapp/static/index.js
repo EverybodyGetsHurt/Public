@@ -1,1 +1,0 @@
-const intendedDomain="lifelessandcalm.com";function getStartUrl(){let t=window.location.hostname;return t===intendedDomain?null:"https://"+intendedDomain}const startUrl=getStartUrl();startUrl&&window.location.href!==startUrl&&(window.location.href=startUrl);
