@@ -10,10 +10,8 @@ user_oauth_association_table = db.Table('user_oauth_association', db.Model.metad
                                         db.Column('user_email', db.String(150), db.ForeignKey('All_Users.email')),
                                         db.Column('oauth10a_email', db.String(150), db.ForeignKey('OAuth10a_3Legged'
                                                                                                   '.email')),
-                                        db.Column('note_email', db.String(150), db.ForeignKey('Notes.email')),
                                         db.Column('oauth20pkce_email', db.String(150), db.ForeignKey('OAuth20_PKCE'
                                                                                                      '.email')),
-                                        db.Column('post_email', db.String(150), db.ForeignKey('Posts.email'))
                                         )
 
 
@@ -28,38 +26,9 @@ class User(db.Model, UserMixin):
     verified = db.Column(db.Boolean, default=False)
     oauth10a = db.relationship('OAuth10a', backref='user', lazy=True)  # many-to-many relationship
     oauth20pkce = db.relationship('OAuth20PKCE', backref='user', lazy=True)  # many-to-many relationship
-    notes = db.relationship('Note', backref='user', lazy=True)  # one-to-many relationship
-    posts = db.relationship('Post', backref='author', lazy=True)
 
     def get_id(self):
         return str(self.email)
-
-
-class Post(db.Model):
-    __tablename__ = 'Posts'
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(150), db.ForeignKey('All_Users.email'), nullable=False)
-    twitter_id = db.Column(db.Integer, unique=True, nullable=False)
-    title = db.Column(db.String(100), nullable=False)
-    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    content = db.Column(db.Text, nullable=False)
-
-    def __repr__(self):
-        return f"Post('{self.title}', '{self.date_posted}')"
-
-
-class Note(db.Model):
-    __tablename__ = 'Notes'
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(150), db.ForeignKey('All_Users.email'), nullable=False)
-    twitter_id = db.Column(db.Integer, nullable=True)
-    account_name = db.Column(db.String(150), nullable=True)
-    date_created = db.Column(db.DateTime(timezone=True), default=func.now(), nullable=False)
-    title = db.Column(db.String(100), nullable=True)
-    data = db.Column(db.Text, nullable=False)
-
-    def __repr__(self):
-        return f"<Note {self.id} '{self.title}' created at {self.date_created} by {self.email}>"
 
 
 class OAuth10a(db.Model):
