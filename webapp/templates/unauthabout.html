@@ -1,24 +1,25 @@
 {% extends "layout.html" %}
 {% block title %}About{% endblock title %}
 {% block body %}
-    <nav class="nav-container">
-        <div nonce="{{ csp_nonce() }}" class="about-style">
-            <h1 class="navbar-nav mr-auto">
-                What is Benemortasia.com ?
-            </h1>
-            <br>
-            <hr>
-            <h5>
-            <p>This is the public facing about page for Benemortasia.com, which will not contain the full about context.</p>
-            </h5>
-            <br>
-            <div nonce="{{ csp_nonce() }}">
-                <img
-                        nonce="{{ csp_nonce() }}"
-                        src="{{ url_for('static', filename='logo2.bmp') }}"
-                        width="600" height="600" alt="Logo"
-                        class="navbar-nav mr-auto site-header about-site-foto"
-                />
+    <nav>
+        <div class="auth-container border-container">
+            <div class="center-text">
+                <h1>What is Benemortasia.com ?</h1>
+                <hr>
+                <h3>
+                This is the public facing about page for Benemortasia.com, which will not contain the full about context.
+                </h3>
+                <br>
+                <form method="POST">
+                </form>
+                <div nonce="{{ csp_nonce() }}">
+                    <img
+                            nonce="{{ csp_nonce() }}"
+                            src="{{ url_for('static', filename='logo2.bmp') }}"
+                            width="600" height="600" alt="Logo"
+                            class="navbar-nav mr-auto site-header about-site-foto"
+                    />
+                </div>
             </div>
         </div>
     </nav>
