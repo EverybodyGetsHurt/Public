@@ -529,7 +529,7 @@ a.article-title:hover{
     color:red;
     margin-top:10px
 }
-.privacy-policy-container{
+.privacypolicy-container{
     padding:20px;
     margin:20px
 }
@@ -1135,7 +1135,7 @@ iframe{
 .alert {
     position: relative;
     padding: 1rem;
-    margin-top: 80px; /* Margin from the top */
+    margin-top: 60px; /* Margin from the top */
     margin-bottom: -60px; /* Negative margin at the bottom to pull up the content */
     border: 2px solid; /* Assuming default border-width is 2px */
     border-radius: 0.375rem; /* Assuming this is the value for --bs-border-radius */
@@ -1250,4 +1250,20 @@ iframe{
 .text-muted{
     --bs-text-opacity:1;
     color:var(--bs-secondary-color)!important
+}
+
+.home-content h1,
+.home-content h2,
+.home-content h3,
+.home-content h4,
+.home-content h5,
+.home-content h6 {
+    color: #000000 !important; /* Black color for headers on Home page */
+}
+
+.nav-item.nav-link,
+.nav-item.nav-link:hover,
+.nav-item.nav-link:focus,
+.nav-item.nav-link:active {
+    color: #929393 !important; /* Red color for navbar links */
 }
