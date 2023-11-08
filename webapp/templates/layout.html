@@ -21,17 +21,17 @@
     <link
         rel="preload"
         as="style"
-        href="{{ url_for('static', filename='main.min.css') }}"
+        href="{{ url_for('static', filename='main.css') }}"
         type="text/css"
         crossorigin="anonymous"
-        integrity="sha512-pFpzDaQNYpbIBolG5A1NvuUJCRq5pQueEWNacudZZccrU6yfxTE8TQyKYFHb9GOwZd4iPO6MRYBTg3rhqSIPqA=="
+        integrity="sha512-Yz4hrVaiA01fcoe/q6dNZY9wHKJKfmRApJSUjlS4J+xSxHuRLDVhrCyCrh2IfQ90BKKXkdTvj7SxmEugzZeljQ=="
     />
     <link
         rel="stylesheet"
-        href="{{ url_for('static', filename='main.min.css') }}"
+        href="{{ url_for('static', filename='main.css') }}"
         type="text/css"
         crossorigin="anonymous"
-        integrity="sha512-pFpzDaQNYpbIBolG5A1NvuUJCRq5pQueEWNacudZZccrU6yfxTE8TQyKYFHb9GOwZd4iPO6MRYBTg3rhqSIPqA=="
+        integrity="sha512-Yz4hrVaiA01fcoe/q6dNZY9wHKJKfmRApJSUjlS4J+xSxHuRLDVhrCyCrh2IfQ90BKKXkdTvj7SxmEugzZeljQ=="
 	/>
     <link
         rel="shortcut icon"
@@ -114,6 +114,7 @@
             <div class="navbar-nav mr-auto">
               <a class="nav-item nav-link" id="home" href="/unauthhome">Home</a>
               <a class="nav-item nav-link" id="about" href="/unauthabout">About</a>
+              <a class="nav-item nav-link" id="privacy" href="/privacy">Privacy Policy</a>
               <a class="nav-item nav-link" id="Report" href="/oauth10areport">Report</a>
             </div>
             <div class="navbar-nav">
@@ -125,7 +126,7 @@
             <div class="navbar-nav mr-auto">
               <a class="nav-item nav-link" id="home" href="/">Home</a>
               <a class="nav-item nav-link" id="about" href="/unauthabout">About</a>
-              <a class="nav-item nav-link" id="privacypolicy" href="/privacypolicy">Privacy Policy</a>
+              <a class="nav-item nav-link" id="privacy" href="/privacy">Privacy Policy</a>
             </div>
             <div class="navbar-nav">
               <a class="nav-item nav-link" id="signUp" href="/authsignup">Register</a>
@@ -202,7 +203,7 @@
         nonce="{{ csp_nonce() }}"
         type="application/javascript"
         crossorigin="anonymous"
-        integrity="sha512-jr7PV3ljGS5eZZynhr9MmFLu1dQrx3/LHTSy9qQpHyVTtPmuQmRAL3tBl59UiikEzDDgcqSXJq+EyqCujTfeRg=="
+        integrity="sha512-/RVW9NRMklVXJ0+tC7ptg68YysWcxuaKeyx1PjrsuwX+95kcmiCwojFUbJGOgc2HqWgLE2CXkpqfI4LPBvbmUA=="
         src="{{ url_for('static', filename='index.js') }}"
     ></script>
     <script
