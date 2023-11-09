@@ -42,7 +42,9 @@ def authlogin():
     return render_template(
         "unauthlogin.html", user=current_user, title="login", description="Login to Benemortasia.com, a tool to manage "
                                                                           "Twitter Impersonators for our beloved Crypto"
-                                                                          " Channels with ease.")
+                                                                          " Channels with ease. Access your account to "
+                                                                          "explore all the content and features of this"
+                                                                          " web application.")
 
 
 @auth.route('/authsignup', methods=['GET', 'POST'])
@@ -83,4 +85,9 @@ def authsignup():
         "unauthsignup.html", user=current_user, title="register", description="Register an account at Benemortasia.com,"
                                                                               " a tool to manage Twitter Impersonators "
                                                                               "for our beloved Crypto Channels with eas"
-                                                                              "e.")
+                                                                              "e. Join our community for access to uniq"
+                                                                              "ue content and features. You do not have"
+                                                                              " to use your e-mail you are using for yo"
+                                                                              "ur Twitter account. In fact I take expli"
+                                                                              "cit efforts to not use your Twitter acco"
+                                                                              "unts email.")
