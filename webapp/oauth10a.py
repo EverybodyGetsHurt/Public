@@ -22,7 +22,7 @@ from instance.config import (APP_CONSUMER_KEY, APP_CONSUMER_SECRET, REQUEST_TOKE
 
 
 # A log file is configured to record debug and error information, aiding in monitoring and troubleshooting.
-logging.basicConfig(filename='/home/everybodygetshurt/everybodygetshurt/oauth1.0a-logfile.log', level=logging.DEBUG,
+logging.basicConfig(filename='/home/benemortasia/benemortasia/oauth1.0a-logfile.log', level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
 
 # oauth_store is a dictionary that temporarily holds OAuth tokens and secrets for ongoing sessions.
@@ -305,7 +305,7 @@ def update_existing_record(set_to_database):
 # The oauth10areport route returns a webpage containing a report of the OAuth 1.0a authentication
 # and user data retrieved from Twitter.
 @login_required
-@oauth10a.route('/oauth10areport')
+@oauth10a.route('/oauth10areportimpersonators')
 def oauth10areport():
     # This route returns a web page containing a report. The exact content and format of the report are
     # determined by the 'oauth10areport.html' template and any data passed to it during rendering.
