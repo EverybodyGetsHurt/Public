@@ -11,31 +11,30 @@
 #                                                                                                                   #
 #___________________________________________________________________________________________________________________#
 #####################################################################################################################
+
                 # HTTP ECDSA+RSA server block for main server Benemoratsia:
 server {
-    # modsecurity                                 on;
-    # modsecurity_rules_file                      /etc/nginx/modsec/main.conf;
+    modsecurity                                 on;
+    modsecurity_rules_file                      /etc/nginx/modsec/main.conf;
 
     listen                                      80 reuseport;
     listen                                      [::]:80 reuseport ipv6only=on;
 
-    server_name                                 lifelessandcalm.com www.lifelessandcalm.com;
-
+    server_name benemortasia.com www.benemortasia.com benemortasia.us www.benemortasia.us benemortasia.eu www.benemortasia.eu benemortasia.nl www.benemortasia.nl unorganized.email www.unorganized.email youbetteravoid.me www.youbetteravoid.me;
+	
                 # signal whether we are using UIC+HTTP/3
     add_header                                  X-protocol $server_protocol always;
 	
-
                 # Redirect all HTTP requests to HTTPS
     return                                      301 https://$host$request_uri;
 }
 
 
 
-
                 # HTTPS ECDSA+RSA server block for Benemortasia main server:
 server {
-    # modsecurity                                 on;
-    # modsecurity_rules_file                      /etc/nginx/modsec/main.conf;
+    modsecurity                                 on;
+    modsecurity_rules_file                      /etc/nginx/modsec/main.conf;
 
     ###############################################################################################
     #     For better compatibility its recommended using the same port number for QUIC and TCP    #
@@ -45,7 +44,7 @@ server {
     listen                                      [::]:443 quic reuseport ipv6only=on;   # QUIC   UDP
     listen                                      [::]:443 http2 ssl ipv6only=on;        # HTTP/2 TCP
 
-    server_name                                 lifelessandcalm.com www.lifelessandcalm.com;
+    server_name benemortasia.com www.benemortasia.com benemortasia.us www.benemortasia.us benemortasia.eu www.benemortasia.eu benemortasia.nl www.benemortasia.nl unorganized.email www.unorganized.email youbetteravoid.me www.youbetteravoid.me;
 
                 ##
                 # QUIC-HTTP/3 Settings
@@ -89,7 +88,7 @@ server {
                 # Created using command: openssl rand 80 > ticket.key
                 # This key can only be used once and should be auto regenerated for each request
                 # TODO: Implementation (note, more keys defined, will rotate them)
-    ssl_session_ticket_key                      /home/everybodygetshurt/.ssl/ticket.key;
+    ssl_session_ticket_key                      /home/benemortasia/.ssl/ticket.key;
 
                 # proxy_set_header Early-Data $ssl_early_data;
                 #  if ($host != "benemortasia.com, benemortasia.us, benemortasia.eu, benemortasia.nl") {
@@ -99,25 +98,25 @@ server {
                 ##
                 # SSL-STAPLING OCSP/MUST-STAPLE
                 ##
-    ssl_trusted_certificate                     /home/everybodygetshurt/.ssl/RSA/RSA8192-ROOTCA.pem; 
+    ssl_trusted_certificate                     /home/benemortasia/.ssl/RSA/RSA8192-ROOTCA.pem; 
 
                 ##
                 # LET'S ENCRYPT 90 DAY ECC 384 CERTIFICATE
                 ##
-    ssl_certificate                             /home/everybodygetshurt/.ssl/ECC/ECC384-ALL.pem;
-    ssl_certificate_key                         /home/everybodygetshurt/.ssl/ECC/ECC384-PRIVATEKEY.pem;
+    ssl_certificate                             /home/benemortasia/.ssl/ECC/ECC384-ALL.pem;
+    ssl_certificate_key                         /home/benemortasia/.ssl/ECC/ECC384-PRIVATEKEY.pem;
 
                 ##
                 # COMODO 1 YEAR RSA 4096 CERTIFICATE
                 ##
-    ssl_certificate                             /home/everybodygetshurt/.ssl/RSA/comodocert.pem;
-    ssl_certificate_key                         /home/everybodygetshurt/.ssl/RSA/comodokey.pem;
+    ssl_certificate                             /home/benemortasia/.ssl/RSA/comodocert.pem;
+    ssl_certificate_key                         /home/benemortasia/.ssl/RSA/comodokey.pem;
 
 
                 # CLOUDFLARE TLS/SLL
-                # ssl_certificate                 /home/everybodygetshurt/.ssl/CF/origin-server-crt.pem;
-                # ssl_certificate_key             /home/everybodygetshurt/.ssl/CF/keyfile.pem;
-                # ssl_client_certificate          ssl_certificate_key /home/everybodygetshurt/.ssl/CF/origin-client-crt.pem;
+                # ssl_certificate                 /home/benemortasia/.ssl/CF/origin-server-crt.pem;
+                # ssl_certificate_key             /home/benemortasia/.ssl/CF/keyfile.pem;
+                # ssl_client_certificate          ssl_certificate_key /home/benemortasia/.ssl/CF/origin-client-crt.pem;
                 # ssl_verify_client               on;
 
 
@@ -161,32 +160,15 @@ server {
     # add_header                                  Permissions-Policy "accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=()";
 
 
-
-
-                ##
-                # CONTENT-SECURITY-POLICY
-                ##
-	# Roboto-Regular.woff2 = sha512-APCPndZIlyyVcVR+BhctVQXdE/V3/i5lpJfThWFygHrBHJlphOQTjS6yrHhCV/5hhkruFXUv6ennb5jbkx4MKg==
-    # main.css = sha512-WTTlWWzrgBHnWQu7+V+8yGArIZq9BU4qxHtPmslj9v2+S+lSaTnLw8+0Qqe+ja3oKOVtG8a/1b6m3xWjisd7sA==
-	
-    # trustedtypes.js = sha512-l4ckb4OSghMf1MAUuppH/vBmisbElTCxTxscMC1bcaqn2PF3vvTETXdC014iDCZqfkwuF3TTWKZrG64pxkf0hg==
-    # jquery-3.7.1.min.js = sha512-xQM0H6OnF2/RC9jNelcXyPr5cfh/oMFY8tlPzUhK4+1QMfSUFNroM/uAa3NltWmcIdLmVTdvaa2wUrIvb2mCpw==
-    # index.js = sha512-jr7PV3ljGS5eZZynhr9MmFLu1dQrx3/LHTSy9qQpHyVTtPmuQmRAL3tBl59UiikEzDDgcqSXJq+EyqCujTfeRg==
-    # sizzle.js = sha512-brItnb27PGxPsxIAH5BGOLwD5sAJo2J38TUsiKIXhhM5VPOq+3SM4m9MUzrRR3hXRElHEssxROeuKoCJEH9dCA==
-    # bootstrap.bundle.min.js = sha512-X/YkDZyjTf4wyc2Vy16YGCPHwAY8rZJY+POgokZjQB2mhIRFJCckEGc6YyX9eNsPfn0PzThEuNs+uaomE5CO6A==
-    # autoclosealerts.js = sha512-sfFeniEKfxYQQwh+gKi310qb9unKnzuc2aMOm1Og/6hLJIVthgOS2gClmERHmYjLIpyS7+YaSuA8hZamQOM7/w==
-    # GDPRrrrAAHrRRhHrAaahrrrrr.js = sha512-zFcFNL4DXcsnkWzNIZ7bLkiYNTRFPhsbDBOqy1xiZJC0jslZBrEiIUrCbhpMLxCoG/9TZhCZn6yZXlRAchLjhQ==
-
-
                 ##
                 # CONTENT-SECURITY-POLICY (EXCL. SHA3-512, NOT YET SUPPORTED)
                 ##
-	add_header                                  Content-Security-Policy "img-src 'self' data:; script-src 'self' https://lifelessandcalm.com/static/trustedtypes.js https://lifelessandcalm.com/static/jquery-3.7.1.min.js https://lifelessandcalm.com/static/index.js https://lifelessandcalm.com/static/autoclosealerts.js https://lifelessandcalm.com/static/sizzle.js https://lifelessandcalm.com/static/bootstrap.bundle.min.js https://lifelessandcalm.com/static/GDPRrrrAAHrRRhHrAaahrrrrr.js 'sha512-l4ckb4OSghMf1MAUuppH/vBmisbElTCxTxscMC1bcaqn2PF3vvTETXdC014iDCZqfkwuF3TTWKZrG64pxkf0hg==' 'sha512-xQM0H6OnF2/RC9jNelcXyPr5cfh/oMFY8tlPzUhK4+1QMfSUFNroM/uAa3NltWmcIdLmVTdvaa2wUrIvb2mCpw==' 'sha512-jr7PV3ljGS5eZZynhr9MmFLu1dQrx3/LHTSy9qQpHyVTtPmuQmRAL3tBl59UiikEzDDgcqSXJq+EyqCujTfeRg==' 'sha512-nYBWx1nu2pppwDG9AKYgNYPpyBBkd9neoOp+urOGeeyW5SMvcu7wfNfmAH8bvwNBBXsWnDO2J9CJ4X3Ms5g4Nw==' 'sha512-brItnb27PGxPsxIAH5BGOLwD5sAJo2J38TUsiKIXhhM5VPOq+3SM4m9MUzrRR3hXRElHEssxROeuKoCJEH9dCA==' 'sha512-X/YkDZyjTf4wyc2Vy16YGCPHwAY8rZJY+POgokZjQB2mhIRFJCckEGc6YyX9eNsPfn0PzThEuNs+uaomE5CO6A==' 'sha512-zFcFNL4DXcsnkWzNIZ7bLkiYNTRFPhsbDBOqy1xiZJC0jslZBrEiIUrCbhpMLxCoG/9TZhCZn6yZXlRAchLjhQ==' 'sha512-sfFeniEKfxYQQwh+gKi310qb9unKnzuc2aMOm1Og/6hLJIVthgOS2gClmERHmYjLIpyS7+YaSuA8hZamQOM7/w==' 'nonce-39d554bdcf3ba5d83b041140dbf025d5' 'report-sample' 'strict-dynamic'; script-src-elem 'self' https://lifelessandcalm.com/static/index.js https://lifelessandcalm.com/static/trustedtypes.js https://lifelessandcalm.com/static/jsonpopup.js https://lifelessandcalm.com/static/GDPRrrrAAHrRRhHrAaahrrrrr.js https://lifelessandcalm.com/static/sizzle.js https://lifelessandcalm.com/static/popper.js; style-src 'self' 'report-sample' https://lifelessandcalm.com/static/bootstrap.min.css https://lifelessandcalm.com/static/fontawesome.min.css https://lifelessandcalm.com/static/main.css 'sha512-b2QcS5SsA8tZodcDtGRELiGv5SaKSk1vDHDaQRda0htPYWZ6046lr3kJ5bAAQdpV2mmA/4v0wQF9MyU6/pDIAg==' 'sha512-giQeaPns4lQTBMRpOOHsYnGw1tGVzbAIHUyHRgn7+6FmiEgGGjaG0T2LZJmAPMzRCl+Cug0ItQ2xDZpTmEc+CQ==' 'sha512-WTTlWWzrgBHnWQu7+V+8yGArIZq9BU4qxHtPmslj9v2+S+lSaTnLw8+0Qqe+ja3oKOVtG8a/1b6m3xWjisd7sA==' 'nonce-39d554bdcf3ba5d83b041140dbf025d5'; style-src-elem 'self' https://lifelessandcalm.com/static/bootstrap.min.css https://lifelessandcalm.com/static/fontawesome.min.css https://lifelessandcalm.com/static/main.css; manifest-src 'self' https://lifelessandcalm.com/static/site.webmanifest; connect-src 'self'; base-uri 'self'; frame-src 'self'; frame-ancestors 'self'; form-action 'self'; font-src 'self' Roboto-Regular.woff2 'sha512-APCPndZIlyyVcVR+BhctVQXdE/V3/i5lpJfThWFygHrBHJlphOQTjS6yrHhCV/5hhkruFXUv6ennb5jbkx4MKg=='; media-src 'self'; object-src 'none'; default-src 'none'; report-to csp-endpoint; report-uri https://lifelessandcalm.com/csp-violations; block-all-mixed-content; require-trusted-types-for 'script';";
+    add_header                                  Content-Security-Policy- "img-src 'self' data:; script-src 'self' https://benemortasia.com/static/benemortasia.min.js https://benemortasia.com/oauth10a_report.js 'sha512-YRU/bXfiBZTE2rCBmrsKZ2vYMLKBCIadHCEJjT2NVoQB23j+58wjoFgBuie6NjxWjzLW62W/iGhBTt1i9LBr0g==' 'sha512-vcFb3D1av5Bo4gPZyecugMVBU3fLj8ojtb67gexv56mYGK/pj0beTp4ZokUwIXVpC/1UyhRUBI7Copu9SKoKaA==' 'nonce-${request_id}' 'report-sample' 'strict-dynamic'; script-src-elem 'self' https://benemortasia.com/static/benemortasia.min.js https://benemortasia.com/oauth10a_report.js 'sha512-YRU/bXfiBZTE2rCBmrsKZ2vYMLKBCIadHCEJjT2NVoQB23j+58wjoFgBuie6NjxWjzLW62W/iGhBTt1i9LBr0g==' 'sha512-vcFb3D1av5Bo4gPZyecugMVBU3fLj8ojtb67gexv56mYGK/pj0beTp4ZokUwIXVpC/1UyhRUBI7Copu9SKoKaA=='; style-src 'self' 'report-sample' https://benemortasia.com/static/benemortasia.min.css 'sha512-AxgNLBV0rWI0dHZQMcrz74JphoO32C/4zrAW+cFSS6C/IUmKzF15q6AAEUu/ypvnPmjrZ7HwiQYI7xsamiA6rQ==' 'nonce-${request_id}';  style-src-elem 'self' https://benemortasia.com/static/benemortasia.min.css 'sha512-AxgNLBV0rWI0dHZQMcrz74JphoO32C/4zrAW+cFSS6C/IUmKzF15q6AAEUu/ypvnPmjrZ7HwiQYI7xsamiA6rQ=='; manifest-src 'self' https://benemortasia.com/static/benemortasia.webmanifest; connect-src 'self'; base-uri 'self'; frame-src 'self'; frame-ancestors 'self'; form-action 'self'; font-src 'self' Roboto-Regular.woff2 'sha512-APCPndZIlyyVcVR+BhctVQXdE/V3/i5lpJfThWFygHrBHJlphOQTjS6yrHhCV/5hhkruFXUv6ennb5jbkx4MKg=='; media-src 'self'; object-src 'none'; default-src 'none'; report-to csp-endpoint; require-trusted-types-for 'script';";
 	
                 ##
                 # CONTENT-SECURITY-POLICY-REPORT-ONLY
                 ##
-    add_header                                  Content-Security-Policy-Report-Only "img-src 'self' data:; script-src 'self' https://lifelessandcalm.com/static/trustedtypes.js https://lifelessandcalm.com/static/jquery-3.7.1.min.js https://lifelessandcalm.com/static/index.js https://lifelessandcalm.com/static/autoclosealerts.js https://lifelessandcalm.com/static/sizzle.js https://lifelessandcalm.com/static/bootstrap.bundle.min.js https://lifelessandcalm.com/static/GDPRrrrAAHrRRhHrAaahrrrrr.js 'sha512-l4ckb4OSghMf1MAUuppH/vBmisbElTCxTxscMC1bcaqn2PF3vvTETXdC014iDCZqfkwuF3TTWKZrG64pxkf0hg==' 'sha512-xQM0H6OnF2/RC9jNelcXyPr5cfh/oMFY8tlPzUhK4+1QMfSUFNroM/uAa3NltWmcIdLmVTdvaa2wUrIvb2mCpw==' 'sha512-jr7PV3ljGS5eZZynhr9MmFLu1dQrx3/LHTSy9qQpHyVTtPmuQmRAL3tBl59UiikEzDDgcqSXJq+EyqCujTfeRg==' 'sha512-nYBWx1nu2pppwDG9AKYgNYPpyBBkd9neoOp+urOGeeyW5SMvcu7wfNfmAH8bvwNBBXsWnDO2J9CJ4X3Ms5g4Nw==' 'sha512-brItnb27PGxPsxIAH5BGOLwD5sAJo2J38TUsiKIXhhM5VPOq+3SM4m9MUzrRR3hXRElHEssxROeuKoCJEH9dCA==' 'sha512-X/YkDZyjTf4wyc2Vy16YGCPHwAY8rZJY+POgokZjQB2mhIRFJCckEGc6YyX9eNsPfn0PzThEuNs+uaomE5CO6A==' 'sha512-zFcFNL4DXcsnkWzNIZ7bLkiYNTRFPhsbDBOqy1xiZJC0jslZBrEiIUrCbhpMLxCoG/9TZhCZn6yZXlRAchLjhQ==' 'sha512-sfFeniEKfxYQQwh+gKi310qb9unKnzuc2aMOm1Og/6hLJIVthgOS2gClmERHmYjLIpyS7+YaSuA8hZamQOM7/w==' 'nonce-39d554bdcf3ba5d83b041140dbf025d5' 'report-sample' 'strict-dynamic'; script-src-elem 'self' https://lifelessandcalm.com/static/index.js https://lifelessandcalm.com/static/trustedtypes.js https://lifelessandcalm.com/static/jsonpopup.js https://lifelessandcalm.com/static/GDPRrrrAAHrRRhHrAaahrrrrr.js https://lifelessandcalm.com/static/sizzle.js https://lifelessandcalm.com/static/popper.js; style-src 'self' 'report-sample' https://lifelessandcalm.com/static/bootstrap.min.css https://lifelessandcalm.com/static/fontawesome.min.css https://lifelessandcalm.com/static/main.css 'sha512-b2QcS5SsA8tZodcDtGRELiGv5SaKSk1vDHDaQRda0htPYWZ6046lr3kJ5bAAQdpV2mmA/4v0wQF9MyU6/pDIAg==' 'sha512-giQeaPns4lQTBMRpOOHsYnGw1tGVzbAIHUyHRgn7+6FmiEgGGjaG0T2LZJmAPMzRCl+Cug0ItQ2xDZpTmEc+CQ==' 'sha512-WTTlWWzrgBHnWQu7+V+8yGArIZq9BU4qxHtPmslj9v2+S+lSaTnLw8+0Qqe+ja3oKOVtG8a/1b6m3xWjisd7sA==' 'nonce-39d554bdcf3ba5d83b041140dbf025d5'; style-src-elem 'self' https://lifelessandcalm.com/static/bootstrap.min.css https://lifelessandcalm.com/static/fontawesome.min.css https://lifelessandcalm.com/static/main.css; manifest-src 'self' https://lifelessandcalm.com/static/site.webmanifest; connect-src 'self'; base-uri 'self'; frame-src 'self'; frame-ancestors 'self'; form-action 'self'; font-src 'self' Roboto-Regular.woff2 'sha512-APCPndZIlyyVcVR+BhctVQXdE/V3/i5lpJfThWFygHrBHJlphOQTjS6yrHhCV/5hhkruFXUv6ennb5jbkx4MKg=='; media-src 'self'; object-src 'none'; default-src 'none'; report-to csp-endpoint; report-uri https://lifelessandcalm.com/csp-violations; block-all-mixed-content; require-trusted-types-for 'script';";
+    add_header                                  Content-Security-Policy-Report-Only "img-src 'self' data:; script-src 'self' https://benemortasia.com/static/benemortasia.min.js https://benemortasia.com/oauth10a_report.js 'sha512-YRU/bXfiBZTE2rCBmrsKZ2vYMLKBCIadHCEJjT2NVoQB23j+58wjoFgBuie6NjxWjzLW62W/iGhBTt1i9LBr0g==' 'sha512-vcFb3D1av5Bo4gPZyecugMVBU3fLj8ojtb67gexv56mYGK/pj0beTp4ZokUwIXVpC/1UyhRUBI7Copu9SKoKaA==' 'nonce-${request_id}' 'report-sample' 'strict-dynamic'; script-src-elem 'self' https://benemortasia.com/static/benemortasia.min.js https://benemortasia.com/oauth10a_report.js 'sha512-YRU/bXfiBZTE2rCBmrsKZ2vYMLKBCIadHCEJjT2NVoQB23j+58wjoFgBuie6NjxWjzLW62W/iGhBTt1i9LBr0g==' 'sha512-vcFb3D1av5Bo4gPZyecugMVBU3fLj8ojtb67gexv56mYGK/pj0beTp4ZokUwIXVpC/1UyhRUBI7Copu9SKoKaA=='; style-src 'self' 'report-sample' https://benemortasia.com/static/benemortasia.min.css 'sha512-AxgNLBV0rWI0dHZQMcrz74JphoO32C/4zrAW+cFSS6C/IUmKzF15q6AAEUu/ypvnPmjrZ7HwiQYI7xsamiA6rQ==' 'nonce-${request_id}';  style-src-elem 'self' https://benemortasia.com/static/benemortasia.min.css 'sha512-AxgNLBV0rWI0dHZQMcrz74JphoO32C/4zrAW+cFSS6C/IUmKzF15q6AAEUu/ypvnPmjrZ7HwiQYI7xsamiA6rQ=='; manifest-src 'self' https://benemortasia.com/static/benemortasia.webmanifest; connect-src 'self'; base-uri 'self'; frame-src 'self'; frame-ancestors 'self'; form-action 'self'; font-src 'self' Roboto-Regular.woff2 'sha512-APCPndZIlyyVcVR+BhctVQXdE/V3/i5lpJfThWFygHrBHJlphOQTjS6yrHhCV/5hhkruFXUv6ennb5jbkx4MKg=='; media-src 'self'; object-src 'none'; default-src 'none'; report-to csp-endpoint; report-uri https://benemortasia.com/csp-violations; block-all-mixed-content; require-trusted-types-for 'script';";
 
                 ##
                 # PYTHON FLASK APPLICATION UNIX-SOCKET
@@ -194,7 +176,7 @@ server {
     location / {
                 # Include default uwsgi_params and extra uwsgi settings:
         include                                 uwsgi_params;
-        uwsgi_pass                              unix:/home/everybodygetshurt/everybodygetshurt/everybodygetshurt.sock;
+        uwsgi_pass                              unix:/home/benemortasia/benemortasia/benemortasia.sock;
         uwsgi_param                             Host              $host;
         uwsgi_param                             X-Real-IP         $remote_addr;
         uwsgi_param                             X-Forwarded-For   $proxy_add_x_forwarded_for;
@@ -221,19 +203,19 @@ server {
                 ##
 
     location /sitemap.xml {
-        root /home/everybodygetshurt/everybodygetshurt/webapp/static/.well-known/;
+        root /home/benemortasia/benemortasia/webapp/static/.well-known/;
     }
 
     location /security.txt {
-        root /home/everybodygetshurt/everybodygetshurt/webapp/static/.well-known/;
+        root /home/benemortasia/benemortasia/webapp/static/.well-known/;
     }
 
     location /pgp-key.asc {
-        root /home/everybodygetshurt/everybodygetshurt/webapp/static/.well-known/;
+        root /home/benemortasia/benemortasia/webapp/static/.well-known/;
     }
 
     location /robots.txt {
-        root /home/everybodygetshurt/everybodygetshurt/webapp/static/.well-known/;
+        root /home/benemortasia/benemortasia/webapp/static/.well-known/;
         add_header X-Content-Type-Options "nosniff";
     }
 
