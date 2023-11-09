@@ -39,7 +39,7 @@ def create_app():
     from .auth import auth
     from .oauth10a import oauth10a
     from .oauth20pkce import oauth20pkce
-    from .oauth10areport import impersonatingusers
+    from webapp.oauth10areport import oauth10areport
     from .error import (all_the_error_cries, TwitterAPIError, handle_error, handle_exception_error, forbidden,
                         handle_twitter_api_error, not_found, unauthorized, method_not_allowed, bad_request)
 
@@ -47,6 +47,7 @@ def create_app():
     app.register_blueprint(unauth, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(oauth10a, url_prefix='/')
+    app.register_blueprint(oauth10areport, url_prefix='/')
     app.register_blueprint(oauth20pkce, url_prefix='/')
     app.register_blueprint(all_the_error_cries, url_prefix='/')
 
