@@ -1,3 +1,6 @@
+"""
+The Unauth.py file is responsible for handling the website for users that are anonymous.
+"""
 from flask_login import login_required, current_user
 from flask import Blueprint, render_template, send_from_directory, jsonify, make_response, request
 from flask.globals import request
@@ -51,10 +54,10 @@ def gdpr_popup():
     return response
 
 
-@unauth.route('/privacypolicy')
-def privacypolicy():
+@unauth.route('/privacy')
+def privacy():
     """
-    Serve the Privacy Policy page.
+    Serve the Privacy Policy page with cache control headers to prevent caching.
     :return: Privacy Policy template
     """
     # Check if the user has already given consent (cookie is set)
@@ -62,73 +65,76 @@ def privacypolicy():
     if gdpr_consent != 'accepted':
         # If the user hasn't given consent, set the cookie to "accepted"
         response = make_response(render_template(
-            "privacypolicy.html", user=current_user, title="privacy policy", description="Learn how we protect your "
+            "privacy.html", user=current_user, title="privacy", description="Learn how we protect your "
                                                                                          "data at Benemortasia.com by"
                                                                                          " reading our detailed "
                                                                                          "privacy and security "
                                                                                          "policy."))
         response.set_cookie("ChewbaccaTheCookie", value="accepted", secure=True, httponly=True, samesite='Strict')
-        return response
+    else:
+        # If the user has already given consent, no need to show the popup again
+        response = make_response(render_template(
+            "privacy.html", user=current_user, title="privacy", description="Learn how we protect your data "
+                                                                                         "at Benemortasia.com by reading "
+                                                                                         "our detailed privacy and "
+                                                                                         "security policy."))
 
-    # If the user has already given consent, no need to show the popup again
-    return render_template(
-        "privacypolicy.html", user=current_user, title="privacy policy", description="Learn how we protect your data "
-                                                                                     "at Benemortasia.com by reading "
-                                                                                     "our detailed privacy and "
-                                                                                     "security policy.")
+    # Set cache control headers
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 
 @unauth.route('/.well-known/security.txt')
 def serve_security_txt():
     """
-    # WORKS v2 (Tested Online, https://lifelessandcalm.com/.well-known/security.txt)
+    # WORKS v2 (Tested Online, https://benemortasia.com/.well-known/security.txt)
     :return:
     """
-    return send_from_directory('/home/everybodygetshurt/everybodygetshurt/webapp/static/.well-known',
+    return send_from_directory('/home/benemortasia/benemortasia/webapp/static/.well-known',
                                'security.txt')
 
 
 @unauth.route('/.well-known/pgp-key.asc')
 def serve_pgp_key_asc():
     """
-    # WORKS v2 (Tested Online, https://lifelessandcalm.com.com/.well-known/security.txt)
+    # WORKS v2 (Tested Online, https://benemortasia.com/.well-known/security.txt)
     :return:
     """
-    return send_from_directory('/home/everybodygetshurt/everybodygetshurt/webapp/static/.well-known',
+    return send_from_directory('/home/benemortasia/benemortasia/webapp/static/.well-known',
                                'pgp-key.asc')
 
 
 @unauth.route('/robots.txt')
 def serve_robots_txt():
     """
-    # WORKS v2 (Tested Online, https://lifelessandcalm.com/robots.txt)
+    # WORKS v2 (Tested Online, https://benemortasia.com/robots.txt)
     :return:
     """
-
     @after_this_request
     def add_header(response):
         response.headers['Content-Type'] = 'text/html'
         response.headers['X-Content-Type-Options'] = 'nosniff'
         return response
 
-    return send_from_directory('/home/everybodygetshurt/everybodygetshurt/webapp/static/.well-known',
+    return send_from_directory('/home/benemortasia/benemortasia/webapp/static/.well-known',
                                'robots.txt')
 
 
 @unauth.route('/sitemap.xml')
 def serve_sitemap_xml():
     """
-    # WORKS v2 (Tested Online, https://lifelessandcalm.com/sitemap.xml)
+    # WORKS v2 (Tested Online, https://benemortasia.com/sitemap.xml)
     :return:
     """
-
     @after_this_request
     def add_header(response):
         response.headers['Content-Type'] = 'xml/html'
         response.headers['X-Content-Type-Options'] = 'nosniff'
         return response
 
-    return send_from_directory('/home/everybodygetshurt/everybodygetshurt/webapp/static/.well-known',
+    return send_from_directory('/home/benemortasia/benemortasia/webapp/static/.well-known',
                                'sitemap.xml')
 
 
