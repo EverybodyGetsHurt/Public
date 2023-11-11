@@ -2,7 +2,6 @@
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, JSON
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
 from logging.handlers import RotatingFileHandler
-from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 from instance import config
 from typing import List
@@ -13,7 +12,6 @@ import json
 import glob
 import time
 import os
-import re
 
 # Logging setup
 log_filename = os.path.join("TwitterData", "SQL-ImpersonatorAccounts", "ImpersonatorAccounts.log")
@@ -89,9 +87,9 @@ class SafeEncoder(json.JSONEncoder):
             return str(obj)
 
 
-# Class for the SQL-Alchemy database schema for impersonator_accounts
+# Class for the SQL-Alchemy database schema for ImpersonatorAccounts
 class TwitterAccount(Base):
-    __tablename__ = "impersonator_accounts"
+    __tablename__ = "impersonator_account"
     id = Column(Integer, primary_key=True, index=True)
     twitter_id = Column(String, unique=True)
     protected_channel = Column(String, index=True)
@@ -149,41 +147,20 @@ class TwitterAccount(Base):
             logging.info(f"{self.username} is already marked as suspended.")
 
     def update_username(self, new_username):
-        # Only update if the new username is different
-        if self.username.lower() != new_username.lower():
-            print(f"Updating username from {self.username} to {new_username}")
-            if self.previous_username:
-                self.previous_username += f",{self.username}"  # Append the old username with a comma
-            else:
-                self.previous_username = self.username  # If it's the first change, just assign the old username
-            self.username = new_username
-            self.username_changed += 1
-            self.username_changed_date = datetime.now()
+        print(f"Updating username from {self.username} to {new_username}")
+        if self.previous_username:
+            self.previous_username += f",{self.username}"  # Append the old username with a comma
         else:
-            print(f"No update needed for username: {self.username}")
+            self.previous_username = self.username  # If it's the first change, just assign the old username
+        self.username = new_username
+        self.username_changed += 1
+        self.username_changed_date = datetime.now()
 
-    def update_api_response(self, new_response_data):
-        # No need to parse JSON here, it should be passed as a dictionary
-        new_twitter_id = new_response_data.get("id")
-        if new_twitter_id and self.twitter_id != new_twitter_id:
-            self.twitter_id = new_twitter_id
-
-        # Update fields with new data from the API response
-        self.name = new_response_data.get("name")
-        self.description = new_response_data.get("description")
-        public_metrics = new_response_data.get('public_metrics', {})
-        self.followers_count = public_metrics.get('followers_count')
-        self.following_count = public_metrics.get('following_count')
-        self.tweet_count = public_metrics.get('tweet_count')
-        self.listed_count = public_metrics.get('listed_count')
-        self.url = new_response_data.get("url")
-        self.profile_image_url = new_response_data.get("profile_image_url")
-        created_at_str = new_response_data.get("created_at")
-        if created_at_str:
-            self.created_at = datetime.strptime(created_at_str, '%Y-%m-%dT%H:%M:%S.%fZ')
-
-        # Update the API response and timestamp
-        self.api_response = json.dumps(new_response_data, cls=SafeEncoder)  # Store the serialized data
+    def update_api_response(self, new_response):
+        # print(f"Updating API response")  # Debug print
+        self.previous_api_response = self.api_response
+        self.previous_api_response_updated_at = self.api_response_updated_at
+        self.api_response = json.dumps(new_response, cls=SafeEncoder)
         self.api_response_updated_at = datetime.now()
 
     def __repr__(self):
@@ -196,57 +173,24 @@ def chunked_usernames(usernames: List[str], chunk_size: int = 100):
         yield usernames[i:i + chunk_size]
 
 
+# Function made to reduce repetitive code
 def commit_session(session):
     try:
         session.commit()
         logging.info("Database commit successful.")
         return True
-    except IntegrityError as e:
-        session.rollback()
-        error_message = str(e.orig)
-        logging.error(f"Database commit failed: {error_message}", exc_info=True)
-        # Match the pattern for unique constraint failure on username
-        match = re.search(r"UNIQUE constraint failed: impersonator_accounts.username", error_message)
-        if match:
-            # Extract the username from the SQL query logged before the error
-            username_match = re.search(r"VALUES\s*\([^,]+,\s*'([^']+)'", error_message)
-            if username_match:
-                username = username_match.group(1)
-                logging.info(f"Unique constraint failed for username: {username}")
-                # Now we can check if this user is marked as unresolvable
-                existing_account = session.query(TwitterAccount).filter_by(username=username).first()
-                if existing_account and existing_account.unresolvable:
-                    # Here you call the function to handle the unresolvable user
-                    # Ensure you pass the correct parameters that your function expects
-                    return process_unresolvable_user(
-                        username, error_message, existing_account.protected_channel, session
-                    )
-                else:
-                    logging.error(f"Username {username} is not marked as unresolvable.")
-            else:
-                logging.error("Username could not be extracted from the error message.")
-        else:
-            logging.error("The integrity error is not related to the username unique constraint.")
-        return False
     except Exception as e:
         session.rollback()
         logging.error(f"Database commit failed: {e}", exc_info=True)
         return False
 
 
-# Function to create a new TwitterAccount object or update if it already exists
+# Function to create a new TwitterAccount object and add it to the session
 def create_new_account(user_data, session):
-    existing_account = session.query(TwitterAccount).filter_by(username=user_data['username'].lower()).first()
-    if existing_account:
-        existing_account.update_api_response(user_data)  # Pass dictionary directly
-        logging.info(f"Updated existing account {user_data['username']}")
-        print(f"Updated existing account {user_data['username']}")
-    else:
-        new_account = TwitterAccount(**user_data)
-        session.add(new_account)
-        logging.info(f"Added new account {user_data['username']}")
-        print(f"Added new account {user_data['username']}")
-
+    new_account = TwitterAccount(**user_data)
+    session.add(new_account)
+    logging.info(f"Added new account {user_data['username']}")
+    print(f"Added new account {user_data['username']}")
     if not commit_session(session):
         print("An error occurred while committing to the database.")
 
@@ -355,66 +299,21 @@ def process_not_found_user(username, error, protected_channel, session):
         print(f"An error occurred while processing {username}.")
 
 
-def process_unresolvable_user(username, error, protected_channel, session):
-    logging.info(f"Processing unresolvable user: {username}")
-    try:
-        user_data = {
-            'username': username,
-            'protected_channel': protected_channel,
-            'api_response': error,
-            'unresolvable': False  # Assuming the user is now resolvable
-        }
-
-        existing_account = session.query(TwitterAccount).filter_by(username=username).first()
-
-        if existing_account:
-            # If the user was previously marked as unresolvable, update their status
-            existing_account.unresolvable = False
-            for key, value in user_data.items():
-                setattr(existing_account, key, value)
-            logging.info(f"Updated {username} in the database as resolvable.")
-        else:
-            # This should not happen, but handle the case where there's no such user
-            logging.error(f"User {username} should exist but was not found in the database.")
-            return False
-
-        if not commit_session(session):
-            logging.error(f"Failed to commit changes for unresolvable user {username} to the database.")
-            return False
-
-        return True
-
-    except Exception as e:
-        logging.error(f"An error occurred while processing unresolvable user {username}: {e}", exc_info=True)
-        return False
-
-
 # Function to process an active user
 def process_active_user(account, user_data, protected_channel, session):
     user_data['protected_channel'] = protected_channel
     user_data['api_response'] = json.dumps(user_data, cls=SafeEncoder)
 
     if account:
-        # Reset the unresolvable flag if the user was previously marked as such
-        if account.unresolvable:
-            account.unresolvable = False
-            logging.info(f"Resetting unresolvable flag for user: {account.username}")
-
-        # Check if the account has been suspended or the username has changed
         if not account.suspended and account.username != user_data['username']:
             print(f"{account.username} changed username to {user_data['username']}")
             account.username = user_data['username']
 
-        # Update the account with the latest API response
-        account.update_api_response(user_data)  # Pass dictionary directly
+        account.update_api_response(user_data)
     else:
-        # If the account doesn't exist, create a new one
         create_new_account(user_data, session)
 
-    # Log the action
     print(f"{protected_channel} is impersonated by {user_data['username']}")
-
-    # Attempt to commit the session
     if not commit_session(session):
         print("An error occurred while committing to the database.")
 
@@ -503,9 +402,6 @@ def process_api_response(response, session, protected_channel):
     suspended_accounts = []
     active_impersonators = []
     not_found_users = []
-    resolved_users = []  # Keep the list of resolved users
-    has_updated_unresolvable = False  # Flag to track changes to unresolvable users
-
     if 'errors' in response:
         for error in response['errors']:
             detail = error.get('detail', 'No detail provided')
@@ -546,61 +442,69 @@ def process_api_response(response, session, protected_channel):
         for user_data in response['data']:
             user_data['protected_channel'] = protected_channel
             user_data['api_response'] = json.dumps(user_data, cls=SafeEncoder)
-            account = session.query(TwitterAccount).filter(
-                (TwitterAccount.twitter_id == user_data['id']) |
-                (TwitterAccount.username == user_data['username'].lower())
-            ).first()
+            account = session.query(TwitterAccount).filter_by(twitter_id=user_data['id']).first()
 
             if account:
-                # If the account exists, update its information
-                previous_unresolvable_status = account.unresolvable
+                if not account.suspended:
+                    if account.username != user_data['username']:
+                        print(f"{account.username} changed username to {user_data['username']}. Updating Database")
+                        account.update_username(user_data['username'])
                 account.update_api_response(user_data)
-                account.unresolvable = False
-                if account.username.lower() != user_data['username'].lower():
-                    print(f"{account.username} changed username to {user_data['username']}. Updating Database")
-                    account.update_username(user_data['username'])
-
-                if previous_unresolvable_status:
-                    # This is a user that was previously unresolvable but now has been resolved
-                    has_updated_unresolvable = True
-                    resolved_users.append(
-                        f"Detected reactivated account : {user_data['username']}")
+                if not commit_session(session):
+                    print("An error occurred while committing to the database.")
+                active_impersonators.append(f"{protected_channel} is impersonated by: {user_data['username']}.")
             else:
-                # If the account does not exist, create a new one
                 create_new_account(user_data, session)
                 active_impersonators.append(
-                    f"{protected_channel} impersonator added: {user_data['username']}")
+                    f"Added new impersonator for {protected_channel}: {user_data['username']}")
+                if not commit_session(session):
+                    print("An error occurred while committing to the database.")
 
-            if not commit_session(session):
-                print("An error occurred while committing to the database.")
-                continue  # Continue with the next user_data in case of commit failure
+    return suspended_accounts, active_impersonators, not_found_users
 
+
+def process_unresolvable_user(session, reactivated_usernames, usernames_chunk):
+    """
+    Checks if previously unresolvable accounts have become active again, updates their status in the database,
+    and logs a message when an unresolvable account becomes active.
+    """
+    for username in usernames_chunk:
+        url = create_url([username])
+        headers = create_headers(token_manager.get_current_token())
+        response_data = connect_to_endpoint(url, headers)
+
+        if response_data and 'data' in response_data:
+            # Account is now resolvable
+            user_data = response_data['data'][0]
+            account = session.query(TwitterAccount).filter_by(username=username).first()
             if account:
-                active_impersonators.append(f"{protected_channel} is impersonated by: {account.username}.")
-            else:
-                active_impersonators.append(f"{protected_channel} is impersonated by: {user_data['username']}.")
+                account.unresolvable = False
+                account.update_api_response(user_data)
+                print(f"Account {username} came back from the dead.")
+                logging.info(f"Account {username} is now resolvable and updated.")
+                reactivated_usernames.append(username)  # Collect username of reactivated account
 
-    # Only print resolved users if there were updates to unresolvable users
-    if has_updated_unresolvable:
-        print(f"{', '.join(resolved_users)}")
-
-    # Ensure to return four values as originally expected by the rest of your code
-    return suspended_accounts, active_impersonators, not_found_users, resolved_users
+                if not commit_session(session):
+                    print("An error occurred while committing to the database.")
+        else:
+            # Account remains unresolvable
+            logging.info(f"Account {username} is still unresolvable.")
 
 
 # Function to process the user's choice of protected channel
 def process_user_choice(choice, txt_files):
     if not choice or not choice.strip():
-        print(
-            "Invalid input. Please enter a number or name corresponding to the protected channels,"
-            " or type 'ALL' to select all channels.")
+        print("Invalid input. Please enter a number or name corresponding to the protected channels,"
+              " or type 'ALL' to select all channels.")
         return
+
+    # Initialize the list for collecting unresolvable usernames across all channels
+    unresolvable_usernames = []
 
     def process_choice(inner_choice):
         all_suspended_accounts = []
         all_active_impersonators = []
         all_not_found_users = []
-        all_resolved_users = []  # Initialize a list to store all resolved users
 
         try:
             choice_number = int(inner_choice)
@@ -609,14 +513,12 @@ def process_user_choice(choice, txt_files):
             with open(selected_file, 'r') as file:
                 urls = [line.strip() for line in file if line.strip()]
 
-            usernames = [get_username_from_url(url).lower() for url in urls if url.strip()]  # Added .lower() here
+            usernames = [get_username_from_url(url).lower() for url in urls if url.strip()]
             if not usernames:
                 logging.error(f"The usernames list is empty for file {selected_file}.")
                 return
 
-            errors = []
-            seen_usernames = set()
-            duplicate_usernames = set()
+            errors, seen_usernames, duplicate_usernames = [], set(), set()
             for username in usernames:
                 if username in seen_usernames:
                     duplicate_usernames.add(username)
@@ -643,6 +545,12 @@ def process_user_choice(choice, txt_files):
                 return
 
             with (Session() as session):
+                # Collect unresolvable usernames
+                unresolvables = session.query(TwitterAccount).filter_by(unresolvable=True, protected_channel=protected_channel).all()
+                for account in unresolvables:
+                    unresolvable_usernames.append(account.username)
+
+                # Existing logic to process usernames
                 chunks = list(chunked_usernames(usernames))
                 for chunk in chunks:
                     url = create_url(chunk)
@@ -650,22 +558,12 @@ def process_user_choice(choice, txt_files):
                     response_data = connect_to_endpoint(url, headers)
 
                     if response_data is not None:
-                        (
-                            suspended_accounts,
-                            active_impersonators,
-                            not_found_users,
-                            resolved_users
-                        ) = process_api_response(
-                            response_data, session, protected_channel
-                        )
-                        all_suspended_accounts.extend(suspended_accounts)
-                        all_active_impersonators.extend(active_impersonators)
-                        all_not_found_users.extend(not_found_users)
-                        all_resolved_users.extend(resolved_users)  # Collect resolved users from each API response
+                        suspended_accounts, active_impersonators, not_found_users = process_api_response(
+                            response_data, session, protected_channel)
                     else:
                         logging.error("Response data is None, skipping...")
 
-                    try:  # Add this try-except block here
+                    try:
                         all_suspended_accounts.extend(suspended_accounts)
                         all_active_impersonators.extend(active_impersonators)
                         all_not_found_users.extend(not_found_users)
@@ -676,7 +574,7 @@ def process_user_choice(choice, txt_files):
                               f"te-limited.\nError: Could not process information for {protected_channel}.\nInformation"
                               f" update Failed.\nPlease try again later...")
                         logging.warning("The request failed because both tokens are rate-limited.")
-                        return  # Or continue, depending on the loop or process flow
+                        return
 
                     time.sleep(1)
 
@@ -688,12 +586,6 @@ def process_user_choice(choice, txt_files):
                     print("\n".join(all_active_impersonators))
                 if all_not_found_users:
                     print("\n".join(all_not_found_users))
-                # After processing all chunks, we can log or print the resolved users
-                if all_resolved_users:
-                    logging.info(f"Resolved users for {protected_channel}: {', '.join(all_resolved_users)}")
-                    print(f"\n_____________________________________________\nReactivated impersonators for "
-                          f"{protected_channel}:\n_____________________________________________\n"
-                          f"{', '.join(all_resolved_users)}")
 
         except ValueError as e:
             print(f"ValueError occurred: {e}\nInvalid input. Please enter a number.")
@@ -703,6 +595,7 @@ def process_user_choice(choice, txt_files):
             logging.error(f"An unexpected error occurred: {e}", exc_info=True)
             traceback.print_exc()
 
+    # Process each selected channel
     if choice.upper() == "ALL":
         for txt_file in txt_files:
             process_choice(str(txt_files.index(txt_file) + 1))
@@ -713,8 +606,7 @@ def process_user_choice(choice, txt_files):
             if ch.isdigit():
                 process_choice(ch)
             else:
-                channel_names = [os.path.basename(txt_file).replace(
-                    'Active-', '').replace('.txt', '') for txt_file in txt_files]
+                channel_names = [os.path.basename(txt_file).replace('Active-', '').replace('.txt', '') for txt_file in txt_files]
                 if ch in channel_names:
                     process_choice(str(channel_names.index(ch) + 1))
                 else:
@@ -723,12 +615,25 @@ def process_user_choice(choice, txt_files):
         if choice.isdigit():
             process_choice(choice)
         else:
-            channel_names = [os.path.basename(txt_file).replace(
-                'Active-', '').replace('.txt', '') for txt_file in txt_files]
+            channel_names = [os.path.basename(txt_file).replace('Active-', '').replace('.txt', '') for txt_file in txt_files]
             if choice in channel_names:
                 process_choice(str(channel_names.index(choice) + 1))
             else:
                 print(f"Invalid name: {choice}")
+
+    # Process unresolvable usernames at the end
+    reactivated_usernames = []
+    with (Session() as session):
+        for usernames_chunk in chunked_usernames(unresolvable_usernames, 100):
+            process_unresolvable_user(session, reactivated_usernames, usernames_chunk)
+
+    # Output for reactivated accounts
+    if reactivated_usernames:
+        print("\n_____________________________________________")
+        print("Reactivated impersonators across all channels")
+        print("_____________________________________________")
+        for username in reactivated_usernames:
+            print(f"Impersonator reactivated: {username}")
 
 
 def validate_user_choice(choice, txt_files):
