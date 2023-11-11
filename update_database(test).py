@@ -1,3 +1,16 @@
+# TESTING TODO:
+# - If a known account (with previous information like ID) changes username, the script notices that the name changed if
+# the old name couldnt be found anymore, but uses the twitter_id which is unchangeable and forever, to get the new name.
+#
+# - If an account which was not being found for 2 runs of the script, it gets an unresolvable value. At the end of the
+# script the code will gather all the selected protected_channels from the menu and make chunks of 100 unresolvable user
+# names, and checks if any of the accounts became active again.
+#
+# OKIf an account is Suspended it updated the value and displays it as a Suspended account.
+#
+# OKIf a username is changed for a second and more times after, it must keep the old names in a comma separated list.
+
+
 # Import necessary libraries and modules
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, JSON
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
@@ -306,7 +319,9 @@ def process_active_user(account, user_data, protected_channel, session):
 
     if account:
         if not account.suspended and account.username != user_data['username']:
+
             print(f"{account.username} changed username to {user_data['username']}")
+
             account.username = user_data['username']
 
         account.update_api_response(user_data)
@@ -447,7 +462,10 @@ def process_api_response(response, session, protected_channel):
             if account:
                 if not account.suspended:
                     if account.username != user_data['username']:
-                        print(f"{account.username} changed username to {user_data['username']}. Updating Database")
+                        print(
+                            f"\n_____________________________________________\nProcessing API response... for "
+                            f"{protected_channel}\n_____________________________________________\n{account.username} ch"
+                            f"anged username to {user_data['username']}")
                         account.update_username(user_data['username'])
                 account.update_api_response(user_data)
                 if not commit_session(session):
@@ -546,7 +564,8 @@ def process_user_choice(choice, txt_files):
 
             with (Session() as session):
                 # Collect unresolvable usernames
-                unresolvables = session.query(TwitterAccount).filter_by(unresolvable=True, protected_channel=protected_channel).all()
+                unresolvables = session.query(TwitterAccount).filter_by(
+                    unresolvable=True, protected_channel=protected_channel).all()
                 for account in unresolvables:
                     unresolvable_usernames.append(account.username)
 
@@ -606,7 +625,8 @@ def process_user_choice(choice, txt_files):
             if ch.isdigit():
                 process_choice(ch)
             else:
-                channel_names = [os.path.basename(txt_file).replace('Active-', '').replace('.txt', '') for txt_file in txt_files]
+                channel_names = [os.path.basename(txt_file).replace(
+                    'Active-', '').replace('.txt', '') for txt_file in txt_files]
                 if ch in channel_names:
                     process_choice(str(channel_names.index(ch) + 1))
                 else:
@@ -615,7 +635,8 @@ def process_user_choice(choice, txt_files):
         if choice.isdigit():
             process_choice(choice)
         else:
-            channel_names = [os.path.basename(txt_file).replace('Active-', '').replace('.txt', '') for txt_file in txt_files]
+            channel_names = [os.path.basename(txt_file).replace('Active-', '').replace(
+                '.txt', '') for txt_file in txt_files]
             if choice in channel_names:
                 process_choice(str(channel_names.index(choice) + 1))
             else:
