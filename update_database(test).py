@@ -2,14 +2,23 @@
 # - If a known account (with previous information like ID) changes username, the script notices that the name changed if
 # the old name couldnt be found anymore, but uses the twitter_id which is unchangeable and forever, to get the new name.
 #
-# - If an account which was not being found for 2 runs of the script, it gets an unresolvable value. At the end of the
-# script the code will gather all the selected protected_channels from the menu and make chunks of 100 unresolvable user
-# names, and checks if any of the accounts became active again.
+# - If an account which was not being found for 2 runs of the script, it gets an unresolvable value. At the end of
+# the script the code will gather all the selected protected_channels from the menu and make chunks of 100
+# unresolvable user names, and checks if any of the accounts became active again.
+# TODO: Fix double entries and merge info into 1 updated user
 #
 # OKIf an account is Suspended it updated the value and displays it as a Suspended account.
 #
 # OKIf a username is changed for a second and more times after, it must keep the old names in a comma separated list.
-
+#
+# OKIf one of the 2 developer tokens hit the twitter rate limit it automatically switches to the second token, untill
+# that token gets rate limit, then it switches back to the first, if the first token is still rate limited, we currently
+# get an error response saying both tokens are rate limited. TODO: Catch the error and give a custom terminal print.
+#
+#
+#
+#
+#
 
 # Import necessary libraries and modules
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, JSON
@@ -498,7 +507,12 @@ def process_unresolvable_user(session, reactivated_usernames, usernames_chunk):
             if account:
                 account.unresolvable = False
                 account.update_api_response(user_data)
-                print(f"Account {username} came back from the dead.")
+
+                print(
+                    f"\n_____________________________________________\n"
+                    f"Processing API response... for {account.protected_channel}\n"
+                    f"_____________________________________________\n"
+                    f"Account {username} ({account.protected_channel}) came back from the dead.")
                 logging.info(f"Account {username} is now resolvable and updated.")
                 reactivated_usernames.append(username)  # Collect username of reactivated account
 
