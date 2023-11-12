@@ -1,24 +1,3 @@
-# TESTING TODO:
-# OKIf a known account (with previous information like ID) changes username, the script notices that the name changed if
-# the old name couldnt be found anymore, but uses the twitter_id which is unchangeable and forever, to get the new name.
-#
-# OKIf an account which was not being found for 2 runs of the script, it gets an unresolvable value. At the end of
-# the script the code will gather all the selected protected_channels from the menu and make chunks of 100
-# unresolvable user names, and checks if any of the accounts became active again.
-#
-# OKIf an account is Suspended it updated the value and displays it as a Suspended account.
-#
-# OKIf a username is changed for a second and more times after, it must keep the old names in a comma separated list.
-#
-# OKIf one of the 2 developer tokens hit the twitter rate limit it automatically switches to the second token, until the
-# token gets rate limit, then it switches back to the first, if the first token is still rate limited, we currently get
-# an error response saying both tokens are rate limited. TODO: Catch the error and give a custom terminal print.
-#
-#
-#
-#
-
-
 # Import necessary libraries and modules
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, JSON, func
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
@@ -169,14 +148,14 @@ class TwitterAccount(Base):
             logging.info(f"{self.username} is already marked as suspended.")
 
     def update_username(self, new_username):
-        print(f"Updating username from {self.username} to {new_username}")
-        if self.previous_username:
-            self.previous_username += f",{self.username}"  # Append the old username with a comma
-        else:
-            self.previous_username = self.username  # If it's the first change, just assign the old username
-        self.username = new_username
-        self.username_changed += 1
-        self.username_changed_date = datetime.now()
+        if self.username != new_username:
+            if self.previous_username:
+                self.previous_username += f",{self.username}"
+            else:
+                self.previous_username = self.username
+            self.username = new_username
+            self.username_changed += 1
+            self.username_changed_date = datetime.now()
 
     def update_api_response(self, new_response):
         # print(f"Updating API response")  # Debug print
