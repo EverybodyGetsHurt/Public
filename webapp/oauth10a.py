@@ -108,84 +108,60 @@ def oauth10aindex():
                            request_token_url=REQUEST_TOKEN_URL, user=current_user, app_callback_uri=app_callback_url)
 
 
-# The oauth10acallback route handles the callback from Twitter after the user has either authorized or denied access.
-# It processes the OAuth tokens and other details from the callback and either proceeds with accessing the user's data
-# or handles the denial.
 @login_required
 @oauth10a.route('/oauth10acallback')
 def oauth10acallback():
-    # This route is the callback endpoint that users are redirected to after they have interacted with
-    # Twitter’s authorization page. It’s responsible for handling the outcome of the authorization attempt,
-    # capturing the OAuth tokens and other details if the authorization was successful, or dealing with the
-    # denial if the user did not authorize the application.
-
-    # If the current user is authenticated, retrieve their email; otherwise, set email to None.
     if current_user.is_authenticated:
         email = current_user.email
     else:
         email = None
 
-    # Retrieve the OAuth token, verifier, and denied status from the request's query parameters.
     oauth_token = request.args.get('oauth_token')
     oauth_verifier = request.args.get('oauth_verifier')
     oauth_denied = request.args.get('denied')
 
-    # If the user denied the request, clean up the session and render an error message to inform the user
-    # that their OAuth request was denied.
     if oauth_denied:
         if oauth_denied in session:
             del session[oauth_denied]
-        return render_template('error.html',
-                               error_message="The OAuth request was denied by this user", user=current_user)
-    # If either the OAuth token or verifier is not present in the callback URL, render an error message
-    # indicating that these parameters are missing.
+        return render_template('error.html', error_message="OAuth request was denied", user=current_user)
+
     if not oauth_token or not oauth_verifier:
-        return render_template('error.html',
-                               error_message="Callback param(s) missing", user=current_user)
-    # Retrieve the OAuth token secret from the session. If not present, render an error message indicating
-    # its absence.
+        return render_template('error.html', error_message="Callback parameters missing", user=current_user)
+
     oauth_token_secret = session.get('oauth_token_secret')
     if not oauth_token_secret:
-        return render_template('error.html',
-                               error_message="oauth_token_secret not found in session", user=current_user)
-    # Create a new OAuth token with the received OAuth token and secret, set its verifier, then make a POST
-    # request to exchange the authorized request token for an access token.
-    consumer = oauth.Consumer(
-        APP_CONSUMER_KEY, APP_CONSUMER_SECRET)
+        return render_template('error.html', error_message="Missing OAuth token secret", user=current_user)
+
+    consumer = oauth.Consumer(APP_CONSUMER_KEY, APP_CONSUMER_SECRET)
     token = oauth.Token(oauth_token, oauth_token_secret)
     token.set_verifier(oauth_verifier)
     client = oauth.Client(consumer, token)
 
     resp, content = client.request(ACCESS_TOKEN_URL, "POST")
-    access_token = dict(urllib.parse.parse_qsl(content))
+    if resp['status'] != '200':
+        return render_template('error.html', error_message="Error obtaining access token", user=current_user)
 
-    # Decode and extract user information like screen name and user ID from the received access token.
-    screen_name = access_token[b'screen_name'].decode('utf-8')
-    user_id = access_token[b'user_id'].decode('utf-8')
+    access_token_data = dict(urllib.parse.parse_qsl(content.decode('utf-8')))
+    real_oauth_token = access_token_data.get('oauth_token')
+    real_oauth_token_secret = access_token_data.get('oauth_token_secret')
 
-    # Use the access token to make authenticated requests to the Twitter API.
-    real_oauth_token = access_token[b'oauth_token'].decode('utf-8')
-    real_oauth_token_secret = access_token[b'oauth_token_secret'].decode('utf-8')
+    # Use the new access token and secret to fetch user data
+    token = oauth.Token(key=real_oauth_token, secret=real_oauth_token_secret)
+    client = oauth.Client(consumer, token)
+    resp, content = client.request('https://api.twitter.com/1.1/account/verify_credentials.json', "GET")
 
-    # Create a new OAuth client with the real tokens to make an authenticated request to retrieve
-    # the user’s Twitter profile information.
-    real_token = oauth.Token(real_oauth_token, real_oauth_token_secret)
-    real_client = oauth.Client(consumer, real_token)
-    real_resp, real_content = real_client.request(SHOW_USER_URL + '?user_id=' + user_id, "GET")
+    if resp.status != 200:
+        return render_template('error.html', error_message="Error fetching user data", user=current_user)
 
-    # If the response from the Twitter API is not successful, render an error message with the status code.
-    if real_resp['status'] != '200':
-        error_message = "Invalid response from Twitter API GET users/show: {status}".format(status=real_resp['status'])
-        return render_template('error.html', error_message=error_message, user=current_user)
-    # Parse the response content, extracting the user’s Twitter details like friends count, statuses count,
-    # and followers count.
-    response = json.loads(real_content.decode('utf-8'))
+    response_data = json.loads(content.decode('utf-8'))
+    screen_name = response_data.get('screen_name', 'Unknown')
+    user_id = response_data.get('id_str', 'Unknown')
+    friends_count = response_data.get('friends_count', 'Unavailable')
+    statuses_count = response_data.get('statuses_count', 'Unavailable')
+    followers_count = response_data.get('followers_count', 'Unavailable')
+    name = response_data.get('name', 'Unknown')
 
-    friends_count = response['friends_count']
-    statuses_count = response['statuses_count']
-    followers_count = response['followers_count']
-    name = response['name']
-    # Create a new record with the user's Twitter and OAuth details to be added to the database.
+    # Database operations and adding the new record
     set_to_database = OAuth10a(
         twitter_id=user_id,
         account_name=screen_name,
@@ -195,35 +171,30 @@ def oauth10acallback():
         oauth_verifier=oauth_verifier,
         date_created=datetime.utcnow()
     )
-    # Attempt to add the new record to the database, handling any potential integrity errors that might occur.
+
     try:
         db.session.add(set_to_database)
         db.session.commit()
     except IntegrityError as e:
-        # This block catches any database integrity errors that occur when trying to add new OAuth records. It ensures
-        # that unique constraints are maintained, and appropriate updates are made to existing records if needed.
         db.session.rollback()
         error_message = str(e)
-        if "UNIQUE constraint failed: oauth10a.oauth_token_secret" in error_message and set_to_database. \
-                oauth_token_secret and set_to_database.oauth_token:
-            existing_entry = OAuth10a.query.filter_by(oauth_token_secret=set_to_database.oauth_token_secret,
-                                                      oauth_token=set_to_database.oauth_token).first()
+        if "UNIQUE constraint failed: oauth10a.oauth_token_secret" in error_message:
+            existing_entry = OAuth10a.query.filter_by(oauth_token_secret=set_to_database.oauth_token_secret).first()
             if existing_entry:
                 existing_entry.oauth_verifier = set_to_database.oauth_verifier
                 db.session.commit()
 
-        if 'UNIQUE constraint failed: oauth10a.user_id' in str(e):
+        elif 'UNIQUE constraint failed: oauth10a.user_id' in error_message:
             existing_record = OAuth10a.query.filter_by(user_id=set_to_database.user_id).first()
-            if existing_record and existing_record.oauth_token_secret == set_to_database.oauth_token_secret \
-                    and existing_record.oauth_token == set_to_database.oauth_token:
+            if existing_record:
                 existing_record.oauth_verifier = set_to_database.oauth_verifier
                 db.session.commit()
-    # If all goes well, render the callback page, displaying the user’s Twitter details and the received OAuth tokens.
+
     return render_template(
         'oauth10acallback.html', screen_name=screen_name, user_id=user_id,
         name=name, friends_count=friends_count, statuses_count=statuses_count,
-        followers_count=followers_count, access_token_url=ACCESS_TOKEN_URL, user=current_user,
-        email=email)
+        followers_count=followers_count, user=current_user, email=email
+    )
 
 
 # This function handles any IntegrityError exceptions that might occur during the process of adding and committing
