@@ -1,27 +1,30 @@
-# Standard library imports
-import base64
-import hashlib
-import logging
-import secrets
+# Standard library imports: These are Python built-in modules used for various standard operations.
+import base64  # Used for encoding binary data into ASCII characters.
+import hashlib  # Provides a set of algorithms for cryptographic hashing.
+import logging  # Facilitates logging of messages for debugging and system monitoring.
+import secrets  # Generates cryptographically strong random numbers for managing secrets.
 
-# Third-party imports
+# Third-party imports: These are modules installed separately, often used for web development and HTTP requests.
 from flask import (Flask, Blueprint, render_template, session, request,
-                   redirect, url_for, flash)
-from flask_login import current_user, login_required
-from sqlalchemy.exc import IntegrityError
-import requests
+                   redirect, url_for, flash)  # Flask modules for web app development.
+from flask_login import current_user, login_required  # Flask-Login module for handling user session and authentication.
+from sqlalchemy.exc import IntegrityError  # SQLAlchemy module for handling database errors.
+import requests  # Module for making HTTP requests.
 
-# Local application imports
-from .models import db, OAuth20PKCE
-from sqlalchemy.sql import func
+# Local application imports: These are modules specific to your application, typically for database models.
+from .models import db, OAuth20PKCE  # Importing database and model related classes.
+from sqlalchemy.sql import func  # SQLAlchemy's func module is used for SQL functions.
 
 
-# Initializing Flask app and loading configurations
+# Initializing the Flask application instance with instance_relative_config set to True.
+# This allows the app to load configuration files relative to the instance folder.
 app = Flask(__name__, instance_relative_config=True)
-app.config.from_pyfile('config.py', silent=True)
-app.secret_key = app.config['API_KEY_SECRET']
+app.config.from_pyfile('config.py', silent=True)  # Loading configurations from 'config.py'.
+app.secret_key = app.config['API_KEY_SECRET']  # Setting the Flask app's secret key for session management.
 
-# Creating a Blueprint for the OAuth 2.0 PKCE routes
+# Creating a Blueprint named 'oauth20pkce'.
+# Blueprints are used in Flask to organize a group of related views and other code.
+# Here, 'oauth20pkce' is designated for handling OAuth 2.0 PKCE related routes.
 oauth20pkce = Blueprint('oauth20pkce', __name__)
 
 
@@ -32,30 +35,40 @@ oauth20pkce = Blueprint('oauth20pkce', __name__)
 # It creates a Blueprint for the OAuth 2.0 PKCE flow and sets up the first route for starting the OAuth flow.
 # When the user accesses this route, a code verifier and challenge are generated and stored,
 # and the user is redirected to the OAuth provider's authorization URL.
-@oauth20pkce.route('/oauth20pkceindex')
+@oauth20pkce.route('/oauth20pkceindex')  # Maps the URL '/oauth20pkceindex' to this function.
 def oauth20pkce_index():
-    # A unique code_verifier is generated each time the OAuth flow is initiated to ensure security.
-    # The code_challenge derived from the code_verifier is sent to the authorization server.
+    """
+    This route initializes the OAuth 2.0 PKCE authorization flow. It generates a code verifier and challenge,
+    and redirects the user to the OAuth provider's (e.g., Twitter) authorization URL.
+
+    The function generates a unique 'code_verifier' and a corresponding 'code_challenge' for each OAuth flow.
+    It also generates a 'state' value for CSRF protection. These values are stored in the user's session
+    and used in subsequent steps of the OAuth flow.
+    """
+
+    # Generating a code verifier and challenge for the OAuth 2.0 PKCE flow. The code verifier is a random
+    # string, and the code challenge is derived from it using SHA-256 hashing and base64 encoding.
+    # This is part of the OAuth 2.0 PKCE extension to enhance the security of the authorization flow.
     code_verifier = ''.join(
         secrets.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~') for _ in range(64))
+    code_challenge = base64.urlsafe_b64encode(hashlib.sha3_512(code_verifier.encode()).digest()).decode().rstrip('=')
 
-    # Generate the code challenge by hashing the code verifier using SHA-256, then base64url encoding the hash
-    code_challenge = base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode()).digest()).decode().rstrip('=')
-
-    # The state parameter is a CSRF token that is sent to the authorization server and must be returned unchanged
-    # to prevent cross-site request forgery attacks.
+    # The state parameter is a unique token generated for each authorization request.
+    # This is used to prevent CSRF attacks by ensuring that the response to the authorization request
+    # comes from the intended user and session.
     state = secrets.token_hex(16)
 
-    # Storing the code verifier and state in the session ensures that they can be retrieved later
-    # for validation and to complete the OAuth flow.
+    # Storing the generated code verifier and state in the user's session.
+    # This is important for validating the response in the callback step of the OAuth flow.
     session['code_verifier'] = code_verifier
     session['state'] = state
 
-    # Log the code_verifier and code_challenge
+    # Logging the generated code verifier and challenge for debugging and monitoring purposes.
     logging.info(f"Code Verifier: {code_verifier}")
     logging.info(f"Code Challenge: {code_challenge}")
 
-    # Constructing the authorization URL with the client ID, redirect URI, scopes, state, code challenge, and method
+    # Constructing the authorization URL to redirect the user to the OAuth provider's authorization endpoint.
+    # This URL includes parameters like the client ID, redirect URI, required scopes, state, and code challenge.
     authorization_url = (
         f"https://twitter.com/i/oauth2/authorize"
         f"?response_type=code"
@@ -67,10 +80,11 @@ def oauth20pkce_index():
         f"&code_challenge_method=S256"
     )
 
-    # The complete authorization URL is logged for debugging purposes
+    # Logging the complete authorization URL for audit trails and troubleshooting.
     logging.info(f"Authorization URL: {authorization_url}")
 
-    # Rendering a template with the authorization URL and current user
+    # Rendering a template that displays the OAuth authorization link to the user.
+    # This template will also show the current user's information if they are logged in.
     return render_template('oauth20pkceindex.html', authorization_url=authorization_url, user=current_user)
 
 
@@ -110,7 +124,7 @@ def oauth20pkcecallback():
     if state != session.get('state'):
         app.logger.warning('Invalid state parameter')
         flash('Invalid state parameter', 'danger')
-        return redirect(url_for('unauth.unauthhome'))
+        return redirect(url_for('unauth.unauthabout'))
 
     # Retrieving the stored code verifier from the session
     code_verifier = session.get('code_verifier')
