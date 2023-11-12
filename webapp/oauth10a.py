@@ -1,37 +1,53 @@
-# Standard library imports
-import json
-import urllib.parse
-import base64
-import hashlib
-import logging
-import secrets
-from datetime import datetime, timedelta
-from functools import wraps
-from types import GeneratorType
+# Standard and third-party libraries are imported to provide necessary functionalities for OAuth implementation,
+# web application handling, and database operations. These imports lay the foundation for various features such as
+# JSON handling, URL parsing, cryptographic functions, logging, OAuth authentication, Flask web framework utilities,
+# and database interaction.
 
-# Third-party imports
-import oauth2 as oauth
-from flask import (Flask, Blueprint, render_template, request, url_for, session)
-from flask_login import current_user, login_required
-from sqlalchemy.exc import IntegrityError
-from werkzeug.security import generate_password_hash
+# Specifically: - 'json', 'urllib.parse', 'base64', 'hashlib', 'logging', and 'secrets' are standard libraries used
+# for data encoding, logging, and security purposes. - 'datetime', 'timedelta', 'wraps', and 'GeneratorType' provide
+# date/time handling, decorator creation, and type checking. - 'oauth2', 'flask', 'flask_login', and 'sqlalchemy' are
+# third-party libraries essential for OAuth processes, web server setup, user session management, and database
+# interaction. - Local imports from '.error', '.models', '.oauth10areport', and 'instance.config' integrate custom
+# error handling, database models, specific functionalities, and configuration settings into the application.
 
-# Local application imports
-from .error import all_the_error_cries, TwitterAPIError
-from .models import db, OAuth10a
-from .oauth10areport import impersonatingusers
+import base64  # For base64 encoding, commonly used in OAuth.
+import hashlib  # To hash data, such as in PKCE (Proof Key for Code Exchange).
+import json  # For JSON encoding and decoding.
+import logging  # For logging information and errors.
+import secrets  # For generating cryptographically strong random numbers, such as tokens.
+import urllib.parse  # To parse URLs and query strings.
+from datetime import datetime, timedelta, timezone  # For handling date and time.
+from functools import wraps  # To create decorators.
+from types import GeneratorType  # To identify generator types.
+
+# Third-party imports for OAuth and Flask.
+import oauth2 as oauth  # OAuth's library for OAuth 1.0a implementation.
+from flask import Flask, Blueprint, render_template, request, url_for, session
+from flask_login import current_user, login_required  # Flask-Login for user session management.
+from sqlalchemy.exc import IntegrityError  # To handle database integrity errors.
+from werkzeug.security import generate_password_hash  # To securely hash data.
+
 from instance.config import (APP_CONSUMER_KEY, APP_CONSUMER_SECRET, REQUEST_TOKEN_URL,
-                             ACCESS_TOKEN_URL, AUTHORIZE_URL, SHOW_USER_URL)
+                             ACCESS_TOKEN_URL, AUTHORIZE_URL)  # OAuth's configuration.
+# Local application imports for handling errors and database interaction.
+from .error import TwitterAPIError
+from .models import db, OAuth10a  # Database models including the OAuth10a model.
+from .oauth10areport import impersonatingusers  # Function to report impersonating users.
 
-
-# A log file is configured to record debug and error information, aiding in monitoring and troubleshooting.
+# The logging setup ensures that all critical information and errors are recorded to a log file.
+# This is vital for monitoring the application's behavior, troubleshooting issues, and maintaining a record
+# of events for audit and analysis purposes. The specified format includes timestamps, log severity levels,
+# and the message content.
 logging.basicConfig(filename='/home/benemortasia/benemortasia/oauth1.0a-logfile.log', level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
 
-# oauth_store is a dictionary that temporarily holds OAuth tokens and secrets for ongoing sessions.
+# Dictionary to temporarily store OAuth tokens and secrets during sessions.
 oauth_store = {}
 
-# Flask application and Blueprint initialization
+# Initializing the main Flask application and a specific Blueprint for OAuth 1.0a routes. The Flask app is configured
+# with settings from a configuration file, and a secret key is set for secure session handling. The Blueprint
+# 'oauth10a' is used to organize and register routes related to OAuth 1.0a processes, enhancing the modularity and
+# maintainability of the application.
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile('config.py', silent=True)
 app.secret_key = app.config['API_KEY_SECRET']
@@ -50,28 +66,34 @@ def refresh_oauth_token(oauth_instance):
     return oauth_instance
 
 
-# This decorator function is used to refresh OAuth tokens when they are expired.
-# It should be applied to any route where an OAuth token is required for accessing an API.
+# The 'refresh_oauth_token' function and 'needs_token_refresh' decorator are designed to handle the automatic refreshing
+# of OAuth tokens. This is crucial to ensure continuous access to resources protected by OAuth,
+# as tokens typically have an expiration date for security reasons.
 def needs_token_refresh():
+    # The decorator 'needs_token_refresh' is applied to routes requiring up-to-date OAuth tokens. It checks if the
+    # token is older than 30 days and refreshes it if necessary, leveraging the 'refresh_oauth_token' function. This
+    # approach automates the token refresh process, reducing the risk of using expired tokens and improving user
+    # experience.
     def decorator(view_func):
         @wraps(view_func)
         def wrapped(*args, **kwargs):
-            # Check if the OAuth token needs to be refreshed
+            # Check if the OAuth token needs to be refreshed.
             if kwargs.get('oauth_instance') and kwargs.get('oauth_instance').last_token_refresh_date:
-                thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+                thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
                 if kwargs.get('oauth_instance').last_token_refresh_date < thirty_days_ago:
-                    # Refresh the OAuth token
+                    # Refresh the OAuth token.
                     kwargs['oauth_instance'] = refresh_oauth_token(kwargs.get('oauth_instance'))
             return view_func(*args, **kwargs)
-
         return wrapped
-
     return decorator
 
 
-# The oauth10aindex route initiates the OAuth 1.0a authentication process. It creates a request token
-# and redirects the user to Twitter's authorization URL.
+# The defined routes (such as '/oauth10aindex', '/oauth10acallback', '/oauth10areportimpersonators')
+# are part of the OAuth 1.0a authentication and reporting process. They handle various stages of OAuth authentication,
+# from initiating the process, handling callbacks with authentication data, to reporting potential impersonators.
 @login_required
+# The '@login_required' decorator ensures that these routes are only accessible to authenticated users,
+# adding a layer of security and user-specific context to the operations.
 @oauth10a.route('/oauth10aindex')
 def oauth10aindex():
     # This route is responsible for initiating the OAuth 1.0a authentication process. It generates a request token
@@ -111,6 +133,10 @@ def oauth10aindex():
                            request_token_url=REQUEST_TOKEN_URL, user=current_user, app_callback_uri=app_callback_url)
 
 
+# Callback route for OAuth 1.0a, handling the response from Twitter's authorization page.
+# Handle the OAuth callback with the data returned from Twitter.
+# Perform checks, exchange request token for access token, and handle any errors.
+# Fetch user data using access token and store OAuth details in database.
 @login_required
 @oauth10a.route('/oauth10acallback')
 def oauth10acallback():
@@ -172,7 +198,7 @@ def oauth10acallback():
         oauth_token=real_oauth_token,
         oauth_token_secret=real_oauth_token_secret,
         oauth_verifier=oauth_verifier,
-        date_created=datetime.utcnow()
+        date_created=datetime.now(timezone.utc)
     )
 
     try:
@@ -194,8 +220,9 @@ def oauth10acallback():
                 db.session.commit()
 
     # Generate code verifier and challenge for PKCE
-    code_verifier = ''.join(secrets.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~') for _ in range(64))
-    code_challenge = base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode()).digest()).decode().rstrip('=')
+    code_verifier = ''.join(
+        secrets.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~') for _ in range(64))
+    code_challenge = base64.urlsafe_b64encode(hashlib.sha3_512(code_verifier.encode()).digest()).decode().rstrip('=')
     state = secrets.token_hex(16)
 
     # Store code verifier and state in session
@@ -252,29 +279,75 @@ def handle_integrity_error(e, set_to_database):
 # This function is specifically for updating the OAuth token information in the database when a unique
 # constraint violation is detected, ensuring that the user’s OAuth tokens are always up-to-date.
 def update_existing_entry(set_to_database):
+    """
+    This function, 'update_existing_entry', is designed to update OAuth token information in the database for an
+    existing entry. It's particularly useful when a unique constraint violation occurs, indicating that an attempt
+    was made to insert a duplicate record. This scenario is common in OAuth workflows where tokens may need to be
+    refreshed or updated.
+
+    :param set_to_database: An instance of the OAuth10a model, containing the new OAuth data that needs to be updated
+    in the database.
+
+    Process: 1. Query the database for an existing OAuth10a entry that matches both the oauth_token and
+    oauth_token_secret from the 'set_to_database' instance. This step is crucial to identify the specific record that
+    needs to be updated. 2. If such an entry exists, it means that the OAuth token already exists in the database but
+    needs to be updated with new information (like a refreshed token or a new verifier). 3. The function then updates
+    various fields of the existing database entry with the new data from 'set_to_database'. This includes the
+    oauth_verifier, account_name, oauth_token, and oauth_token_secret. These updates ensure that the database entry
+    reflects the most current state of the OAuth token. 4. The date_created field in the existing entry is also
+    updated to reflect the date when the new token information was set. 5. Additionally, the last_token_refresh_date
+    is set to the current datetime. This field is critical for tracking when the token was last refreshed,
+    which is an essential part of managing OAuth tokens' lifecycle. 6. Finally, the changes are committed to the
+    database, making the update effective immediately.
+
+    Importance:
+    - Ensures that the database always has the latest OAuth token information, which is crucial for maintaining
+      a secure and functional OAuth implementation.
+    - Helps in avoiding issues related to expired or stale OAuth tokens by ensuring that the latest token data is
+      always stored and used.
+    - Aids in maintaining data integrity in the database by preventing duplicate records and resolving unique
+      constraint violations efficiently.
+    """
     existing_entry = OAuth10a.query.filter_by(
         oauth_token_secret=set_to_database.oauth_token_secret,
         oauth_token=set_to_database.oauth_token
     ).first()
+
     if existing_entry:
+        # Update the existing record with the new data.
         existing_entry.oauth_verifier = set_to_database.oauth_verifier
         existing_entry.account_name = set_to_database.account_name
         existing_entry.oauth_token = set_to_database.oauth_token
         existing_entry.oauth_token_secret = set_to_database.oauth_token_secret
         existing_entry.date_created = set_to_database.date_created
-        existing_entry.last_token_refresh_date = datetime.utcnow()  # Added this line
+        # Update the last token refresh date to the current time.
+        existing_entry.last_token_refresh_date = datetime.now(timezone.utc)
+
+        # Commit the changes to the database.
         db.session.commit()
 
 
 # This function is for updating the user's record when a unique constraint violation on twitter_id is detected.
 # It keeps the history of the user’s previous Twitter account information for reference.
 def update_existing_record(set_to_database):
-    existing_record = OAuth10a.query.filter_by(twitter_id=set_to_database.twitter_id).first()  # Updated this line
+    """
+    Updates an existing OAuth10a record in the database when a unique constraint violation on twitter_id is detected.
+    This function serves two main purposes: 1. It maintains the integrity of the database by ensuring that each
+    Twitter ID is associated with only one record. 2. It preserves a history of the user's previous Twitter account
+    information, which can be useful for tracking changes over time or auditing purposes.
+
+    :param set_to_database: An instance of OAuth10a containing the updated information to be saved.
+    """
+    # Query the OAuth10a table to find an existing record with the same twitter_id.
+    existing_record = OAuth10a.query.filter_by(twitter_id=set_to_database.twitter_id).first()
+
     if existing_record:
-        # If the twitter_id has changed, store the existing information in the previous_twitter_account_info column
-        if existing_record.twitter_id != set_to_database.twitter_id:  # Updated this line
+        # Check if the twitter_id of the existing record is different from the new data.
+        # If so, it indicates that the user's Twitter ID has changed, and the previous data should be archived.
+        if existing_record.twitter_id != set_to_database.twitter_id:
+            # Create a dictionary to store the previous state of the record.
             previous_info = {
-                "twitter_id": existing_record.twitter_id,  # Updated this line
+                "twitter_id": existing_record.twitter_id,
                 "account_name": existing_record.account_name,
                 "oauth_token": existing_record.oauth_token,
                 "oauth_token_secret": existing_record.oauth_token_secret,
@@ -282,25 +355,36 @@ def update_existing_record(set_to_database):
                 "date_created": existing_record.date_created.strftime('%Y-%m-%d %H:%M:%S')
             }
 
-            # If previous_twitter_account_info already contains data, append new data to the list
+            # Check if there is already existing data in the 'previous_twitter_account_info' column.
+            # This column is intended to store a history of changes as a JSON array.
             if existing_record.previous_twitter_account_info:
+                # Parse the existing JSON data into a Python list.
                 existing_data = json.loads(existing_record.previous_twitter_account_info)
+                # Append the new historical data to the list.
                 if isinstance(existing_data, list):
                     existing_data.append(previous_info)
                 else:
+                    # If the existing data is not a list (which shouldn't happen in normal circumstances),
+                    # create a new list containing the current and new historical data.
                     existing_data = [existing_data, previous_info]
+
+                # Convert the updated list back into JSON format and store it.
                 existing_record.previous_twitter_account_info = json.dumps(existing_data)
             else:
+                # If there is no existing history, start a new history list with the current historical data.
                 existing_record.previous_twitter_account_info = json.dumps([previous_info])
 
-        # Update the record with the new information
-        existing_record.twitter_id = set_to_database.twitter_id  # Updated this line
-        existing_record.email = set_to_database.email  # Added this line to ensure email is updated
+        # Update the existing record with the new data from set_to_database.
+        existing_record.twitter_id = set_to_database.twitter_id
+        existing_record.email = set_to_database.email  # Ensuring the email is also updated.
         existing_record.account_name = set_to_database.account_name
         existing_record.oauth_token = set_to_database.oauth_token
         existing_record.oauth_token_secret = set_to_database.oauth_token_secret
         existing_record.oauth_verifier = set_to_database.oauth_verifier
-        existing_record.last_token_refresh_date = datetime.utcnow()  # Added this line
+        # Update the last token refresh date to the current time.
+        existing_record.last_token_refresh_date = datetime.now(timezone.utc)
+
+        # Commit the changes to the database.
         db.session.commit()
 
 
@@ -309,6 +393,16 @@ def update_existing_record(set_to_database):
 @login_required
 @oauth10a.route('/oauth10areportimpersonators')
 def oauth10areport():
+    """
+    This route, 'oauth10areportimpersonators', serves a web page that presents a report based on OAuth 1.0a
+    authentication and user data acquired from Twitter. The function is protected with @login_required, ensuring that
+    only authenticated users can access this report.
+
+    The route uses Flask's 'render_template' function to render the 'oauth10areport.html' template. This HTML
+    template will be dynamically populated with data passed to it, such as the current user's information. The
+    template can display various details such as the authentication status, user details fetched from Twitter,
+    and any other relevant data processed in the backend.
+    """
     # This route returns a web page containing a report. The exact content and format of the report are
     # determined by the 'oauth10areport.html' template and any data passed to it during rendering.
     return render_template("oauth10areport.html", user=current_user)
@@ -316,7 +410,18 @@ def oauth10areport():
 
 # This custom JSON encoder is used to serialize objects into JSON format, especially those that aren’t
 # serializable by the default JSON encoder, like generator objects.
-class CustomJSONEncoder(json.JSONEncoder):  # Updated JSONEncoder import here
+class CustomJSONEncoder(json.JSONEncoder):
+    """
+    CustomJSONEncoder extends the default JSONEncoder to handle serialization of more complex Python objects,
+    like generators, which the default encoder cannot serialize. This class overrides the 'default' method of
+    JSONEncoder.
+
+    - For generator objects, it first converts them into a list, which is then easily serializable.
+    - For other object types, it falls back to the superclasses default serialization method.
+
+    This custom encoder ensures that when JSON encoding is required (for example, sending data via an API or saving
+    to a file), the application can handle a wider range of data types without encountering serialization errors.
+    """
     def default(self, obj):
         # If the object is a generator, convert it to a list before JSON encoding
         if isinstance(obj, GeneratorType):
@@ -332,6 +437,22 @@ class CustomJSONEncoder(json.JSONEncoder):  # Updated JSONEncoder import here
 @oauth10a.route('/oauth10areportimpersonators', methods=['POST'])
 @needs_token_refresh()
 def oauth10areportimpersonators():
+    """
+    The 'oauth10areportimpersonators' route is designed to process POST requests where the user submits data
+    identifying a specific Twitter channel that may be subject to impersonation.
+
+    - It first retrieves the 'impersonated_channel' parameter from the form data.
+    - It then calls the 'impersonatingusers' function, passing the channel name. This function is responsible for
+      identifying Twitter users potentially impersonating the specified channel. The exact logic of how impersonation
+      is determined should be defined within the 'impersonatingusers' function.
+    - The response from 'impersonatingusers' is then encoded into JSON format using the custom JSON encoder,
+      'CustomJSONEncoder', to handle any complex data types.
+    - Finally, it renders the 'oauth10areport.html' template, passing the current user's information and the
+      JSON-encoded response data for display.
+
+    The route also uses the @needs_token_refresh() decorator to ensure that the OAuth token is refreshed if necessary,
+    maintaining a secure and updated authentication state.
+    """
     # Retrieve the 'impersonated_channel' parameter from the form data in the POST request
     impersonated_channel = request.form.get('impersonated_channel')
     # The 'impersonatingusers' function is assumed to return a list of Twitter users who are potentially
@@ -348,6 +469,17 @@ def oauth10areportimpersonators():
 # returned as the response’s status code.
 @oauth10a.errorhandler(TwitterAPIError)
 def handle_twitter_api_error(error):
-    # Render an error template with the error message and user information, and return the error's status code as
-    # the HTTP status code
+    """
+    This function is a custom error handler for TwitterAPIError exceptions. When such an exception is raised
+    within the OAuth10a blueprint context, this handler is invoked.
+
+    - The function captures the TwitterAPIError instance, extracts its message, and the associated HTTP status code.
+    - It then renders an 'error.html' template, passing the error message and current user's information. This provides
+      a user-friendly way to display error details.
+    - The HTTP status code from the error is returned as part of the response, ensuring that the correct HTTP response
+      status is communicated to the client.
+
+    This approach centralizes error handling for TwitterAPIError, making the codebase cleaner and error responses
+    more consistent.
+    """
     return render_template('error.html', error_message=str(error), user=current_user), error.status_code
