@@ -1,7 +1,10 @@
 # Standard library imports
 import json
-import logging
 import urllib.parse
+import base64
+import hashlib
+import logging
+import secrets
 from datetime import datetime, timedelta
 from functools import wraps
 from types import GeneratorType
@@ -190,10 +193,38 @@ def oauth10acallback():
                 existing_record.oauth_verifier = set_to_database.oauth_verifier
                 db.session.commit()
 
+    # Generate code verifier and challenge for PKCE
+    code_verifier = ''.join(secrets.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~') for _ in range(64))
+    code_challenge = base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode()).digest()).decode().rstrip('=')
+    state = secrets.token_hex(16)
+
+    # Store code verifier and state in session
+    session['code_verifier'] = code_verifier
+    session['state'] = state
+
+    # Construct authorization URL
+    authorization_url = (
+        f"https://twitter.com/i/oauth2/authorize"
+        f"?response_type=code"
+        f"&client_id={app.config['CLIENT_ID']}"
+        f"&redirect_uri={app.config['REDIRECT_URI']}"
+        f"&scope=tweet.read users.read mute.read mute.write block.read block.write offline.access"
+        f"&state={state}"
+        f"&code_challenge={code_challenge}"
+        f"&code_challenge_method=S256"
+    )
+
     return render_template(
-        'oauth10acallback.html', screen_name=screen_name, user_id=user_id,
-        name=name, friends_count=friends_count, statuses_count=statuses_count,
-        followers_count=followers_count, user=current_user, email=email
+        'oauth10acallback.html',
+        screen_name=screen_name,
+        user_id=user_id,
+        name=name,
+        friends_count=friends_count,
+        statuses_count=statuses_count,
+        followers_count=followers_count,
+        user=current_user,
+        email=email,
+        authorization_url=authorization_url
     )
 
 
