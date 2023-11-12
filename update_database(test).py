@@ -1,11 +1,10 @@
 # TESTING TODO:
-# - If a known account (with previous information like ID) changes username, the script notices that the name changed if
+# OKIf a known account (with previous information like ID) changes username, the script notices that the name changed if
 # the old name couldnt be found anymore, but uses the twitter_id which is unchangeable and forever, to get the new name.
 #
-# - If an account which was not being found for 2 runs of the script, it gets an unresolvable value. At the end of
+# OKIf an account which was not being found for 2 runs of the script, it gets an unresolvable value. At the end of
 # the script the code will gather all the selected protected_channels from the menu and make chunks of 100
 # unresolvable user names, and checks if any of the accounts became active again.
-# TODO: Fix double entries and merge info into 1 updated user
 #
 # OKIf an account is Suspended it updated the value and displays it as a Suspended account.
 #
@@ -218,12 +217,21 @@ def create_new_account(user_data, session):
     if existing_account:
         # Update the existing account with the new data
         for key, value in user_data.items():
-            # Special handling for 'created_at' to ensure it's a datetime object
-            if key == 'created_at' and value:
-                value = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%fZ')
-            setattr(existing_account, key, value)
+            if key == 'id':
+                # Map 'id' from user_data to 'twitter_id' in TwitterAccount
+                setattr(existing_account, 'twitter_id', value)
+            elif key != 'created_at':
+                # Update other fields except 'created_at' and primary key 'id'
+                setattr(existing_account, key, value)
+
+        # Special handling for 'created_at' to ensure it's a datetime object
+        if 'created_at' in user_data and user_data['created_at']:
+            existing_account.created_at = datetime.strptime(user_data['created_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
+
     else:
         # Create a new account if no existing account is found
+        # Correctly map 'id' from user_data to 'twitter_id' in the new account
+        user_data['twitter_id'] = user_data.pop('id')
         new_account = TwitterAccount(**user_data)
         session.add(new_account)
         logging.info(f"Added new account {user_data['username']}")
@@ -495,7 +503,7 @@ def process_api_response(response, session, protected_channel):
                 account.update_api_response(user_data)
                 if not commit_session(session):
                     print("An error occurred while committing to the database.")
-                active_impersonators.append(f"{protected_channel} is impersonated by: {user_data['username']}.")
+                active_impersonators.append(f"{protected_channel} is impersonated by: {user_data['username']}")
             else:
                 create_new_account(user_data, session)
                 active_impersonators.append(
@@ -516,17 +524,16 @@ def process_unresolvable_user(session, reactivated_usernames, usernames_chunk):
             new_data = response_data['data'][0]
             twitter_id = new_data.get("id")
 
-            # Try to find an existing account by Twitter ID
-            account = session.query(TwitterAccount).filter_by(twitter_id=twitter_id).first()
-
-            if not account:
-                # If not found by Twitter ID, try finding by username (case-insensitive)
-                normalized_username = username.lower()
-                account = session.query(TwitterAccount).filter(func.lower(TwitterAccount.username) == normalized_username).first()
+            # Find an existing account by Twitter ID or username
+            account = session.query(TwitterAccount).filter(
+                (TwitterAccount.twitter_id == twitter_id) |
+                (func.lower(TwitterAccount.username) == func.lower(username))
+            ).first()
 
             if account:
-                # Update existing account with new data
-                account.twitter_id = twitter_id  # This will be the same if found by Twitter ID, or updated if found by username
+                # Update existing account with new data from Twitter API
+                account.twitter_id = twitter_id  # Ensure only the twitter_id is updated, not the id
+                # Update other fields as necessary but not the id
                 account.username = new_data.get("username")
                 account.name = new_data.get("name")
                 account.description = new_data.get("description")
@@ -543,32 +550,9 @@ def process_unresolvable_user(session, reactivated_usernames, usernames_chunk):
                 logging.info(f"Updated existing account with new data for username {username}")
             else:
                 # Create a new account if no existing record is found
-                new_account_data = {
-                    "twitter_id": twitter_id,
-                    "username": new_data.get("username"),
-                    "name": new_data.get("name"),
-                    "description": new_data.get("description"),
-                    "profile_image_url": new_data.get("profile_image_url"),
-                    "url": new_data.get("url"),
-                    "followers_count": new_data.get("public_metrics", {}).get("followers_count"),
-                    "following_count": new_data.get("public_metrics", {}).get("following_count"),
-                    "tweet_count": new_data.get("public_metrics", {}).get("tweet_count"),
-                    "listed_count": new_data.get("public_metrics", {}).get("listed_count"),
-                    "created_at": datetime.strptime(new_data.get("created_at"),
-                                                    '%Y-%m-%dT%H:%M:%S.%fZ') if new_data.get("created_at") else None,
-                    "api_response": json.dumps(new_data, cls=SafeEncoder),
-                    "api_response_updated_at": datetime.now(),
-                    # Set default or calculated values for the rest of the fields
-                    "unresolvable": False,
-                    "suspended": False,  # Set to True if the account is known to be suspended
-                    "suspended_date": None,  # Set appropriate date if the account is suspended
-                    # The following fields need to be handled based on your application logic:
-                    "previous_api_response": None,  # or previous api response if available
-                    "previous_api_response_updated_at": None,  # or previous api response date if available
-                    "previous_username": None,  # Set this if there's a known previous username
-                    "username_changed": 0,  # Set to 1 or higher if the username has changed
-                    "username_changed_date": None  # Set the date of username change if applicable
-                }
+                new_account_data = {key: new_data[key] for key in new_data if key != 'id'}
+                new_account_data['twitter_id'] = twitter_id
+                new_account_data['unresolvable'] = False
                 new_account = TwitterAccount(**new_account_data)
                 session.add(new_account)
                 logging.info(f"Created new account for username {username}")
