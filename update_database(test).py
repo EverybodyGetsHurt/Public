@@ -17,6 +17,7 @@
 #
 #
 #
+import sys
 
 # Import necessary libraries and modules
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, JSON, func
@@ -390,7 +391,8 @@ def connect_to_endpoint(url, headers, max_retries=1):
 
                 if token_manager.all_tokens_rate_limited():
                     logging.error("All tokens are rate-limited. Halting operation.")
-                    raise Exception("All tokens are rate-limited. Halting operation.")
+                    print('All tokens are rate-limited. The script is now shutting down.')
+                    sys.exit(0)
 
                 token_manager.rotate_token()
                 headers['Authorization'] = f'Bearer {token_manager.get_current_token()}'
@@ -403,10 +405,6 @@ def connect_to_endpoint(url, headers, max_retries=1):
                 logging.error(f"HTTP error occurred: {e}", exc_info=True)
                 print(error_message)
                 raise
-
-        except requests.ConnectionError as e:
-            logging.error(f"Connection error occurred: {e}", exc_info=True)
-            raise
 
         except Exception as e:
             logging.error(f"An unexpected error occurred: {e}", exc_info=True)
@@ -542,7 +540,8 @@ def process_unresolvable_user(session, reactivated_usernames, usernames_chunk):
                 account.following_count = new_data.get("public_metrics", {}).get("following_count")
                 account.tweet_count = new_data.get("public_metrics", {}).get("tweet_count")
                 account.listed_count = new_data.get("public_metrics", {}).get("listed_count")
-                account.created_at = datetime.strptime(new_data.get("created_at"), '%Y-%m-%dT%H:%M:%S.%fZ') if new_data.get("created_at") else None
+                account.created_at = datetime.strptime(
+                    new_data.get("created_at"), '%Y-%m-%dT%H:%M:%S.%fZ') if new_data.get("created_at") else None
                 account.unresolvable = False
                 account.api_response = json.dumps(new_data, cls=SafeEncoder)
                 account.api_response_updated_at = datetime.now()
