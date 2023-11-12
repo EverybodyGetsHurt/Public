@@ -11,9 +11,9 @@
 #
 # OKIf a username is changed for a second and more times after, it must keep the old names in a comma separated list.
 #
-# OKIf one of the 2 developer tokens hit the twitter rate limit it automatically switches to the second token, untill
-# that token gets rate limit, then it switches back to the first, if the first token is still rate limited, we currently
-# get an error response saying both tokens are rate limited. TODO: Catch the error and give a custom terminal print.
+# OKIf one of the 2 developer tokens hit the twitter rate limit it automatically switches to the second token, until the
+# token gets rate limit, then it switches back to the first, if the first token is still rate limited, we currently get
+# an error response saying both tokens are rate limited. TODO: Catch the error and give a custom terminal print.
 #
 #
 #
@@ -21,7 +21,7 @@
 #
 
 # Import necessary libraries and modules
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, JSON
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, JSON, func
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
@@ -209,10 +209,24 @@ def commit_session(session):
 
 # Function to create a new TwitterAccount object and add it to the session
 def create_new_account(user_data, session):
-    new_account = TwitterAccount(**user_data)
-    session.add(new_account)
-    logging.info(f"Added new account {user_data['username']}")
-    print(f"Added new account {user_data['username']}")
+    # Query for an existing account by twitter_id or a case-insensitive match for username
+    existing_account = session.query(TwitterAccount).filter(
+        (TwitterAccount.twitter_id == user_data["id"]) |
+        (func.lower(TwitterAccount.username) == func.lower(user_data["username"]))
+    ).first()
+
+    if existing_account:
+        # Update the existing account with the new data
+        for key, value in user_data.items():
+            setattr(existing_account, key, value)
+        logging.info(f"Updated existing account with new data for username {user_data['username']}")
+    else:
+        # Create a new account if no existing account is found
+        new_account = TwitterAccount(**user_data)
+        session.add(new_account)
+        logging.info(f"Added new account {user_data['username']}")
+
+    # Commit the changes to the database
     if not commit_session(session):
         print("An error occurred while committing to the database.")
 
@@ -491,35 +505,78 @@ def process_api_response(response, session, protected_channel):
 
 
 def process_unresolvable_user(session, reactivated_usernames, usernames_chunk):
-    """
-    Checks if previously unresolvable accounts have become active again, updates their status in the database,
-    and logs a message when an unresolvable account becomes active.
-    """
     for username in usernames_chunk:
         url = create_url([username])
         headers = create_headers(token_manager.get_current_token())
         response_data = connect_to_endpoint(url, headers)
 
         if response_data and 'data' in response_data:
-            # Account is now resolvable
-            user_data = response_data['data'][0]
-            account = session.query(TwitterAccount).filter_by(username=username).first()
+            new_data = response_data['data'][0]
+            twitter_id = new_data.get("id")
+
+            # Try to find an existing account by Twitter ID
+            account = session.query(TwitterAccount).filter_by(twitter_id=twitter_id).first()
+
+            if not account:
+                # If not found by Twitter ID, try finding by username (case-insensitive)
+                normalized_username = username.lower()
+                account = session.query(TwitterAccount).filter(func.lower(TwitterAccount.username) == normalized_username).first()
+
             if account:
+                # Update existing account with new data
+                account.twitter_id = twitter_id  # This will be the same if found by Twitter ID, or updated if found by username
+                account.username = new_data.get("username")
+                account.name = new_data.get("name")
+                account.description = new_data.get("description")
+                account.profile_image_url = new_data.get("profile_image_url")
+                account.url = new_data.get("url")
+                account.followers_count = new_data.get("public_metrics", {}).get("followers_count")
+                account.following_count = new_data.get("public_metrics", {}).get("following_count")
+                account.tweet_count = new_data.get("public_metrics", {}).get("tweet_count")
+                account.listed_count = new_data.get("public_metrics", {}).get("listed_count")
+                account.created_at = datetime.strptime(new_data.get("created_at"), '%Y-%m-%dT%H:%M:%S.%fZ') if new_data.get("created_at") else None
                 account.unresolvable = False
-                account.update_api_response(user_data)
+                account.api_response = json.dumps(new_data, cls=SafeEncoder)
+                account.api_response_updated_at = datetime.now()
+                logging.info(f"Updated existing account with new data for username {username}")
+            else:
+                # Create a new account if no existing record is found
+                new_account_data = {
+                    "twitter_id": twitter_id,
+                    "username": new_data.get("username"),
+                    "name": new_data.get("name"),
+                    "description": new_data.get("description"),
+                    "profile_image_url": new_data.get("profile_image_url"),
+                    "url": new_data.get("url"),
+                    "followers_count": new_data.get("public_metrics", {}).get("followers_count"),
+                    "following_count": new_data.get("public_metrics", {}).get("following_count"),
+                    "tweet_count": new_data.get("public_metrics", {}).get("tweet_count"),
+                    "listed_count": new_data.get("public_metrics", {}).get("listed_count"),
+                    "created_at": datetime.strptime(new_data.get("created_at"),
+                                                    '%Y-%m-%dT%H:%M:%S.%fZ') if new_data.get("created_at") else None,
+                    "api_response": json.dumps(new_data, cls=SafeEncoder),
+                    "api_response_updated_at": datetime.now(),
+                    # Set default or calculated values for the rest of the fields
+                    "unresolvable": False,
+                    "suspended": False,  # Set to True if the account is known to be suspended
+                    "suspended_date": None,  # Set appropriate date if the account is suspended
+                    # The following fields need to be handled based on your application logic:
+                    "previous_api_response": None,  # or previous api response if available
+                    "previous_api_response_updated_at": None,  # or previous api response date if available
+                    "previous_username": None,  # Set this if there's a known previous username
+                    "username_changed": 0,  # Set to 1 or higher if the username has changed
+                    "username_changed_date": None  # Set the date of username change if applicable
+                }
+                new_account = TwitterAccount(**new_account_data)
+                session.add(new_account)
+                logging.info(f"Created new account for username {username}")
 
-                print(
-                    f"\n_____________________________________________\n"
-                    f"Processing API response... for {account.protected_channel}\n"
-                    f"_____________________________________________\n"
-                    f"Account {username} ({account.protected_channel}) came back from the dead.")
-                logging.info(f"Account {username} is now resolvable and updated.")
-                reactivated_usernames.append(username)  # Collect username of reactivated account
+            reactivated_usernames.append(new_data.get("username"))
+            logging.info(f"Account {new_data.get('username')} is now resolvable and updated.")
 
-                if not commit_session(session):
-                    print("An error occurred while committing to the database.")
+            if not commit_session(session):
+                print("An error occurred while committing to the database.")
         else:
-            # Account remains unresolvable
             logging.info(f"Account {username} is still unresolvable.")
 
 
