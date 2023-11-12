@@ -218,8 +218,10 @@ def create_new_account(user_data, session):
     if existing_account:
         # Update the existing account with the new data
         for key, value in user_data.items():
+            # Special handling for 'created_at' to ensure it's a datetime object
+            if key == 'created_at' and value:
+                value = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%fZ')
             setattr(existing_account, key, value)
-        logging.info(f"Updated existing account with new data for username {user_data['username']}")
     else:
         # Create a new account if no existing account is found
         new_account = TwitterAccount(**user_data)
