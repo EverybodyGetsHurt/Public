@@ -17,7 +17,6 @@
 #
 #
 #
-#
 
 # Import necessary libraries and modules
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, JSON, func
@@ -515,14 +514,15 @@ def process_api_response(response, session, protected_channel):
 
 
 def process_unresolvable_user(session, reactivated_usernames, usernames_chunk):
-    for username in usernames_chunk:
-        url = create_url([username])
-        headers = create_headers(token_manager.get_current_token())
-        response_data = connect_to_endpoint(url, headers)
+    # Create URL for the chunk of usernames
+    url = create_url(usernames_chunk)
+    headers = create_headers(token_manager.get_current_token())
+    response_data = connect_to_endpoint(url, headers)
 
-        if response_data and 'data' in response_data:
-            new_data = response_data['data'][0]
+    if response_data and 'data' in response_data:
+        for new_data in response_data['data']:
             twitter_id = new_data.get("id")
+            username = new_data.get("username")
 
             # Find an existing account by Twitter ID or username
             account = session.query(TwitterAccount).filter(
@@ -532,8 +532,7 @@ def process_unresolvable_user(session, reactivated_usernames, usernames_chunk):
 
             if account:
                 # Update existing account with new data from Twitter API
-                account.twitter_id = twitter_id  # Ensure only the twitter_id is updated, not the id
-                # Update other fields as necessary but not the id
+                account.twitter_id = twitter_id
                 account.username = new_data.get("username")
                 account.name = new_data.get("name")
                 account.description = new_data.get("description")
@@ -560,9 +559,10 @@ def process_unresolvable_user(session, reactivated_usernames, usernames_chunk):
             reactivated_usernames.append(new_data.get("username"))
             logging.info(f"Account {new_data.get('username')} is now resolvable and updated.")
 
-            if not commit_session(session):
-                print("An error occurred while committing to the database.")
-        else:
+        if not commit_session(session):
+            print("An error occurred while committing to the database.")
+    else:
+        for username in usernames_chunk:
             logging.info(f"Account {username} is still unresolvable.")
 
 
