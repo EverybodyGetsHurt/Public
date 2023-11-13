@@ -37,14 +37,31 @@ def oauth20pkce_index():
     # A unique code_verifier is generated each time the OAuth flow is initiated to ensure security.
     # The code_challenge derived from the code_verifier is sent to the authorization server.
     code_verifier = ''.join(
-        secrets.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~') for _ in range(64))
+        secrets.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~') for _ in range(128))
 
-    # Generate the code challenge by hashing the code verifier using SHA-256, then base64url encoding the hash
+    # Generate the code challenge by hashing the code verifier using SHA-256, then base64url encoding the hash.
+    """
+    !!! SECURITY NOTICE ABOUT SHA256 HASHES: !!! 
+    
+    HMAC isn't specifically needed for the OAuth 2.0 PKCE flow. The original concern about SHA-256's vulnerability 
+    to length-extension attacks is more applicable to situations where hash functions are used for creating secure 
+    message authentication codes (MACs) or signatures. In such cases, HMAC (Hash-based Message Authentication Code) 
+    is indeed recommended as it mitigates these vulnerabilities.
+
+    In OAuth 2.0 PKCE, SHA-256 is used for a different purpose: to create a challenge from a verifier in a way that 
+    is specified by the OAuth 2.0 standard (specifically RFC 7636). This usage does not involve creating a MAC or 
+    signature and is not vulnerable to length-extension attacks. The code challenge is hashed and sent to the 
+    authorization server, which later verifies that the same verifier is being used by hashing it again and comparing 
+    it to the initially sent challenge.
+
+    For the PKCE flow itself, the current use of SHA-256 is considered secure and standard-compliant.
+    """
+    # noinspection InsecureHash
     code_challenge = base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode()).digest()).decode().rstrip('=')
 
     # The state parameter is a CSRF token that is sent to the authorization server and must be returned unchanged
     # to prevent cross-site request forgery attacks.
-    state = secrets.token_hex(16)
+    state = secrets.token_hex(128)
 
     # Storing the code verifier and state in the session ensures that they can be retrieved later
     # for validation and to complete the OAuth flow.
