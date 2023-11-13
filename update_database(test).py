@@ -1,24 +1,3 @@
-# TESTING TODO:
-# OKIf a known account (with previous information like ID) changes username, the script notices that the name changed if
-# the old name couldnt be found anymore, but uses the twitter_id which is unchangeable and forever, to get the new name.
-#
-# OKIf an account which was not being found for 2 runs of the script, it gets an unresolvable value. At the end of
-# the script the code will gather all the selected protected_channels from the menu and make chunks of 100
-# unresolvable user names, and checks if any of the accounts became active again.
-#
-# OKIf an account is Suspended it updated the value and displays it as a Suspended account.
-#
-# OKIf a username is changed for a second and more times after, it must keep the old names in a comma separated list.
-#
-# OKIf one of the 2 developer tokens hit the twitter rate limit it automatically switches to the second token, until the
-# token gets rate limit, then it switches back to the first, if the first token is still rate limited, we currently get
-# an error response saying both tokens are rate limited. TODO: Catch the error and give a custom terminal print.
-#
-#
-#
-#
-import sys
-
 # Import necessary libraries and modules
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, JSON, func
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
@@ -32,6 +11,7 @@ import logging
 import json
 import glob
 import time
+import sys
 import os
 
 # Logging setup
@@ -168,14 +148,14 @@ class TwitterAccount(Base):
             logging.info(f"{self.username} is already marked as suspended.")
 
     def update_username(self, new_username):
-        print(f"Updating username from {self.username} to {new_username}")
-        if self.previous_username:
-            self.previous_username += f",{self.username}"  # Append the old username with a comma
-        else:
-            self.previous_username = self.username  # If it's the first change, just assign the old username
-        self.username = new_username
-        self.username_changed += 1
-        self.username_changed_date = datetime.now()
+        if self.username != new_username:
+            if self.previous_username:
+                self.previous_username += f",{self.username}"
+            else:
+                self.previous_username = self.username
+            self.username = new_username
+            self.username_changed += 1
+            self.username_changed_date = datetime.now()
 
     def update_api_response(self, new_response):
         # print(f"Updating API response")  # Debug print
@@ -318,6 +298,19 @@ def process_not_found_user(username, error, protected_channel, session):
     logging.info(f"Processing not found user: {username}")
 
     try:
+        # Query for existing account with the same username in previous_username
+        existing_account_with_previous_username = session.query(
+            TwitterAccount).filter(
+            TwitterAccount.previous_username.contains(username)).order_by(TwitterAccount.id).first()
+
+        # If found, log and return without adding a new account
+        if existing_account_with_previous_username:
+            current_username_of_found_account = existing_account_with_previous_username.username
+            logging.info(f"Username {username} found in previous_username of an existing entry with ID"
+                         f" {existing_account_with_previous_username.id}.\nNot adding {username} to database because"
+                         f" it is the old username for current impersonator {current_username_of_found_account}")
+            return
+
         user_data = {
             'username': username,
             'protected_channel': protected_channel,
@@ -465,7 +458,13 @@ def process_api_response(response, session, protected_channel):
                     try:
                         new_user_data = connect_to_endpoint(url, headers)
                         new_username = new_user_data['data']['username']
-                        print(f"Username {username} not found. Updated to {new_username} using Twitter ID.")
+                        print(f"\n_____________________________________________\n"
+                              f"Processing API response... for {protected_channel}\n"
+                              f"_____________________________________________\n"
+                              f"Username {username} could not be found\n"
+                              f"Searching new username for (ID {account.twitter_id})\n"
+                              f"Username {username} tried to avoid getting "
+                              f"suspended by changing username to {new_username}.")
                         account.update_username(new_username)
                         account.update_api_response(new_user_data['data'])
                         if not commit_session(session):
@@ -592,11 +591,12 @@ def process_user_choice(choice, txt_files):
                 logging.error(f"The usernames list is empty for file {selected_file}.")
                 return
 
+            # Rename 'username' in the loop to 'uname' to avoid shadowing
             errors, seen_usernames, duplicate_usernames = [], set(), set()
-            for username in usernames:
-                if username in seen_usernames:
-                    duplicate_usernames.add(username)
-                seen_usernames.add(username)
+            for uname in usernames:  # Changed 'username' to 'uname'
+                if uname in seen_usernames:
+                    duplicate_usernames.add(uname)
+                seen_usernames.add(uname)
 
             if duplicate_usernames:
                 duplicate_usernames = list(duplicate_usernames)
@@ -604,7 +604,8 @@ def process_user_choice(choice, txt_files):
                     [', '.join(duplicate_usernames[i:i + 5]) for i in range(2, len(duplicate_usernames), 5)])
                 errors.append(f"Error: The following usernames are duplicated: {formatted_usernames}")
 
-            invalid_usernames = [username for username in usernames if len(username) > 15]
+            # Renaming 'username' to 'uname' in the list comprehension
+            invalid_usernames = [uname for uname in usernames if len(uname) > 15]
             if invalid_usernames:
                 formatted_usernames = ', '.join(invalid_usernames[:2]) + ',\n' + ',\n'.join(
                     [', '.join(invalid_usernames[i:i + 5]) for i in range(2, len(invalid_usernames), 5)])
@@ -618,14 +619,14 @@ def process_user_choice(choice, txt_files):
                     print(error)
                 return
 
-            with (Session() as session):
-                # Collect unresolvable usernames
-                unresolvables = session.query(TwitterAccount).filter_by(
+            with (Session() as db_session):  # Renamed 'session' to 'db_session'
+                # Now use 'db_session' in place of 'session' inside this block
+                unresolvables = db_session.query(TwitterAccount).filter_by(
                     unresolvable=True, protected_channel=protected_channel).all()
                 for account in unresolvables:
                     unresolvable_usernames.append(account.username)
 
-                # Existing logic to process usernames
+                    # Existing logic to process usernames
                 chunks = list(chunked_usernames(usernames))
                 for chunk in chunks:
                     url = create_url(chunk)
@@ -633,11 +634,11 @@ def process_user_choice(choice, txt_files):
                     response_data = connect_to_endpoint(url, headers)
 
                     if response_data is not None:
+                        # Update 'session' to 'db_session' in the function call
                         suspended_accounts, active_impersonators, not_found_users = process_api_response(
-                            response_data, session, protected_channel)
+                            response_data, db_session, protected_channel)
                     else:
                         logging.error("Response data is None, skipping...")
-
                     try:
                         all_suspended_accounts.extend(suspended_accounts)
                         all_active_impersonators.extend(active_impersonators)
