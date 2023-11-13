@@ -9,7 +9,6 @@
 # third-party libraries essential for OAuth processes, web server setup, user session management, and database
 # interaction. - Local imports from '.error', '.models', '.oauth10areport', and 'instance.config' integrate custom
 # error handling, database models, specific functionalities, and configuration settings into the application.
-
 import base64  # For base64 encoding, commonly used in OAuth.
 import hashlib  # To hash data, such as in PKCE (Proof Key for Code Exchange).
 import json  # For JSON encoding and decoding.
@@ -21,12 +20,13 @@ from functools import wraps  # To create decorators.
 from types import GeneratorType  # To identify generator types.
 
 # Third-party imports for OAuth and Flask.
-import oauth2 as oauth  # OAuth's library for OAuth 1.0a implementation.
-from flask import Flask, Blueprint, render_template, request, url_for, session
-from flask_login import current_user, login_required  # Flask-Login for user session management.
-from sqlalchemy.exc import IntegrityError  # To handle database integrity errors.
-from werkzeug.security import generate_password_hash  # To securely hash data.
+import oauth2 as oauth
+from flask import (Flask, Blueprint, render_template, request, url_for, session)
+from flask_login import current_user, login_required
+from sqlalchemy.exc import IntegrityError
+from werkzeug.security import generate_password_hash
 
+# Local application imports
 from instance.config import (APP_CONSUMER_KEY, APP_CONSUMER_SECRET, REQUEST_TOKEN_URL,
                              ACCESS_TOKEN_URL, AUTHORIZE_URL)  # OAuth's configuration.
 # Local application imports for handling errors and database interaction.
@@ -67,7 +67,7 @@ def refresh_oauth_token(oauth_instance):
 
 
 # The 'refresh_oauth_token' function and 'needs_token_refresh' decorator are designed to handle the automatic refreshing
-# of OAuth tokens. This is crucial to ensure continuous access to resources protected by OAuth,
+# of Expired OAuth tokens. This is crucial to ensure continuous access to resources protected by OAuth,
 # as tokens typically have an expiration date for security reasons.
 def needs_token_refresh():
     # The decorator 'needs_token_refresh' is applied to routes requiring up-to-date OAuth tokens. It checks if the
@@ -81,10 +81,12 @@ def needs_token_refresh():
             if kwargs.get('oauth_instance') and kwargs.get('oauth_instance').last_token_refresh_date:
                 thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
                 if kwargs.get('oauth_instance').last_token_refresh_date < thirty_days_ago:
-                    # Refresh the OAuth token.
+                    # Refresh the OAuth token
                     kwargs['oauth_instance'] = refresh_oauth_token(kwargs.get('oauth_instance'))
             return view_func(*args, **kwargs)
+
         return wrapped
+
     return decorator
 
 
@@ -222,7 +224,7 @@ def oauth10acallback():
     # Generate code verifier and challenge for PKCE
     code_verifier = ''.join(
         secrets.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~') for _ in range(64))
-    code_challenge = base64.urlsafe_b64encode(hashlib.sha3_512(code_verifier.encode()).digest()).decode().rstrip('=')
+    code_challenge = base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode()).digest()).decode().rstrip('=')
     state = secrets.token_hex(16)
 
     # Store code verifier and state in session
@@ -278,6 +280,9 @@ def handle_integrity_error(e, set_to_database):
 
 # This function is specifically for updating the OAuth token information in the database when a unique
 # constraint violation is detected, ensuring that the user’s OAuth tokens are always up-to-date.
+
+# This function is specifically for updating the OAuth token information in the database when a unique
+# constraint violation is detected, ensuring that the user’s OAuth tokens are always up-to-date.
 def update_existing_entry(set_to_database):
     """
     This function, 'update_existing_entry', is designed to update OAuth token information in the database for an
@@ -312,7 +317,6 @@ def update_existing_entry(set_to_database):
         oauth_token_secret=set_to_database.oauth_token_secret,
         oauth_token=set_to_database.oauth_token
     ).first()
-
     if existing_entry:
         # Update the existing record with the new data.
         existing_entry.oauth_verifier = set_to_database.oauth_verifier
@@ -338,16 +342,14 @@ def update_existing_record(set_to_database):
 
     :param set_to_database: An instance of OAuth10a containing the updated information to be saved.
     """
-    # Query the OAuth10a table to find an existing record with the same twitter_id.
-    existing_record = OAuth10a.query.filter_by(twitter_id=set_to_database.twitter_id).first()
-
+    existing_record = OAuth10a.query.filter_by(twitter_id=set_to_database.twitter_id).first()  # Updated this line
     if existing_record:
         # Check if the twitter_id of the existing record is different from the new data.
         # If so, it indicates that the user's Twitter ID has changed, and the previous data should be archived.
-        if existing_record.twitter_id != set_to_database.twitter_id:
+        if existing_record.twitter_id != set_to_database.twitter_id:  # Updated this line
             # Create a dictionary to store the previous state of the record.
             previous_info = {
-                "twitter_id": existing_record.twitter_id,
+                "twitter_id": existing_record.twitter_id,  # Updated this line
                 "account_name": existing_record.account_name,
                 "oauth_token": existing_record.oauth_token,
                 "oauth_token_secret": existing_record.oauth_token_secret,
@@ -367,15 +369,14 @@ def update_existing_record(set_to_database):
                     # If the existing data is not a list (which shouldn't happen in normal circumstances),
                     # create a new list containing the current and new historical data.
                     existing_data = [existing_data, previous_info]
-
                 # Convert the updated list back into JSON format and store it.
                 existing_record.previous_twitter_account_info = json.dumps(existing_data)
             else:
                 # If there is no existing history, start a new history list with the current historical data.
                 existing_record.previous_twitter_account_info = json.dumps([previous_info])
 
-        # Update the existing record with the new data from set_to_database.
-        existing_record.twitter_id = set_to_database.twitter_id
+        # Update the record with the new information
+        existing_record.twitter_id = set_to_database.twitter_id  # Updated this line
         existing_record.email = set_to_database.email  # Ensuring the email is also updated.
         existing_record.account_name = set_to_database.account_name
         existing_record.oauth_token = set_to_database.oauth_token
@@ -422,6 +423,7 @@ class CustomJSONEncoder(json.JSONEncoder):
     This custom encoder ensures that when JSON encoding is required (for example, sending data via an API or saving
     to a file), the application can handle a wider range of data types without encountering serialization errors.
     """
+
     def default(self, obj):
         # If the object is a generator, convert it to a list before JSON encoding
         if isinstance(obj, GeneratorType):
