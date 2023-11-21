@@ -31,7 +31,7 @@ from instance.config import (APP_CONSUMER_KEY, APP_CONSUMER_SECRET, REQUEST_TOKE
                              ACCESS_TOKEN_URL, AUTHORIZE_URL)  # OAuth's configuration.
 # Local application imports for handling errors and database interaction.
 from .error import TwitterAPIError
-from .models import db, OAuth10a  # Database models including the OAuth10a model.
+from .models import db, OAuth10a, User  # Database models including the OAuth10a model.
 from .oauth10areport import impersonatingusers  # Function to report impersonating users.
 
 # The logging setup ensures that all critical information and errors are recorded to a log file.
@@ -56,11 +56,11 @@ oauth10a = Blueprint('oauth10a', __name__)
 
 # The needs_token_refresh decorator is used to ensure that the OAuth token is refreshed
 # automatically if it's older than 30 days. It's applied to routes that require OAuth token for API access.
-# 30 days is a common practice for token expiration, ensuring that tokens are not overly exposed to  potential misuse.
+# 30 days is a common practice for token expiration, ensuring that tokens are not overly exposed to potential misuse.
 # The 'oauth_instance' is expected to be a part of the kwargs when the decorated function is called.
 def refresh_oauth_token(oauth_instance):
-    # Placeholder for OAuth token refresh logic
-    # Implement your token refresh logic here
+    # A placeholder for OAuth token refresh logic
+    # And implement your token refresh logic here.
     # For example, you might need to send a request to the OAuth server to refresh the token
     # and then update the oauth_instance with the new token details.
     return oauth_instance
@@ -94,7 +94,7 @@ def needs_token_refresh():
 # are part of the OAuth 1.0a authentication and reporting process. They handle various stages of OAuth authentication,
 # from initiating the process, handling callbacks with authentication data, to reporting potential impersonators.
 @login_required
-# The '@login_required' decorator ensures that these routes are only accessible to authenticated users,
+# The '@login_required' decorator ensures that these routes are only accessible to users authenticated.
 # adding a layer of security and user-specific context to the operations.
 @oauth10a.route('/oauth10aindex')
 def oauth10aindex():
@@ -138,7 +138,7 @@ def oauth10aindex():
 # Callback route for OAuth 1.0a, handling the response from Twitter's authorization page.
 # Handle the OAuth callback with the data returned from Twitter.
 # Perform checks, exchange request token for access token, and handle any errors.
-# Fetch user data using access token and store OAuth details in database.
+# Fetch user data using access token and store OAuth details in the database file.
 @login_required
 @oauth10a.route('/oauth10acallback')
 def oauth10acallback():
@@ -193,7 +193,7 @@ def oauth10acallback():
     name = response_data.get('name', 'Unknown')
 
     # Database operations and adding the new record
-    set_to_database = OAuth10a(
+    set_to_database_oauth10a = OAuth10a(
         twitter_id=user_id,
         account_name=screen_name,
         email=email,
@@ -204,22 +204,42 @@ def oauth10acallback():
     )
 
     try:
-        db.session.add(set_to_database)
+        db.session.add(set_to_database_oauth10a)
         db.session.commit()
     except IntegrityError as e:
         db.session.rollback()
         error_message = str(e)
         if "UNIQUE constraint failed: oauth10a.oauth_token_secret" in error_message:
-            existing_entry = OAuth10a.query.filter_by(oauth_token_secret=set_to_database.oauth_token_secret).first()
+            existing_entry = OAuth10a.query.filter_by(
+                oauth_token_secret=set_to_database_oauth10a.oauth_token_secret).first()
             if existing_entry:
-                existing_entry.oauth_verifier = set_to_database.oauth_verifier
+                existing_entry.oauth_verifier = set_to_database_oauth10a.oauth_verifier
                 db.session.commit()
 
         elif 'UNIQUE constraint failed: oauth10a.user_id' in error_message:
-            existing_record = OAuth10a.query.filter_by(user_id=set_to_database.user_id).first()
+            existing_record = OAuth10a.query.filter_by(user_id=set_to_database_oauth10a.user_id).first()
             if existing_record:
-                existing_record.oauth_verifier = set_to_database.oauth_verifier
+                existing_record.oauth_verifier = set_to_database_oauth10a.oauth_verifier
                 db.session.commit()
+
+    # Fetch the existing User record based on the email
+    existing_user_record = User.query.filter_by(email=email).first()
+
+    if existing_user_record:
+        # Update existing User record with new Twitter ID and screen name
+        existing_user_record.twitter_id = user_id
+        existing_user_record.account_name = screen_name
+        try:
+            db.session.commit()
+        except IntegrityError as e:
+            db.session.rollback()
+            # Handle the error appropriately
+            print("Error updating All_Users:", e)
+    else:
+        # Handle the case where no matching user record is found
+        # This should not happen as per your system's design
+        print("No matching user record found for email:", email)
+        # Consider how you want to handle this scenario
 
     # Generate code verifier and challenge for PKCE
     code_verifier = ''.join(
