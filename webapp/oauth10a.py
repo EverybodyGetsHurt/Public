@@ -4,8 +4,8 @@
 # and database interaction.
 
 # Specifically: - 'json', 'urllib.parse', 'base64', 'hashlib', 'logging', and 'secrets' are standard libraries used
-# for data encoding, logging, and security purposes. - 'datetime', 'timedelta', 'wraps', and 'GeneratorType' provide
-# date/time handling, decorator creation, and type checking. - 'oauth2', 'flask', 'flask_login', and 'sqlalchemy' are
+# for data encoding, logging, and security purposes. - 'Datetime', 'timedelta', 'wraps', and 'GeneratorType' provide
+# date/time handling, decorator creation, and type checking. - 'Oauth2', 'flask', 'flask_login', and 'sqlalchemy' are
 # third-party libraries essential for OAuth processes, web server setup, user session management, and database
 # interaction. - Local imports from '.error', '.models', '.oauth10areport', and 'instance.config' integrate custom
 # error handling, database models, specific functionalities, and configuration settings into the application.
@@ -21,7 +21,7 @@ from types import GeneratorType  # To identify generator types.
 
 # Third-party imports for OAuth and Flask.
 import oauth2 as oauth
-from flask import (Flask, Blueprint, render_template, request, url_for, session)
+from flask import (Flask, Blueprint, render_template, request, url_for, session, flash, redirect)
 from flask_login import current_user, login_required
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
@@ -95,7 +95,7 @@ def needs_token_refresh():
 # from initiating the process, handling callbacks with authentication data, to reporting potential impersonators.
 @login_required
 # The '@login_required' decorator ensures that these routes are only accessible to users authenticated.
-# adding a layer of security and user-specific context to the operations.
+# Adding a layer of security and user-specific context to the operations.
 @oauth10a.route('/oauth10aindex')
 def oauth10aindex():
     # This route is responsible for initiating the OAuth 1.0a authentication process. It generates a request token
@@ -192,7 +192,12 @@ def oauth10acallback():
     followers_count = response_data.get('followers_count', 'Unavailable')
     name = response_data.get('name', 'Unknown')
 
-    # Database operations and adding the new record
+    # Check if Twitter ID is already associated with a different account
+    existing_oauth_record = OAuth10a.query.filter_by(twitter_id=user_id).first()
+    if existing_oauth_record and existing_oauth_record.email != email:
+        flash('This Twitter account is already registered with another account.', 'error')
+        return redirect(url_for('unauth.unauthhome'))
+
     set_to_database_oauth10a = OAuth10a(
         twitter_id=user_id,
         account_name=screen_name,
@@ -209,6 +214,7 @@ def oauth10acallback():
     except IntegrityError as e:
         db.session.rollback()
         error_message = str(e)
+
         if "UNIQUE constraint failed: oauth10a.oauth_token_secret" in error_message:
             existing_entry = OAuth10a.query.filter_by(
                 oauth_token_secret=set_to_database_oauth10a.oauth_token_secret).first()
@@ -216,17 +222,13 @@ def oauth10acallback():
                 existing_entry.oauth_verifier = set_to_database_oauth10a.oauth_verifier
                 db.session.commit()
 
-        elif 'UNIQUE constraint failed: oauth10a.user_id' in error_message:
-            existing_record = OAuth10a.query.filter_by(user_id=set_to_database_oauth10a.user_id).first()
-            if existing_record:
-                existing_record.oauth_verifier = set_to_database_oauth10a.oauth_verifier
-                db.session.commit()
+        elif 'UNIQUE constraint failed: oauth10a.twitter_id' in error_message:
+            flash('This Twitter ID is already registered with another account.', 'error')
+            return redirect(url_for('unauth.unauthhome'))
 
-    # Fetch the existing User record based on the email
+    # Update the existing User record with new Twitter ID and screen name
     existing_user_record = User.query.filter_by(email=email).first()
-
     if existing_user_record:
-        # Update existing User record with new Twitter ID and screen name
         existing_user_record.twitter_id = user_id
         existing_user_record.account_name = screen_name
         try:
@@ -237,9 +239,7 @@ def oauth10acallback():
             print("Error updating All_Users:", e)
     else:
         # Handle the case where no matching user record is found
-        # This should not happen as per your system's design
         print("No matching user record found for email:", email)
-        # Consider how you want to handle this scenario
 
     # Generate code verifier and challenge for PKCE
     code_verifier = ''.join(
