@@ -2,7 +2,7 @@
 The '__init__.py' file in a Python package serves multiple purposes. Primarily, it allows the directory to be
 treated as a package, enabling imports from other files in the same directory. This specific '__init__.py' is
 geared towards setting up a Flask-based web application. It initializes the application's environment by
-importing necessary libraries, setting up database connections, configuring application instances, and
+importing the necessary libraries, setting up database connections, configuring application instances, and
 registering Flask blueprints and extensions. This setup is crucial for the application's scalability and
 maintenance, as well as for ensuring security and functionality through structured organization.
 """
@@ -59,7 +59,7 @@ def create_app():
     # Importing models and blueprints. Models are Python classes that define the structure of database tables.
     # Blueprints are Flask's way to organize a group of related views and other code. They help to keep the
     # application modular and scalable.
-    from .models import User, OAuth10a, OAuth20PKCE, UserReportedImpersonator
+    from .models import User, OAuth10a, OAuth20PKCE, UserReportingActivity
     from .unauth import unauth
     from .auth import auth
     from .oauth10a import oauth10a
@@ -89,7 +89,7 @@ def create_app():
     login_manager.login_view = 'auth.authlogin'  # Setting the default view for logging in users.
     login_manager.init_app(app)  # Integrating the login manager with the Flask app.
 
-    # User loader function for Flask-Login. This callback is used by Flask-Login to load a user object from a user ID
+    # User loader function for Flask-Login. Flask-Login uses this callback to load a user object from a user ID
     # stored in the session. It's essential for tracking the current user and their authentication status.
     @login_manager.user_loader
     def load_user(email):
