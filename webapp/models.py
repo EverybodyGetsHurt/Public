@@ -47,7 +47,7 @@ class User(db.Model, UserMixin):
         return str(self.email)
 
 
-# Explanation for OAuth10a, UserReportedImpersonator, and OAuth20PKCE models continues.
+# Explanation for OAuth10a, UserReportingActivity, and OAuth20PKCE models continues.
 # Each class reflects a specific table in the database with tailored columns and relationships.
 
 
@@ -97,31 +97,34 @@ class OAuth10a(db.Model):
         return check_password_hash(self.oauth_token_secret, oauth_token_secret)
 
 
-# The UserReportedImpersonator model tracks impersonators reported by users.
-class UserReportedImpersonator(db.Model):
+# The UserReportedActivity model tracks impersonators handled by users.
+class UserReportingActivity(db.Model):
     """
-    Model representing a reported impersonator associated with a user account.
-    This model stores details about the impersonators reported by users, helping track abusive or malicious accounts.
+    Model representing Twitter activities (muted, blocked, reported accounts) associated with a user account.
+    This model stores details about the Twitter activities performed by users.
     """
-    __tablename__ = 'UserReportedImpersonator'  # Setting a specific table name.
+    __tablename__ = 'UserReportingActivity'  # Renaming the table
 
-    # Defining columns for storing information about reported impersonators.
-    email = db.Column(db.String(150), db.ForeignKey('All_Users.email'), nullable=False, unique=True, primary_key=True)
-    twitter_id = db.Column(db.Integer, unique=True, nullable=False)  # Twitter ID of the reported impersonator.
-    screen_name = db.Column(db.String(50), nullable=False)  # Screen name of the impersonator.
-    muted = db.Column(db.Integer, nullable=False, default=0)  # Indicates if the impersonator is muted.
-    blocked = db.Column(db.Integer, nullable=False, default=0)  # Indicates if the impersonator is blocked.
-    reported = db.Column(db.Integer, nullable=False, default=0)  # Count of times the impersonator is reported.
-    impersonator = db.Column(db.String(50), nullable=False)  # The name of the impersonator.
-    report_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)  # The date when the report was made.
+    # Primary key and Foreign key relationship with All_Users table
+    email = db.Column(db.String(150), db.ForeignKey('All_Users.email'), nullable=False, primary_key=True)
+
+    # Other attributes
+    twitter_id = db.Column(db.Integer, nullable=False)  # Twitter ID of the user
+    username = db.Column(db.String(50), nullable=False)  # Username of the user
+    muted = db.Column(db.Text, nullable=True)  # Stores muted accounts as a comma-separated string
+    muted_nr = db.Column(db.Integer, nullable=True)  # Number of muted accounts
+    blocked = db.Column(db.Text, nullable=True)  # Stores blocked accounts
+    blocked_nr = db.Column(db.Integer, nullable=True)  # Number of blocked accounts
+    reported_as_spam = db.Column(db.Text, nullable=True)  # Stores accounts reported as spam
+    reported_as_spam_nr = db.Column(db.Integer, nullable=True)  # Number of accounts reported as spam
+    reported_impersonation = db.Column(db.Text, nullable=True)  # Stores accounts reported for impersonation
+    reported_impersonation_nr = db.Column(db.Integer, nullable=True)  # Number of accounts reported for impersonation
+    last_updated = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)  # Last update timestamp
 
     def __repr__(self):
-        """
-        Represents the UserReportedImpersonator instance as a string.
-        Useful for debugging and logging purposes, giving a clear representation of the object.
-        """
-        return (f"<UserReportedImpersonator {self.id}: {self.screen_name} reported"
-                f" {self.impersonator} on {self.report_date}>")
+        return (f"<UserReportingActivity {self.email}: "
+                f"Muted: {self.muted_nr}, Blocked: {self.blocked_nr}, "
+                f"Reported Spam: {self.reported_as_spam_nr}, Reported Impersonation: {self.reported_impersonation_nr}>")
 
 
 # The OAuth20PKCE model represents OAuth 2.0 PKCE credentials linked to a user account.
