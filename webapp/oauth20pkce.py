@@ -15,7 +15,6 @@ import requests
 from .models import db, OAuth20PKCE
 from sqlalchemy.sql import func
 
-
 # Initializing Flask app and loading configurations
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile('config.py', silent=True)
@@ -123,7 +122,7 @@ def oauth20pkcecallback():
     app.logger.info(f"Received state: {state}")
 
     # If the state parameter from the server matches the one stored in the session, the process continues
-    # Otherwise, an error is logged and the user is redirected
+    # Otherwise, an error is logged, and the user is redirected
     if state != session.get('state'):
         app.logger.warning('Invalid state parameter')
         flash('Invalid state parameter', 'danger')
@@ -194,6 +193,9 @@ def oauth20pkcecallback():
     # Parsing the JSON response to get the user's data
     user_data = user_response.json()
 
+    # The Twitter username should be extracted from the user_data response
+    twitter_username = user_data['data']['username']
+
     # Existing users are updated with new tokens and other info, while new users are created as needed,
     # ensuring a smooth and seamless user experience.
     existing_user = OAuth20PKCE.query.filter_by(email=email).first()
@@ -202,7 +204,7 @@ def oauth20pkcecallback():
     # Otherwise, a new user record is created
     if existing_user:
         # Update the existing user record with new tokens and other info
-        existing_user.account_name = user_data['data']['name']
+        existing_user.account_name = twitter_username  # Use the Twitter username
         existing_user.access_token = token_data['access_token']
         existing_user.refresh_token = token_data.get('refresh_token', existing_user.refresh_token)  # Update if present
         existing_user.state = state
@@ -216,7 +218,7 @@ def oauth20pkcecallback():
         # Create and store the OAuth record after processing the callback
         oauth_record = OAuth20PKCE(
             email=email,
-            account_name=user_data['data']['name'],
+            account_name=twitter_username,  # Use the Twitter username
             access_token=token_data['access_token'],
             refresh_token=token_data.get('refresh_token'),  # Store refresh token if present
             state=state,
