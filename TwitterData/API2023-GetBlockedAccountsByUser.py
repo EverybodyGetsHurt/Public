@@ -317,7 +317,7 @@ def get_blocked_accounts(credentials, user_id):
     :param user_id:
     :return:
     """
-    # Unpack credentials tuple
+    # Unpack OAuth 1.0a credentials tuple
     consumer_key, consumer_secret, access_token, access_token_secret = credentials  # Unpack credentials tuple
 
     # Initialize variables
@@ -326,36 +326,36 @@ def get_blocked_accounts(credentials, user_id):
 
     # Start a loop to handle pagination and fetching blocked accounts
     while True:
-        # Construct the API request URL for fetching blocked accounts
+        # Construct the Twitter API endpoint URL for fetching blocked accounts with maximum 1000 results per request
         url = f'https://api.twitter.com/2/users/{user_id}/blocking?max_results=1000'
 
-        # Append pagination token to the URL if it exists
-        if next_token:
+        if next_token:  # If there's a next_token (indicating pagination), add it to the URL
             url += f'&pagination_token={next_token}'
 
-        # Create an OAuth1 authentication object
+        # Create an OAuth1 authentication object with the credentials
         auth = OAuth1(consumer_key, consumer_secret, access_token, access_token_secret)
 
         # Make a GET request to the Twitter API to fetch blocked accounts
         response = requests.get(url, auth=auth)  # Make a GET request to the Twitter API to fetch blocked accounts
 
         if response.status_code == 200:  # Check if the GET request was successful (HTTP status code 200)
-            # Parse the JSON response
-            data = response.json()
+            data = response.json()  # Parse the JSON response
 
             if 'data' in data:  # Check if the response contains 'data' field
                 all_blocked_accounts.extend(data['data'])  # Extend the list of blocked accounts with the data received
 
-                # Get the next pagination token if available, or exit the loop
+                # Get the next_token for pagination from the response metadata, or exit the loop
                 next_token = data.get('meta', {}).get('next_token')
+
+                # If there's no next_token, exit the loop
                 if not next_token:
                     break
             else:
-                # Print an error message for unexpected data format and return None
+                # Print an error message and return None if an unexpected data format is received
                 print("Unexpected data format received:", data)
                 return None
         else:
-            # Print an error message for failed GET request and return None
+            # Print an error message with status code and response text and return None in case of an API error
             print("Error retrieving blocked accounts:", response.status_code, response.text)
             return None
 
