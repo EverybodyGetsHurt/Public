@@ -404,12 +404,114 @@ Added new impersonator for fossGregFoss: FosssGregtoss
 Added new impersonator for fossGregFoss: FossGregfoss19
 Added new impersonator for fossGregFoss: FossGregfosl
 
-____________________________________________________________________________
-Processing TXT content... for hodlonaut
-____________________________________________________________________________
-Error(s) found. Correct the Active-hodlonaut.txt file and retry.
-Error: The following usernames are duplicated: hodjlonaut,
+_____________________________________________
+Processing API response... for hodlonaut
+_____________________________________________
+Status Suspended: mich3u
+Status Suspended: hodionautt_
+Status Suspended: sultan10006749
+Status Suspended: hodjonaut
+Status Suspended: kylemcc32950109
+Status Suspended: hodlonaut13
+Status Suspended: luci47671698
+Status Suspended: hodlonault
+Status Suspended: abdelrhemhawri
+Status Suspended: hodlonaiut
+Status Suspended: hodlonaut1__
+Status Suspended: hodlonaut22
+Status Suspended: _hodllonaut
+Status Suspended: lehoangthai1978
+Status Suspended: hodionavt
+Status Suspended: hodlonauot
+Status Suspended: hodloonaut
+Status Suspended: kim4081844
+Status Suspended: hodlonaut__
+Status Suspended: narutou42231551
+Status Suspended: hodlooaafu
+Status Suspended: holdonuat
+Status Suspended: xantegz
 
+_____________________________________________
+Processing API response... for hodlonaut
+_____________________________________________
+
+_____________________________________________
+All information processed for hodlonaut:
+_____________________________________________
+hodlonaut is impersonated by: Galiciarallys
+hodlonaut is impersonated by: Mme_Hamartia
+hodlonaut is impersonated by: jimmo11386725
+hodlonaut is impersonated by: 21deis
+hodlonaut is impersonated by: hodlnaut
+hodlonaut is impersonated by: mrhodlonaut
+hodlonaut is impersonated by: believermagar1
+hodlonaut is impersonated by: ApielsinkinP
+hodlonaut is impersonated by: GoldenLaser8
+hodlonaut is impersonated by: VLxMagic
+hodlonaut is impersonated by: Javier60938309
+hodlonaut is impersonated by: Adil08154404
+hodlonaut is impersonated by: cryptojahangi15
+hodlonaut is impersonated by: CsehiNorbert
+hodlonaut is impersonated by: hodlonauit
+hodlonaut is impersonated by: SP02396003
+hodlonaut is impersonated by: OLE_Marjoryqqw
+hodlonaut is impersonated by: chaoski43366128
+hodlonaut is impersonated by: almagro_arturo
+hodlonaut is impersonated by: hodIonaout
+hodlonaut is impersonated by: ManouJ11
+hodlonaut is impersonated by: rodrigoraiol
+hodlonaut is impersonated by: corzanonestor24
+hodlonaut is impersonated by: youthrescueinc
+hodlonaut is impersonated by: Hunterjumex
+hodlonaut is impersonated by: laperradeky
+hodlonaut is impersonated by: CaVikramRathore
+hodlonaut is impersonated by: vDumpOver
+hodlonaut is impersonated by: KashourMheeb
+hodlonaut is impersonated by: shwtasdf
+hodlonaut is impersonated by: hodbnaut
+hodlonaut is impersonated by: GbenouganThuret
+hodlonaut is impersonated by: Muhammed_MMM_
+hodlonaut is impersonated by: bitcoin_quixote
+hodlonaut is impersonated by: yuripao9
+hodlonaut is impersonated by: ValjaVFX
+hodlonaut is impersonated by: Cresopo_11
+hodlonaut is impersonated by: Pospii2
+hodlonaut is impersonated by: nhTin72827166
+hodlonaut is impersonated by: Copy4Dermot
+hodlonaut is impersonated by: ukaszWa18783454
+hodlonaut is impersonated by: vimukthi2000
+hodlonaut is impersonated by: YOUNESSAOUNI
+hodlonaut is impersonated by: BelhaouAnas88
+hodlonaut is impersonated by: ITsPseudoTeam
+hodlonaut is impersonated by: hodlonaut_ask
+hodlonaut is impersonated by: colombia_only
+hodlonaut is impersonated by: yaraneman122
+hodlonaut is impersonated by: LucasX11796233
+hodlonaut is impersonated by: Neonblkprod
+hodlonaut is impersonated by: OliwierIrm
+hodlonaut is impersonated by: OrtegaAlexaner
+hodlonaut is impersonated by: alberetooo
+hodlonaut is impersonated by: dzakywallyon
+hodlonaut is impersonated by: Pepe_reflect
+hodlonaut is impersonated by: hodlonaut_
+hodlonaut is impersonated by: Altair07884398
+hodlonaut is impersonated by: hellosan12
+hodlonaut is impersonated by: MateusR14773701
+hodlonaut is impersonated by: resperaptor
+hodlonaut is impersonated by: nasser_algaafry
+hodlonaut is impersonated by: DrCraigSWright5
+hodlonaut is impersonated by: officialgregmax
+Added new impersonator for hodlonaut: hodjlonaut
+hodlonaut is impersonated by: KMinh17
+hodlonaut is impersonated by: h0d1onaut
+hodlonaut is impersonated by: hodlonot
+hodlonaut is impersonated by: hodl0nuat
+hodlonaut is impersonated by: hodlonauttt
+hodlonaut is impersonated by: HodlonautIq
+hodlonaut is impersonated by: hdodlonaut
+hodlonaut is impersonated by: btchodlonaut
+Added new impersonator for hodlonaut: Hodlonaut80
+Added new impersonator for hodlonaut: hodlonauth
 
 _____________________________________________
 Processing API response... for ICannot_Enough
@@ -2454,7 +2556,7 @@ TomCrownCrypto is impersonated by: TomCrqwnCrypto
 TomCrownCrypto is impersonated by: _TomCr0wnCrypt0
 TomCrownCrypto is impersonated by: TomCrolwnCrypto
 TomCrownCrypto is impersonated by: TomCrownDM
-Added new impersonator for TomCrownCrypto: TomCrownCrypt_o
+TomCrownCrypto is impersonated by: TomCrownCrypt_o
 
 _____________________________________________
 Processing API response... for Uncategorized
@@ -2624,6 +2726,7 @@ Status Suspended: jefffb0oth
 _____________________________________________
 Processing API response... for Uncategorized
 _____________________________________________
+Status Suspended: emimeiiker
 
 _____________________________________________
 All information processed for Uncategorized:
@@ -2644,5 +2747,10 @@ Uncategorized is impersonated by: DER_PE
 Uncategorized is impersonated by: CredbleCrypta
 Uncategorized is impersonated by: LynAhdenContact
 Added new impersonator for Uncategorized: OGKushqddb
+
+_____________________________________________
+Reactivated impersonators across all channels
+_____________________________________________
+Impersonator reactivated: hodjlonaut
 
 Process finished with exit code 0
