@@ -211,7 +211,7 @@ _____________________________________________
 100trillionUSD is impersonated by: 100trilionUSD5
 100trillionUSD is impersonated by: realMeetkelvn
 100trillionUSD is impersonated by: 100treiIIionUSD
-Added new impersonator for 100trillionUSD: 100tnllionUSD
+100trillionUSD is impersonated by: 100tnllionUSD
 
 _____________________________________________
 Processing API response... for CryptoCovosJoe
@@ -245,9 +245,9 @@ ctoLarsson is impersonated by: reallystg
 ctoLarsson is impersonated by: _ctoLarson
 ctoLarsson is impersonated by: toLarssonn
 ctoLarsson is impersonated by: Ctolarrsson1
-Added new impersonator for ctoLarsson: ctoIarsson_
-Added new impersonator for ctoLarsson: ctoLarssion
-Added new impersonator for ctoLarsson: ctoLarssorn
+ctoLarsson is impersonated by: ctoIarsson_
+ctoLarsson is impersonated by: ctoLarssion
+ctoLarsson is impersonated by: ctoLarssorn
 
 _____________________________________________
 Processing API response... for fossGregFoss
@@ -392,17 +392,17 @@ fossGregFoss is impersonated by: FOSSforthe98639
 fossGregFoss is impersonated by: FossGrregffoss_
 fossGregFoss is impersonated by: FosssGregfossx
 fossGregFoss is impersonated by: FossGregfus
-Added new impersonator for fossGregFoss: FossGreggggfoss
-Added new impersonator for fossGregFoss: FoosGregfoss1
-Added new impersonator for fossGregFoss: F0ss__Gregf0ss
-Added new impersonator for fossGregFoss: _FossGregfoss_0
-Added new impersonator for fossGregFoss: FossGregfosy
-Added new impersonator for fossGregFoss: FossGregfoss243
-Added new impersonator for fossGregFoss: F0ssGr3gfoss
-Added new impersonator for fossGregFoss: iamFossGregfoss
-Added new impersonator for fossGregFoss: FosssGregtoss
-Added new impersonator for fossGregFoss: FossGregfoss19
-Added new impersonator for fossGregFoss: FossGregfosl
+fossGregFoss is impersonated by: FossGreggggfoss
+fossGregFoss is impersonated by: FoosGregfoss1
+fossGregFoss is impersonated by: F0ss__Gregf0ss
+fossGregFoss is impersonated by: _FossGregfoss_0
+fossGregFoss is impersonated by: FossGregfosy
+fossGregFoss is impersonated by: FossGregfoss243
+fossGregFoss is impersonated by: F0ssGr3gfoss
+fossGregFoss is impersonated by: iamFossGregfoss
+fossGregFoss is impersonated by: FosssGregtoss
+fossGregFoss is impersonated by: FossGregfoss19
+fossGregFoss is impersonated by: FossGregfosl
 
 _____________________________________________
 Processing API response... for hodlonaut
@@ -501,7 +501,7 @@ hodlonaut is impersonated by: resperaptor
 hodlonaut is impersonated by: nasser_algaafry
 hodlonaut is impersonated by: DrCraigSWright5
 hodlonaut is impersonated by: officialgregmax
-Added new impersonator for hodlonaut: hodjlonaut
+hodlonaut is impersonated by: hodjlonaut
 hodlonaut is impersonated by: KMinh17
 hodlonaut is impersonated by: h0d1onaut
 hodlonaut is impersonated by: hodlonot
@@ -510,8 +510,8 @@ hodlonaut is impersonated by: hodlonauttt
 hodlonaut is impersonated by: HodlonautIq
 hodlonaut is impersonated by: hdodlonaut
 hodlonaut is impersonated by: btchodlonaut
-Added new impersonator for hodlonaut: Hodlonaut80
-Added new impersonator for hodlonaut: hodlonauth
+hodlonaut is impersonated by: Hodlonaut80
+hodlonaut is impersonated by: hodlonauth
 
 _____________________________________________
 Processing API response... for ICannot_Enough
@@ -535,13 +535,13 @@ ICannot_Enough is impersonated by: I_CannotEnough
 ICannot_Enough is impersonated by: jCannot_enough
 ICannot_Enough is impersonated by: icanot_enough1
 ICannot_Enough is impersonated by: uba1270364
-Added new impersonator for ICannot_Enough: anggifrenz
-Added new impersonator for ICannot_Enough: ICannot_Enoegh
-Added new impersonator for ICannot_Enough: ICannot_Enoug22
-Added new impersonator for ICannot_Enough: BTC_Archive_p
-Added new impersonator for ICannot_Enough: ICaannot_Enough
-Added new impersonator for ICannot_Enough: ICannotEnough_J
-Added new impersonator for ICannot_Enough: 1cannotEnough
+ICannot_Enough is impersonated by: anggifrenz
+ICannot_Enough is impersonated by: ICannot_Enoegh
+ICannot_Enough is impersonated by: ICannot_Enoug22
+ICannot_Enough is impersonated by: BTC_Archive_p
+ICannot_Enough is impersonated by: ICaannot_Enough
+ICannot_Enough is impersonated by: ICannotEnough_J
+ICannot_Enough is impersonated by: 1cannotEnough
 
 _____________________________________________
 Processing API response... for intocryptoverse
@@ -1218,6 +1218,7 @@ invest_answers is impersonated by: invesat_answers
 invest_answers is impersonated by: Invest30answers
 invest_answers is impersonated by: investanswerliv
 invest_answers is impersonated by: invest_ansverc
+invest_answers is impersonated by: invste_answers
 
 _____________________________________________
 Processing API response... for iWantCoinNews
@@ -1245,6 +1246,10 @@ iWantCoinNews is impersonated by: iWantiCoinNews
 iWantCoinNews is impersonated by: jahsvdvgdhdd
 iWantCoinNews is impersonated by: iWantc0inNews
 iWantCoinNews is impersonated by: 1WantCoinNews
+iWantCoinNews is impersonated by: iWantCoinNewsr
+iWantCoinNews is impersonated by: iWantCoienNews
+iWantCoinNews is impersonated by: __cryptoskullx_
+iWantCoinNews is impersonated by: iWantCoinNewss_
 
 _____________________________________________
 Processing API response... for jasonpizzino
@@ -1442,6 +1447,8 @@ jasonpizzino is impersonated by: abubakar8376644
 jasonpizzino is impersonated by: jasonrpizzino
 jasonpizzino is impersonated by: jasonpizzino50
 jasonpizzino is impersonated by: jasonpizzinoo7
+jasonpizzino is impersonated by: jascnpizzino_
+jasonpizzino is impersonated by: Wordof_Rizdom
 
 _____________________________________________
 Processing API response... for JasonPLowery
@@ -1607,6 +1614,13 @@ luke_broyles is impersonated by: luke_broyleis
 luke_broyles is impersonated by: lukebroyless_
 luke_broyles is impersonated by: luke__broyles1
 luke_broyles is impersonated by: Luike__broyles
+luke_broyles is impersonated by: luke_broylis
+luke_broyles is impersonated by: luuke_broyles
+luke_broyles is impersonated by: luke_broyles3
+luke_broyles is impersonated by: luke_broyles1_
+luke_broyles is impersonated by: lake_broyles
+luke_broyles is impersonated by: _luke_broyles__
+luke_broyles is impersonated by: Luke_broyleess
 
 _____________________________________________
 Processing API response... for missteencrypto
@@ -1724,7 +1738,6 @@ missteencrypto is impersonated by: _mrssteencrypto
 missteencrypto is impersonated by: missaTeenCrypto
 missteencrypto is impersonated by: missteenzcrypto
 missteencrypto is impersonated by: missteencrypt02
-missteencrypto is impersonated by: misteen_crypto_
 missteencrypto is impersonated by: mlsteencrypto
 missteencrypto is impersonated by: missteencryp_to
 missteencrypto is impersonated by: misssteencryqto
@@ -1740,9 +1753,9 @@ missteencrypto is impersonated by: DMmissteencrypt
 missteencrypto is impersonated by: missteencrytpto
 missteencrypto is impersonated by: missteencrypt_o
 missteencrypto is impersonated by: missteencryptw
-Added new impersonator for missteencrypto: missteencrypIo1
-Added new impersonator for missteencrypto: _misteenncrypto
-Added new impersonator for missteencrypto: missztenncrypto
+missteencrypto is impersonated by: missteencrypIo1
+missteencrypto is impersonated by: _misteenncrypto
+missteencrypto is impersonated by: missztenncrypto
 
 _____________________________________________
 Processing API response... for NewsAsset
@@ -1814,6 +1827,7 @@ pizzinomichael is impersonated by: PizzinoMjchael
 pizzinomichael is impersonated by: pizziniomichaeI
 pizzinomichael is impersonated by: _MichaelPizzino
 pizzinomichael is impersonated by: PizzinoMichaal5
+pizzinomichael is impersonated by: Pizino_Micheal
 
 _____________________________________________
 Processing API response... for scottmelker
@@ -2021,6 +2035,16 @@ scottmelker is impersonated by: sc0tmeIker
 scottmelker is impersonated by: scottmclker
 scottmelker is impersonated by: scottmelk_
 scottmelker is impersonated by: mianahsan65
+scottmelker is impersonated by: scott1_melker
+scottmelker is impersonated by: sash_sazz
+scottmelker is impersonated by: scottnnellker
+scottmelker is impersonated by: scottme1lker
+scottmelker is impersonated by: albandelight
+scottmelker is impersonated by: scootmelkerr
+scottmelker is impersonated by: scoltmelkerr
+scottmelker is impersonated by: WolPrivate
+scottmelker is impersonated by: sc0ttmelkers
+scottmelker is impersonated by: _Crypto_Barbiex
 
 _____________________________________________
 Processing API response... for Sheldon_Sniper
@@ -2295,6 +2319,8 @@ SimonDixonTwitt is impersonated by: SimonDixtontwit
 SimonDixonTwitt is impersonated by: Simon_DixonTwtt
 SimonDixonTwitt is impersonated by: SimodioTWitt
 SimonDixonTwitt is impersonated by: ChesnutGerry
+SimonDixonTwitt is impersonated by: tzlinebarger91
+SimonDixonTwitt is impersonated by: Ahmad33313977
 
 _____________________________________________
 Processing API response... for Spam
@@ -2400,6 +2426,8 @@ thetrocro is impersonated by: thetroucro
 thetrocro is impersonated by: thetrocroo0
 thetrocro is impersonated by: thetrocros_
 thetrocro is impersonated by: thetrocroi
+Added new impersonator for thetrocro: thetro_cro
+Added new impersonator for thetrocro: thetrocro_1
 
 _____________________________________________
 Processing API response... for TiffanyFong_
@@ -2467,6 +2495,18 @@ TiffanyFong_ is impersonated by: TifanyFongs_
 TiffanyFong_ is impersonated by: TiffianyFong_
 TiffanyFong_ is impersonated by: TiffanyFong_5
 TiffanyFong_ is impersonated by: TiffayFong_
+TiffanyFong_ is impersonated by: TiffanyxFong
+TiffanyFong_ is impersonated by: TiffangFong_
+TiffanyFong_ is impersonated by: Tifanniyfong
+TiffanyFong_ is impersonated by: TiffanyFonge_
+TiffanyFong_ is impersonated by: TiffanyFongd
+TiffanyFong_ is impersonated by: TiffanyFonggz
+TiffanyFong_ is impersonated by: Tiffany1Fong
+TiffanyFong_ is impersonated by: TiffanyFong0__
+TiffanyFong_ is impersonated by: TiffanyF0ong
+TiffanyFong_ is impersonated by: tiffanyfon_
+TiffanyFong_ is impersonated by: TiffanyFong08
+TiffanyFong_ is impersonated by: TiffaanyFong__
 
 _____________________________________________
 Processing API response... for TomCrownCrypto
@@ -2746,11 +2786,6 @@ Uncategorized is impersonated by: sgbitcoinboi
 Uncategorized is impersonated by: DER_PE
 Uncategorized is impersonated by: CredbleCrypta
 Uncategorized is impersonated by: LynAhdenContact
-Added new impersonator for Uncategorized: OGKushqddb
-
-_____________________________________________
-Reactivated impersonators across all channels
-_____________________________________________
-Impersonator reactivated: hodjlonaut
+Uncategorized is impersonated by: OGKushqddb
 
 Process finished with exit code 0
