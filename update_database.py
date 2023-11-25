@@ -1,4 +1,4 @@
-# Import necessary libraries and modules
+# Import the necessary libraries and modules
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, JSON, func
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
 from logging.handlers import RotatingFileHandler
@@ -298,6 +298,19 @@ def process_not_found_user(username, error, protected_channel, session):
     logging.info(f"Processing not found user: {username}")
 
     try:
+        # Query for the existing account with the same username in previous_username
+        existing_account_with_previous_username = session.query(
+            TwitterAccount).filter(
+            TwitterAccount.previous_username.contains(username)).order_by(TwitterAccount.id).first()
+
+        # If found, log and return without adding a new account
+        if existing_account_with_previous_username:
+            current_username_of_found_account = existing_account_with_previous_username.username
+            logging.info(f"Username {username} found in previous_username of an existing entry with ID"
+                         f" {existing_account_with_previous_username.id}.\nNot adding {username} to database because"
+                         f" it is the old username for current impersonator {current_username_of_found_account}")
+            return
+
         user_data = {
             'username': username,
             'protected_channel': protected_channel,
@@ -308,7 +321,7 @@ def process_not_found_user(username, error, protected_channel, session):
         existing_account = session.query(TwitterAccount).filter_by(username=username).first()
 
         if existing_account:
-            # Update existing account
+            # Update the existing account
             for key, value in user_data.items():
                 setattr(existing_account, key, value)
             logging.info(f"Updated {username} in the database as not found.")
@@ -332,7 +345,6 @@ def process_active_user(account, user_data, protected_channel, session):
 
     if account:
         if not account.suspended and account.username != user_data['username']:
-
             print(f"{account.username} changed username to {user_data['username']}")
 
             account.username = user_data['username']
@@ -445,7 +457,13 @@ def process_api_response(response, session, protected_channel):
                     try:
                         new_user_data = connect_to_endpoint(url, headers)
                         new_username = new_user_data['data']['username']
-                        print(f"Username {username} not found. Updated to {new_username} using Twitter ID.")
+                        print(f"\n_____________________________________________\n"
+                              f"Processing API response... for {protected_channel}\n"
+                              f"_____________________________________________\n"
+                              f"Username {username} could not be found\n"
+                              f"Searching new username for (ID {account.twitter_id})\n"
+                              f"Username {username} tried to avoid getting "
+                              f"suspended by changing username to {new_username}.")
                         account.update_username(new_username)
                         account.update_api_response(new_user_data['data'])
                         if not commit_session(session):
@@ -509,7 +527,7 @@ def process_unresolvable_user(session, reactivated_usernames, usernames_chunk):
             ).first()
 
             if account:
-                # Update existing account with new data from Twitter API
+                # Update the existing account with new data from Twitter API
                 account.twitter_id = twitter_id
                 account.username = new_data.get("username")
                 account.name = new_data.get("name")
@@ -545,7 +563,7 @@ def process_unresolvable_user(session, reactivated_usernames, usernames_chunk):
             logging.info(f"Account {username} is still unresolvable.")
 
 
-# Function to process the user's choice of protected channel
+# Function to process the user's choice of the protected channel
 def process_user_choice(choice, txt_files):
     if not choice or not choice.strip():
         print("Invalid input. Please enter a number or name corresponding to the protected channels,"
