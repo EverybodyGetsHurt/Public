@@ -1,3 +1,6 @@
+"""
+information:
+"""
 # Import the necessary libraries and modules
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, JSON, func
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
@@ -43,30 +46,49 @@ tokens_list = [main_token, backup_token]
 
 # Token Manager for handling the token rotation
 class TokenManager:
+    """
+    information
+    """
+
     def __init__(self, tokens):
         self.tokens_list = tokens
         self.current_token_index = 0
         self.rate_limited_tokens = set()
 
     def get_current_token(self):
+        """
+        information
+        """
         return self.tokens_list[self.current_token_index]
 
     def rotate_token(self):
+        """
+        information
+        """
         self.current_token_index = (self.current_token_index + 1) % len(self.tokens_list)
         masked_token = mask_token(f'Bearer {self.tokens_list[self.current_token_index]}')
         logging.debug(f"Rotated to token {self.current_token_index}: {masked_token}")
 
     def mark_token_as_rate_limited(self, token):
+        """
+        information
+        """
         self.rate_limited_tokens.add(token)
         masked_token = mask_token(f'Bearer {token}')
         logging.debug(f"Marked token as rate-limited: {masked_token}")
 
     def all_tokens_rate_limited(self):
+        """
+        information
+        """
         all_rate_limited = len(self.rate_limited_tokens) == len(self.tokens_list)
         logging.debug(f"All tokens rate-limited: {all_rate_limited}")
         return all_rate_limited
 
     def reset_rate_limited_tokens(self):
+        """
+        information
+        """
         self.rate_limited_tokens.clear()
 
 
@@ -74,6 +96,11 @@ token_manager = TokenManager(tokens_list)
 
 
 def mask_token(authorization_header):
+    """
+
+    :param authorization_header:
+    :return:
+    """
     token = authorization_header.split(' ')[1]  # Extract the actual token from the header
     masked_token = '*' * 18 + token[-5:]  # Mask all characters of the token except for the last 5
     return masked_token
@@ -81,7 +108,14 @@ def mask_token(authorization_header):
 
 # Custom JSON encoder to handle non-serializable objects
 class SafeEncoder(json.JSONEncoder):
+    """
+    information
+    """
+
     def default(self, obj):
+        """
+        information
+        """
         try:
             return super().default(obj)
         except TypeError:
@@ -90,6 +124,9 @@ class SafeEncoder(json.JSONEncoder):
 
 # Class for the SQL-Alchemy database schema for ImpersonatorAccounts
 class TwitterAccount(Base):
+    """
+    information
+    """
     __tablename__ = "impersonator_account"
     id = Column(Integer, primary_key=True, index=True)
     twitter_id = Column(String, unique=True)
@@ -141,6 +178,9 @@ class TwitterAccount(Base):
         self.profile_image_url = kwargs.get("profile_image_url")
 
     def mark_as_suspended(self, date=None):
+        """
+        information
+        """
         if not self.suspended:
             logging.info(f"Marking {self.username} as suspended.")
             self.suspended = True
@@ -150,6 +190,9 @@ class TwitterAccount(Base):
             logging.info(f"{self.username} is already marked as suspended.")
 
     def update_username(self, new_username):
+        """
+        information
+        """
         if self.username != new_username:
             if self.previous_username:
                 self.previous_username += f",{self.username}"
@@ -160,6 +203,9 @@ class TwitterAccount(Base):
             self.username_changed_date = datetime.now()
 
     def update_api_response(self, new_response):
+        """
+        information
+        """
         # print(f"Updating API response")  # Debug print
         self.previous_api_response = self.api_response
         self.previous_api_response_updated_at = self.api_response_updated_at
@@ -172,12 +218,23 @@ class TwitterAccount(Base):
 
 # Function to split the list of usernames into chunks for batch processing
 def chunked_usernames(usernames: List[str], chunk_size: int = 100):
+    """
+
+    :param usernames:
+    :param chunk_size:
+    :return:
+    """
     for i in range(0, len(usernames), chunk_size):
         yield usernames[i:i + chunk_size]
 
 
 # Function made to reduce repetitive code
 def commit_session(session):
+    """
+
+    :param session:
+    :return:
+    """
     try:
         session.commit()
         logging.info("Database commit successful.")
@@ -190,6 +247,12 @@ def commit_session(session):
 
 # Function to create a new TwitterAccount object and add it to the session
 def create_new_account(user_data, session):
+    """
+
+    :param user_data:
+    :param session:
+    :return:
+    """
     # Query for an existing account by twitter_id or a case-insensitive match for username
     existing_account = session.query(TwitterAccount).filter(
         (TwitterAccount.twitter_id == user_data["id"]) |
@@ -234,17 +297,31 @@ def create_new_account(user_data, session):
 
 # Function to create headers for the API request
 def create_headers(bearer_token):
+    """
+
+    :param bearer_token:
+    :return:
+    """
     headers = {"Authorization": f"Bearer {bearer_token}"}
     return headers
 
 
 # Function to create the database tables
 def create_tables():
+    """
+
+    :return:
+    """
     Base.metadata.create_all(engine)
 
 
 # Function to create the URL for the API request
 def create_url(usernames):
+    """
+
+    :param usernames:
+    :return:
+    """
     usernames = ",".join(usernames)
     url = (f"{BASE_URL}?usernames={usernames}&user.fields=created_at,description,id,name,profile_image_url,"
            f"public_metrics,url,username,verified")
@@ -253,11 +330,22 @@ def create_url(usernames):
 
 # Function to retrieve a TwitterAccount object by Twitter ID
 def get_account_by_twitter_id(twitter_id, session):
+    """
+
+    :param twitter_id:
+    :param session:
+    :return:
+    """
     return session.query(TwitterAccount).filter_by(twitter_id=twitter_id).first()
 
 
 # Function to extract the protected channel name from the filename
 def get_protected_channel_from_filename(filename):
+    """
+
+    :param filename:
+    :return:
+    """
     # Extract the channel name and ID from the new filename format 'Username(Twitter_ID).txt'
     base_name = os.path.basename(filename).replace(".txt", "")
     protected_channel, twitter_id = base_name.split("(")
@@ -267,17 +355,33 @@ def get_protected_channel_from_filename(filename):
 
 # Function to extract the username from the Twitter URL
 def get_username_from_url(url):
+    """
+
+    :param url:
+    :return:
+    """
     return url.strip().split("/")[-1]
 
 
 # Function to retrieve all impersonator accounts for a specific protected channel
 def get_impersonators_for_protected_channel(session, protected_channel):
+    """
+
+    :param session:
+    :param protected_channel:
+    :return:
+    """
     impersonators_query = session.query(TwitterAccount).filter_by(protected_channel=protected_channel)
     return impersonators_query.all()
 
 
 # Function to check if the database is empty
 def is_database_empty(session=None):
+    """
+
+    :param session:
+    :return:
+    """
     if not session:
         session = Session()
     return session.query(TwitterAccount).first() is None
@@ -285,6 +389,16 @@ def is_database_empty(session=None):
 
 # Function to process a suspended user
 def process_suspended_user(account, username, error, protected_channel, protected_channel_id, session):
+    """
+
+    :param account:
+    :param username:
+    :param error:
+    :param protected_channel:
+    :param protected_channel_id:
+    :param session:
+    :return:
+    """
     if account:
         account.mark_as_suspended()
         account.api_response = error
@@ -313,6 +427,15 @@ def process_suspended_user(account, username, error, protected_channel, protecte
 
 # Function to process a user that was not found
 def process_not_found_user(username, error, protected_channel, protected_channel_id, session):
+    """
+
+    :param username:
+    :param error:
+    :param protected_channel:
+    :param protected_channel_id:
+    :param session:
+    :return:
+    """
     logging.info(f"Processing not found user: {username}")
 
     try:
@@ -359,6 +482,15 @@ def process_not_found_user(username, error, protected_channel, protected_channel
 
 # Function to process an active user
 def process_active_user(account, user_data, protected_channel, protected_channel_id, session):
+    """
+
+    :param account:
+    :param user_data:
+    :param protected_channel:
+    :param protected_channel_id:
+    :param session:
+    :return:
+    """
     user_data['protected_channel'] = protected_channel
     user_data['protected_channel_id'] = protected_channel_id  # Include protected_channel_id in user_data
     user_data['api_response'] = json.dumps(user_data, cls=SafeEncoder)
@@ -384,6 +516,13 @@ def process_active_user(account, user_data, protected_channel, protected_channel
 
 # Function to connect to the Twitter API endpoint with enhanced error handling and token rotation
 def connect_to_endpoint(url, headers, max_retries=1):
+    """
+
+    :param url:
+    :param headers:
+    :param max_retries:
+    :return:
+    """
     retries = 0
     masked_token = None  # Initialize masked_token before the try block
     while retries <= max_retries:
@@ -433,6 +572,14 @@ def connect_to_endpoint(url, headers, max_retries=1):
 
 # Funtion to handle API requests with a retry mechanism
 def make_api_request(url, headers, retries=3, delay=1):
+    """
+
+    :param url:
+    :param headers:
+    :param retries:
+    :param delay:
+    :return:
+    """
     for _ in range(retries):
         try:
             response = requests.get(url, headers=headers)
@@ -454,6 +601,14 @@ def make_api_request(url, headers, retries=3, delay=1):
 
 # Function to process the API response, handling various scenarios like active/suspended/not-found accounts.
 def process_api_response(response, session, protected_channel, protected_channel_id):
+    """
+
+    :param response:
+    :param session:
+    :param protected_channel:
+    :param protected_channel_id:
+    :return:
+    """
     if not response:
         logging.error("No response received from the API.")
         return
@@ -539,6 +694,14 @@ def process_api_response(response, session, protected_channel, protected_channel
 
 
 def process_unresolvable_user(session, reactivated_usernames, usernames_chunk, protected_channel_id):
+    """
+
+    :param session:
+    :param reactivated_usernames:
+    :param usernames_chunk:
+    :param protected_channel_id:
+    :return:
+    """
     # Create URL for the chunk of usernames
     url = create_url(usernames_chunk)
     headers = create_headers(token_manager.get_current_token())
@@ -597,6 +760,12 @@ def process_unresolvable_user(session, reactivated_usernames, usernames_chunk, p
 
 # Function to process the user's choice of the protected channel
 def process_user_choice(choice, txt_files):
+    """
+
+    :param choice:
+    :param txt_files:
+    :return:
+    """
     if not choice or not choice.strip():
         print("Invalid input. Please enter a number or name corresponding to the protected channels,"
               " or type 'ALL' to select all channels.")
@@ -607,6 +776,11 @@ def process_user_choice(choice, txt_files):
     reactivated_usernames = []  # List to store reactivated usernames
 
     def process_choice(inner_choice):
+        """
+
+        :param inner_choice:
+        :return:
+        """
         all_suspended_accounts = []
         all_active_impersonators = []
         all_not_found_users = []
@@ -754,6 +928,12 @@ def process_user_choice(choice, txt_files):
 
 
 def validate_user_choice(choice, txt_files):
+    """
+
+    :param choice:
+    :param txt_files:
+    :return:
+    """
     if not choice.strip():
         print("Invalid input. Please enter a non-empty option.")
         return False
@@ -790,6 +970,10 @@ def validate_user_choice(choice, txt_files):
 
 # Main function to execute the script
 def main():
+    """
+
+    :return:
+    """
     try:
         create_tables()
 
