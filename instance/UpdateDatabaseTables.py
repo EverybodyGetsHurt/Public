@@ -16,6 +16,7 @@ purpose, relationships, and the significance of each field.
 """
 
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Table, Text, Boolean, func
+from werkzeug.security import generate_password_hash, check_password_hash  # Werkzeug's security helpers for hashing.
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
