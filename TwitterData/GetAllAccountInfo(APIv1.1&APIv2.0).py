@@ -1,10 +1,15 @@
+"""
+
+     Script that combined both APIv1 and APIv2 to get all the accounts' info.
+
+"""
 # Import necessary libraries and configurations:
 from instance import config  # This is the file where I have a value BEARER_TOKEN = 'tokenherenblablablabla'
 import requests  # You need to do a pip install requests
 import json  # By my knowledge you do not need to pip install anything
 
 # Bearer token for authenticating requests to the Twitter API
-bearer_token = config.BEARER_TOKEN_V2
+bearer_token = config.BEARER_TOKEN
 
 
 # Construct and return the Twitter API URL for fetching user information by username.
