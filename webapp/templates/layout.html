@@ -68,7 +68,7 @@
     />
     <link
         rel="manifest"
-        href="{{ url_for('static', filename='site.webmanifest') }}"
+        href="{{ url_for('static', filename='benemortasia.webmanifest') }}"
     />
     <link
         rel="mask-icon"
@@ -115,7 +115,7 @@
               <a class="nav-item nav-link" id="home" href="/unauthhome">Home</a>
               <a class="nav-item nav-link" id="about" href="/unauthabout">About</a>
               <a class="nav-item nav-link" id="privacy" href="/privacy">Privacy Policy</a>
-              <a class="nav-item nav-link" id="Report" href="/oauth10areport">Report</a>
+              <a class="nav-item nav-link" id="Report" href="/oauth10areportimpersonators">Report</a>
             </div>
             <div class="navbar-nav">
               <a class="nav-item nav-link" id="oauth10aIndex" href="/oauth10aindex">OAuth1.0a</a>
@@ -191,6 +191,13 @@
         crossorigin="anonymous"
         integrity="sha512-YRU/bXfiBZTE2rCBmrsKZ2vYMLKBCIadHCEJjT2NVoQB23j+58wjoFgBuie6NjxWjzLW62W/iGhBTt1i9LBr0g=="
         src="{{ url_for('static', filename='benemortasia.min.js') }}"
+    ></script>
+    <script
+        nonce="{{ csp_nonce() }}"
+        type="application/javascript"
+        crossorigin="anonymous"
+        integrity="sha512-vcFb3D1av5Bo4gPZyecugMVBU3fLj8ojtb67gexv56mYGK/pj0beTp4ZokUwIXVpC/1UyhRUBI7Copu9SKoKaA=="
+        src="{{ url_for('static', filename='oauth10a_report.js') }}"
     ></script>
 
 </body>
