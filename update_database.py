@@ -1,12 +1,15 @@
 """
-
-    Prett-Much Perfect
+    TODO: It seems to add the protected_channel_id for the last account in the menu selection to many database entries.
+      The issue seems to be the fact that the last selected account (when more then 1 s selected) is added to some
+       accounts. We dont know why it takes the last one when multiple accounts are selected, but it is tested to be
+       always the last one of the multiple or all selection.
+       UPDATE: IT HAPPENS FOR THE ONES WHERE THE ACCOUNT NAME CHANGED
 
 """
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, JSON, func
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
+from datetime import datetime, timezone, timedelta
 from logging.handlers import RotatingFileHandler
-from datetime import datetime
 from instance import config
 from typing import List
 import traceback
@@ -18,8 +21,11 @@ import time
 import sys
 import os
 
+# Directory setup
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
 # Logging setup
-log_filename = os.path.join("TwitterData", "SQL-ImpersonatorAccounts", "ImpersonatorAccounts.log")
+log_filename = os.path.join(base_dir, "..", "logs", "ImpersonatorAccounts.log")
 if not os.path.exists(os.path.dirname(log_filename)):
     os.makedirs(os.path.dirname(log_filename))
 logger = logging.getLogger()  # Creating a custom logger
@@ -30,9 +36,8 @@ handler.setFormatter(formatter)  # Add formatter to handler
 logger.addHandler(handler)  # Add handler to logger
 # logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)  # Show all the database interaction in the output
 
-# Directory, database and SQLAlchemy setup
-base_dir = os.path.dirname(os.path.abspath(__file__))
-DATABASE_PATH = os.path.join(base_dir, "TwitterData", "SQL-ImpersonatorAccounts", "ImpersonatorAccounts.sqlite")
+# Database and SQLAlchemy setup
+DATABASE_PATH = os.path.join(base_dir, "ImpersonatorAccounts.sqlite")
 DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
 Base = declarative_base()
 engine = create_engine(DATABASE_URL)
@@ -266,25 +271,22 @@ def commit_session(session):
 
 def create_new_account(user_data, session):
     """
+    Creates a new account or updates an existing one in the database based on the given user data.
 
-    :param user_data:
-    :param session:
-    :return:
+    :param user_data: The data for the user account.
+    :param session: The database session.
+    :return: None
     """
     # Query for an existing account by twitter_id or a case-insensitive match for username
     existing_account = session.query(TwitterAccount).filter(
-        (TwitterAccount.twitter_id == user_data["id"]) |
-        (func.lower(TwitterAccount.username) == func.lower(user_data["username"]))
+        (TwitterAccount.twitter_id == user_data.get("id")) |
+        (func.lower(TwitterAccount.username) == func.lower(user_data.get("username")))
     ).first()
 
     if existing_account:
         # Update the existing account with the new data
         for key, value in user_data.items():
-            if key == 'id':
-                # Map 'id' from user_data to 'twitter_id' in TwitterAccount
-                setattr(existing_account, 'twitter_id', value)
-            elif key != 'created_at':
-                # Update other fields except 'created_at' and primary key 'id'
+            if hasattr(existing_account, key):
                 setattr(existing_account, key, value)
 
         # Special handling for 'created_at' to ensure it's a datetime object
@@ -298,9 +300,9 @@ def create_new_account(user_data, session):
     else:
         # Create a new account if no existing account is found
         # Correctly map 'id' from user_data to 'twitter_id' in the new account
-        user_data['twitter_id'] = user_data.pop('id')
+        user_data['twitter_id'] = user_data.pop('id', None)
 
-        # Handle the protected_channel_id if it's provided in user_data
+        # Handle the protected_channel_id if it's not provided in user_data
         if 'protected_channel_id' not in user_data:
             user_data['protected_channel_id'] = None
 
@@ -455,26 +457,24 @@ def process_suspended_user(account, username, error, protected_channel, protecte
         print("An error occurred while committing to the database.")
 
 
-def process_username_change(account, new_username, session, protected_channel):
+def process_username_change(account, new_username, session):
     """
+    Processes a change in username for a given account.
 
-    :param account:
-    :param new_username:
-    :param session:
-    :param protected_channel:
-    :return:
+    :param account: The existing account object.
+    :param new_username: The new username.
+    :param session: The database session.
     """
     if account.username != new_username:
-        logging.info(f"Regarding {protected_channel}")
         logging.info(f"Username change detected for {account.username} to {new_username}")
 
-        # Check if a different account with the new username already exists
+        # Check if there is an existing account with the new username
         existing_account_with_new_username = session.query(TwitterAccount).filter(
             TwitterAccount.username == new_username
         ).first()
 
+        # If an existing account with the new username is found, mark it as unresolvable
         if existing_account_with_new_username:
-            # If an account with the new username exists, it should be marked as unresolvable
             existing_account_with_new_username.unresolvable = True
             logging.info(
                 f"Marked existing account with username {new_username} as unresolvable due to username conflict.")
@@ -536,20 +536,25 @@ def process_not_found_user(username, error, protected_channel, protected_channel
 
 def process_active_user(account, user_data, protected_channel, protected_channel_id, session):
     """
+    Processes an active user account.
 
-    :param account:
-    :param user_data:
-    :param protected_channel:
-    :param protected_channel_id:
-    :param session:
-    :return:
+    :param account: The existing account object.
+    :param user_data: The user data retrieved from the API.
+    :param protected_channel: The name of the protected channel.
+    :param protected_channel_id: The ID of the protected channel.
+    :param session: The database session.
+    :return: None
     """
     user_data['protected_channel'] = protected_channel
-    user_data['protected_channel_id'] = protected_channel_id
+    # Set protected_channel_id only if it's empty
+    if account and account.protected_channel_id is None:
+        user_data['protected_channel_id'] = protected_channel_id
+    elif not account:
+        user_data['protected_channel_id'] = protected_channel_id
     user_data['api_response'] = json.dumps(user_data, cls=SafeEncoder)
 
     if account:
-        process_username_change(account, user_data['username'], session, protected_channel)
+        process_username_change(account, user_data['username'], session)
         account.update_api_response(user_data)
         print(f"{protected_channel} is impersonated by {user_data['username']}")
     else:
@@ -561,19 +566,9 @@ def process_active_user(account, user_data, protected_channel, protected_channel
 
 # Function to connect to the Twitter API endpoint with enhanced error handling and token rotation
 def connect_to_endpoint(url, headers, max_retries=1):
-    """
-
-    :param url:
-    :param headers:
-    :param max_retries:
-    :return:
-    """
     retries = 0
-    masked_token = None  # Initialize masked_token before the try block
     while retries <= max_retries:
         try:
-            masked_token = mask_token(headers['Authorization'])
-            logging.info(f"Connecting to URL: {url} with token: {masked_token}")
             response = requests.get(url, headers=headers)
             response.raise_for_status()
 
@@ -581,28 +576,55 @@ def connect_to_endpoint(url, headers, max_retries=1):
                 return response.json()
 
         except requests.HTTPError as e:
-            current_token = token_manager.get_current_token()
-
+            masked_token = mask_token(headers['Authorization'])
             if e.response.status_code == 429:
-                print(f"\n____________________________________________________________________________\nGenerating API "
-                      f"request... Failed\n____________________________________________________________________________"
-                      f"\nRate-Limit hit for Token: {masked_token}\nSwitching Token...")
-                token_manager.mark_token_as_rate_limited(current_token)
+                rate_limit_remaining = response.headers.get('x-rate-limit-remaining')
+                rate_limit_reset = e.response.headers.get('x-rate-limit-reset')
+                if rate_limit_reset:
+                    reset_time_utc = datetime.fromtimestamp(int(rate_limit_reset), timezone.utc)
+                    reset_time_gmt1 = reset_time_utc + timedelta(hours=1)  # Adjusting for GMT+1
+                    now = datetime.now(timezone.utc)
+                    time_diff = reset_time_utc - now
+                    hours = time_diff.seconds // 3600
+                    minutes = (time_diff.seconds // 60) % 60
+                    seconds = time_diff.seconds % 60
+                    time_diff_str = f"{hours}h:{minutes}m:{seconds}s"
 
-                if token_manager.all_tokens_rate_limited():
-                    logging.error("All tokens are rate-limited. Halting operation.")
-                    print('All tokens are rate-limited. The script is now shutting down.')
+                    print(f"\n____________________________________________________________________________\n"
+                          f"Generating API request... Failed\n"
+                          f"____________________________________________________________________________\n"
+                          f"Rate-Limit hit for Token: {masked_token}\n"
+                          f"Rate Limit Remaining: {rate_limit_remaining}\n"
+                          f"Rate Limit Resets In: {time_diff_str}\n"
+                          f"Rate Limit Resets At: {reset_time_gmt1.strftime('%Y-%m-%d %H:%M:%S GMT+1')}\nSwitching Toke"
+                          f"n...")
+
+                    token_manager.mark_token_as_rate_limited(token_manager.get_current_token())
+                    if token_manager.all_tokens_rate_limited():
+                        sleep_time = max(time_diff.total_seconds() + 5, 0)  # Add extra 5 seconds
+                        sleep_hours = int(sleep_time // 3600)
+                        sleep_minutes = int((sleep_time // 60) % 60)
+                        sleep_seconds = int(sleep_time % 60)
+                        sleep_time_str = f"{sleep_hours}h:{sleep_minutes}m:{sleep_seconds}s"
+
+                        print(f"\n____________________________________________________________________________\nAll tok"
+                              f"ens are rate-limited. Sleeping for: {sleep_time_str}\n_________________________________"
+                              f"___________________________________________\nSleeping until: "
+                              f"{reset_time_gmt1.strftime('%Y-%m-%d %H:%M:%S GMT+1')}")
+                        time.sleep(sleep_time)
+                        token_manager.reset_rate_limited_tokens()  # Reset rate-limited tokens after sleeping
+                        continue  # Continue the loop to retry the request
+                    else:
+                        token_manager.rotate_token()
+                        headers['Authorization'] = f'Bearer {token_manager.get_current_token()}'
+                        continue  # Continue the loop to retry with the next token
+                else:
+                    print("Rate limit reset time is unknown. Exiting.")
                     sys.exit(0)
 
-                token_manager.rotate_token()
-                headers['Authorization'] = f'Bearer {token_manager.get_current_token()}'
-                masked_token = mask_token(headers['Authorization'])  # Update the masked token
-                print("Token switch successful.\nRetrying Request...")
-                retries += 1
-                continue
             else:
                 error_message = f"HTTP error occurred for URL {url} with token {masked_token}: {e}"
-                logging.error(f"HTTP error occurred: {e}", exc_info=True)
+                logging.error(error_message, exc_info=True)
                 print(error_message)
                 raise
 
@@ -613,6 +635,8 @@ def connect_to_endpoint(url, headers, max_retries=1):
         if retries > max_retries:
             logging.error("Max retries reached for the API request.")
             raise Exception("Max retries reached for the API request.")
+
+    return None
 
 
 # Funtion to handle API requests with a retry mechanism
@@ -683,8 +707,10 @@ def process_api_response(response, session, protected_channel, protected_channel
                     # Update the existing account's status to "suspended"
                     account.suspended = True
                     session.commit()
-                    suspended_accounts.append(f"Status Suspended: {username}")
-                    print(f"Status Suspended: {username}")
+                    # Format the username to be left-justified within 18 characters
+                    formatted_username = username.ljust(18)
+                    suspended_accounts.append(f"Status Suspended: {formatted_username} (ID:{account.twitter_id})")
+                    print(f"Status Suspended: {formatted_username} (ID:{account.twitter_id})")
                 continue
 
             if 'Could not find user with usernames' in detail or 'not be found' in detail.lower():
@@ -694,15 +720,18 @@ def process_api_response(response, session, protected_channel, protected_channel
                     try:
                         new_user_data = connect_to_endpoint(url, headers)
                         new_username = new_user_data['data']['username']
-                        process_username_change(account, new_username, session, protected_channel)
+                        process_username_change(account, new_username, session)
                         account.update_api_response(new_user_data['data'])
                     except Exception as e:
                         logging.error(f"Could not update username: {e}")
-                        print(f"Both username {username} and Twitter ID {account.twitter_id} could not be resolved.")
+                        # Format the username to be left-justified within 18 characters
+                        formatted_username = username.ljust(18)
+                        print(f"Account Inactive: {formatted_username} (ID:{account.twitter_id})")
                         account.api_response = error
                         account.unresolvable = True
                         if not commit_session(session):
                             print("An error occurred while committing to the database.")
+
                 else:
                     process_not_found_user(username, error, protected_channel, protected_channel_id, session)
                 continue
@@ -723,15 +752,25 @@ def process_api_response(response, session, protected_channel, protected_channel
 
             if account:
                 if not account.suspended:
+                    # Format both usernames to be left-justified within 18 characters
+                    formatted_old_username = account.username.ljust(18)
+                    formatted_new_username = user_data['username'].ljust(18)
+
                     if account.username != user_data['username']:
                         print(
                             f"\n_____________________________________________\nProcessing API response... for "
-                            f"{protected_channel}\n_____________________________________________\n{account.username} ch"
-                            f"anged username to {user_data['username']}")
+                            f"{protected_channel}\n_____________________________________________\n"
+                            f"{formatted_old_username} changed username to {formatted_new_username}")
                         account.update_username(user_data['username'])
+
                 account.update_api_response(user_data)
                 session.commit()
-                active_impersonators.append(f"{protected_channel} is impersonated by: {user_data['username']}")
+
+                # Format the username in the active impersonators list
+                formatted_impersonator_username = user_data['username'].ljust(18)
+                active_impersonators.append(f"{protected_channel} is impersonated by: "
+                                            f"{formatted_impersonator_username} (ID:{account.twitter_id})")
+
             else:
                 create_new_account(user_data, session)
                 active_impersonators.append(
@@ -741,25 +780,19 @@ def process_api_response(response, session, protected_channel, protected_channel
     return suspended_accounts, active_impersonators, not_found_users
 
 
-def process_unresolvable_user(session, reactivated_usernames, usernames_chunk, protected_channel_id, protected_channel):
+def process_unresolvable_user(session, reactivated_usernames, usernames_chunk):
     """
+    Processes unresolvable users by checking if they have become resolvable.
 
-    :param session:
-    :param reactivated_usernames:
-    :param usernames_chunk:
-    :param protected_channel_id:
-    :param protected_channel:
-    :return:
+    :param session: The database session.
+    :param reactivated_usernames: List to store usernames that have become resolvable.
+    :param usernames_chunk: Chunk of usernames to process.
+    :return: None
     """
     # Create URL for the chunk of usernames
     url = create_url(usernames_chunk)
     headers = create_headers(token_manager.get_current_token())
     response_data = connect_to_endpoint(url, headers)
-
-    # Ensure protected_channel_id is a single value, not a list
-    if isinstance(protected_channel_id, list):
-        logging.error(f"Invalid protected_channel_id type (list) for {protected_channel}. Expected a single value.")
-        return  # Exit the function
 
     if response_data and 'data' in response_data:
         for new_data in response_data['data']:
@@ -789,15 +822,14 @@ def process_unresolvable_user(session, reactivated_usernames, usernames_chunk, p
                 account.unresolvable = False
                 account.api_response = json.dumps(new_data, cls=SafeEncoder)
                 account.api_response_updated_at = datetime.now()
-                # Ensure protected_channel_id is updated
-                account.protected_channel_id = protected_channel_id
+                # No update to protected_channel_id
                 logging.info(f"Updated existing account with new data for username {username}")
             else:
                 # Create a new account if no existing record is found
                 new_account_data = {key: new_data[key] for key in new_data if key != 'id'}
                 new_account_data['twitter_id'] = twitter_id
                 new_account_data['unresolvable'] = False
-                new_account_data['protected_channel_id'] = protected_channel_id  # Include protected_channel_id
+                # No inclusion of protected_channel_id
                 new_account = TwitterAccount(**new_account_data)
                 session.add(new_account)
                 logging.info(f"Created new account for username {username}")
@@ -923,9 +955,8 @@ def process_user_choice(choice, txt_files):
 
                 # Process unresolvable usernames at the end
                 for process_usernames_chunk in chunked_usernames(unresolvable_usernames, 100):
-                    # Include local_protected_channel in the function call
-                    process_unresolvable_user(db_session, reactivated_usernames, process_usernames_chunk,
-                                              local_protected_channel_id, local_protected_channel)
+                    # Call process_unresolvable_user without local_protected_channel_id and local_protected_channel
+                    process_unresolvable_user(db_session, reactivated_usernames, process_usernames_chunk)
 
         except ValueError as e:
             print(f"ValueError occurred: {e}\nInvalid input. Please enter a number.")
@@ -967,13 +998,12 @@ def process_user_choice(choice, txt_files):
     reactivated_usernames = []
     with Session() as session:
         for filename in txt_files:
-            protected_channel, protected_channel_id = get_protected_channel_from_filename(filename)
             with open(filename, 'r') as file:
                 file_usernames = [get_username_from_url(line.strip()) for line in file if line.strip()]
                 file_unresolvables = [uname for uname in file_usernames if uname.lower() in unresolvable_usernames]
                 for usernames_chunk in chunked_usernames(file_unresolvables, 100):
-                    process_unresolvable_user(session, reactivated_usernames, usernames_chunk,
-                                              protected_channel_id, protected_channel)
+                    # Call process_unresolvable_user without protected_channel_id and protected_channel
+                    process_unresolvable_user(session, reactivated_usernames, usernames_chunk)
 
     # Output for reactivated accounts
     if reactivated_usernames:
@@ -1040,7 +1070,7 @@ def main():
                 print("The SQLite database file did not exist or was empty.")
                 print("----------------------------------------")
 
-        txt_files_directory = os.path.join(base_dir, "TwitterData", "TXT-ImpersonatorAccounts")
+        txt_files_directory = os.path.join(base_dir, "..", "TwitterData", "TXT-ImpersonatorAccounts")
         # Update the pattern to match the new filename format
         txt_files = glob.glob(f"{txt_files_directory}/*.txt")
         if not txt_files:
