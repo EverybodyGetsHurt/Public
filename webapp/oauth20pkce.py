@@ -18,7 +18,7 @@ from sqlalchemy.sql import func
 # Initializing Flask app and loading configurations
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile('config.py', silent=True)
-app.secret_key = app.config['API_KEY_SECRET']
+app.secret_key = app.config['API_AKA_CONSUMER_KEY_SECRET']
 
 # Creating a Blueprint for the OAuth 2.0 PKCE routes
 oauth20pkce = Blueprint('oauth20pkce', __name__)
@@ -75,7 +75,7 @@ def oauth20pkce_index():
     authorization_url = (
         f"https://twitter.com/i/oauth2/authorize"
         f"?response_type=code"
-        f"&client_id={app.config['CLIENT_ID']}"
+        f"&client_id={app.config['CLIENT_ID_AKA_CONSUMER_KEY']}"
         f"&redirect_uri={app.config['REDIRECT_URI']}"
         f"&scope=tweet.read users.read mute.read mute.write block.read block.write offline.access"
         f"&state={state}"
@@ -139,15 +139,15 @@ def oauth20pkcecallback():
     # Creating a request to exchange the authorization code for an access token
     token_url = 'https://api.twitter.com/2/oauth2/token'
     credentials = base64.urlsafe_b64encode(
-        f"{app.config['CONSUMER_KEY']}:{app.config['CONSUMER_SECRET']}".encode()
+        f"{app.config['CLIENT_ID_AKA_CONSUMER_KEY']}:{app.config['CLIENT_ID_AKA_CONSUMER_KEY_SECRET']}".encode()
     ).decode()
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Authorization': f'Basic {credentials}'
     }
     data = {
-        'client_id': app.config['CONSUMER_KEY'],
-        'client_secret': app.config['CONSUMER_SECRET'],
+        'client_id': app.config['CLIENT_ID_AKA_CONSUMER_KEY'],
+        'client_secret': app.config['CLIENT_ID_AKA_CONSUMER_KEY_SECRET'],
         'grant_type': 'authorization_code',
         'code': code,
         'redirect_uri': app.config['REDIRECT_URI'],

@@ -27,9 +27,9 @@ class TwitterAPIError(Exception):
 
     def __init__(self, status_code: Optional[int], message: Optional[str] = None):
         """
-        Constructor for the TwitterAPIError class. 
+        Constructor for the TwitterAPIError class.
         :param status_code: The HTTP status code associated with the
-        error, used for HTTP response. 
+        error, used for HTTP response.
         :param message: An optional message detailing the error. If not provided,
         a default message is set based on the status code.
         """
@@ -349,7 +349,7 @@ def gateway_timeout(error):
     """
     Custom error handler for the 504 Gateway Timeout HTTP status code. This error occurs when a server acting as a
     gateway or proxy does not receive a timely response from an upstream server. It's an indication that a different
-    server, which the initial request was sent to, is not responding. 
+    server, which the initial request was sent to, is not responding.
     :param error: The error object provided by Flask.
     :return: Rendered error template with specific details for a 504 Gateway Timeout error.
     """

@@ -73,8 +73,8 @@ def oauth10areportimpersonators(impersonated_channel, oauth_session):
     # This session will be authenticated with the application's consumer key and secret,
     # along with the user's token and token secret.
     oauth = oauth_session(
-        config.APP_CONSUMER_KEY,
-        client_secret=config.APP_CONSUMER_SECRET,
+        config.API_AKA_CONSUMER_KEY,
+        client_secret=config.API_AKA_CONSUMER_KEY_SECRET,
         resource_owner_key=oauth10a_token,
         resource_owner_secret=oauth10a_token_secret,
     )

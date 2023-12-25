@@ -27,7 +27,7 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
 
 # Local application imports
-from instance.config import (APP_CONSUMER_KEY, APP_CONSUMER_SECRET, REQUEST_TOKEN_URL,
+from instance.config import (API_AKA_CONSUMER_KEY, API_AKA_CONSUMER_KEY_SECRET, REQUEST_TOKEN_URL,
                              ACCESS_TOKEN_URL, AUTHORIZE_URL)  # OAuth's configuration.
 # Local application imports for handling errors and database interaction.
 from .error import TwitterAPIError
@@ -50,7 +50,7 @@ oauth_store = {}
 # maintainability of the application.
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile('config.py', silent=True)
-app.secret_key = app.config['API_KEY_SECRET']
+app.secret_key = app.config['API_AKA_CONSUMER_KEY_SECRET']
 oauth10a = Blueprint('oauth10a', __name__)
 
 
@@ -104,7 +104,7 @@ def oauth10aindex():
     # The callback URL for the application is generated, ensuring it uses HTTPS for enhanced security.
     app_callback_url = url_for('oauth10a.oauth10acallback', _external=True, user=current_user, _scheme="https")
     # The OAuth consumer is created using the application's consumer key and secret.
-    consumer = oauth.Consumer(APP_CONSUMER_KEY, APP_CONSUMER_SECRET)
+    consumer = oauth.Consumer(API_AKA_CONSUMER_KEY, API_AKA_CONSUMER_KEY_SECRET)
     client = oauth.Client(consumer)
     # A request is made to Twitter's request token URL to obtain a request token.
     resp, content = client.request(REQUEST_TOKEN_URL, "POST", body=urllib.parse.urlencode({
@@ -135,10 +135,6 @@ def oauth10aindex():
                            request_token_url=REQUEST_TOKEN_URL, user=current_user, app_callback_uri=app_callback_url)
 
 
-# Callback route for OAuth 1.0a, handling the response from Twitter's authorization page.
-# Handle the OAuth callback with the data returned from Twitter.
-# Perform checks, exchange request token for access token, and handle any errors.
-# Fetch user data using access token and store OAuth details in the database file.
 @login_required
 @oauth10a.route('/oauth10acallback')
 def oauth10acallback():
@@ -163,7 +159,7 @@ def oauth10acallback():
     if not oauth_token_secret:
         return render_template('error.html', error_message="Missing OAuth token secret", user=current_user)
 
-    consumer = oauth.Consumer(APP_CONSUMER_KEY, APP_CONSUMER_SECRET)
+    consumer = oauth.Consumer(API_AKA_CONSUMER_KEY, API_AKA_CONSUMER_KEY_SECRET)
     token = oauth.Token(oauth_token, oauth_token_secret)
     token.set_verifier(oauth_verifier)
     client = oauth.Client(consumer, token)
@@ -176,7 +172,6 @@ def oauth10acallback():
     real_oauth_token = access_token_data.get('oauth_token')
     real_oauth_token_secret = access_token_data.get('oauth_token_secret')
 
-    # Use the new access token and secret to fetch user data
     token = oauth.Token(key=real_oauth_token, secret=real_oauth_token_secret)
     client = oauth.Client(consumer, token)
     resp, content = client.request('https://api.twitter.com/1.1/account/verify_credentials.json', "GET")
@@ -187,92 +182,60 @@ def oauth10acallback():
     response_data = json.loads(content.decode('utf-8'))
     screen_name = response_data.get('screen_name', 'Unknown')
     user_id = response_data.get('id_str', 'Unknown')
-    friends_count = response_data.get('friends_count', 'Unavailable')
-    statuses_count = response_data.get('statuses_count', 'Unavailable')
-    followers_count = response_data.get('followers_count', 'Unavailable')
-    name = response_data.get('name', 'Unknown')
 
-    # Check if Twitter ID is already associated with a different account
-    existing_oauth_record = OAuth10a.query.filter_by(twitter_id=user_id).first()
-    if existing_oauth_record and existing_oauth_record.email != email:
-        flash('This Twitter account is already registered with another account.', 'error')
-        return redirect(url_for('unauth.unauthhome'))
+    # Check and update or create OAuth10a record
+    existing_oauth_record = OAuth10a.query.filter_by(email=email).first()
+    if existing_oauth_record:
+        existing_oauth_record.twitter_id = user_id
+        existing_oauth_record.account_name = screen_name
+        existing_oauth_record.oauth_token = real_oauth_token
+        existing_oauth_record.oauth_token_secret = real_oauth_token_secret
+        existing_oauth_record.oauth_verifier = oauth_verifier
+    else:
+        new_oauth_record = OAuth10a(
+            email=email,
+            twitter_id=user_id,
+            account_name=screen_name,
+            oauth_token=real_oauth_token,
+            oauth_token_secret=real_oauth_token_secret,
+            oauth_verifier=oauth_verifier,
+            date_created=datetime.now(timezone.utc)
+        )
+        db.session.add(new_oauth_record)
 
-    set_to_database_oauth10a = OAuth10a(
-        twitter_id=user_id,
-        account_name=screen_name,
-        email=email,
-        oauth_token=real_oauth_token,
-        oauth_token_secret=real_oauth_token_secret,
-        oauth_verifier=oauth_verifier,
-        date_created=datetime.now(timezone.utc)
-    )
+    # Check and update or create User record
+    existing_user_record = User.query.filter_by(email=email).first()
+    if not existing_user_record:
+        new_user = User(
+            email=email,
+            twitter_id=user_id,
+            account_name=screen_name,
+            # Additional fields like password, etc.
+        )
+        db.session.add(new_user)
+    else:
+        existing_user_record.twitter_id = user_id
+        existing_user_record.account_name = screen_name
 
     try:
-        db.session.add(set_to_database_oauth10a)
         db.session.commit()
     except IntegrityError as e:
         db.session.rollback()
-        error_message = str(e)
-
-        if "UNIQUE constraint failed: oauth10a.oauth_token_secret" in error_message:
-            existing_entry = OAuth10a.query.filter_by(
-                oauth_token_secret=set_to_database_oauth10a.oauth_token_secret).first()
-            if existing_entry:
-                existing_entry.oauth_verifier = set_to_database_oauth10a.oauth_verifier
-                db.session.commit()
-
-        elif 'UNIQUE constraint failed: oauth10a.twitter_id' in error_message:
-            flash('This Twitter ID is already registered with another account.', 'error')
-            return redirect(url_for('unauth.unauthhome'))
-
-    # Update the existing User record with new Twitter ID and screen name
-    existing_user_record = User.query.filter_by(email=email).first()
-    if existing_user_record:
-        existing_user_record.twitter_id = user_id
-        existing_user_record.account_name = screen_name
-        try:
-            db.session.commit()
-        except IntegrityError as e:
-            db.session.rollback()
-            # Handle the error appropriately
-            print("Error updating All_Users:", e)
-    else:
-        # Handle the case where no matching user record is found
-        print("No matching user record found for email:", email)
+        # Log error and display an error message
+        return render_template('error.html', error_message="Database error", user=current_user)
 
     # Generate code verifier and challenge for PKCE
-    code_verifier = ''.join(
-        secrets.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~') for _ in range(128))
-    """
-    !!! SECURITY NOTICE ABOUT SHA256 HASHES: !!! 
-
-    HMAC isn't specifically needed for the OAuth 2.0 PKCE flow. The original concern about SHA-256's vulnerability 
-    to length-extension attacks is more applicable to situations where hash functions are used for creating secure 
-    message authentication codes (MACs) or signatures. In such cases, HMAC (Hash-based Message Authentication Code) 
-    is indeed recommended as it mitigates these vulnerabilities.
-
-    In OAuth 2.0 PKCE, SHA-256 is used for a different purpose: to create a challenge from a verifier in a way that 
-    is specified by the OAuth 2.0 standard (specifically RFC 7636). This usage does not involve creating a MAC or 
-    signature and is not vulnerable to length-extension attacks. The code challenge is hashed and sent to the 
-    authorization server, which later verifies that the same verifier is being used by hashing it again and comparing 
-    it to the initially sent challenge.
-
-    For the PKCE flow itself, the current use of SHA-256 is considered secure and standard-compliant.
-    """
-    # noinspection InsecureHash
+    code_verifier = ''.join(secrets.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~') for _ in range(128))
     code_challenge = base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode()).digest()).decode().rstrip('=')
     state = secrets.token_hex(128)
 
-    # Store code verifier and state in session
     session['code_verifier'] = code_verifier
     session['state'] = state
 
-    # Construct authorization URL
     authorization_url = (
         f"https://twitter.com/i/oauth2/authorize"
         f"?response_type=code"
-        f"&client_id={app.config['CLIENT_ID']}"
+        f"&client_id={app.config['CLIENT_ID_AKA_CONSUMER_KEY']}"
         f"&redirect_uri={app.config['REDIRECT_URI']}"
         f"&scope=tweet.read users.read mute.read mute.write block.read block.write offline.access"
         f"&state={state}"
@@ -284,10 +247,10 @@ def oauth10acallback():
         'oauth10acallback.html',
         screen_name=screen_name,
         user_id=user_id,
-        name=name,
-        friends_count=friends_count,
-        statuses_count=statuses_count,
-        followers_count=followers_count,
+        name=response_data.get('name', 'Unknown'),
+        friends_count=response_data.get('friends_count', 'Unavailable'),
+        statuses_count=response_data.get('statuses_count', 'Unavailable'),
+        followers_count=response_data.get('followers_count', 'Unavailable'),
         user=current_user,
         email=email,
         authorization_url=authorization_url

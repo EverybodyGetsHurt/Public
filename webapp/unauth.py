@@ -250,26 +250,26 @@ def csp_violation_report():
 @unauth.route('/embedder-violations', methods=['POST'])
 def embedder_violation_report():
     """
-    This route manages the reporting of embedder policy violations. An embedder policy is a security 
-    measure that governs the embedding of external resources and frames in a webpage. Violations of this 
-    policy are serious as they can lead to security vulnerabilities like Clickjacking or unwanted content 
+    This route manages the reporting of embedder policy violations. An embedder policy is a security
+    measure that governs the embedding of external resources and frames in a webpage. Violations of this
+    policy are serious as they can lead to security vulnerabilities like Clickjacking or unwanted content
     injection.
 
     Functionality:
     - Receives POST requests from the user's browser with details about embedder policy violations.
-    - The violation report, typically in JSON format, is decoded and appended to a log file 
-      ('embedder-violations.txt'). This logging is vital for tracking and addressing potential security 
+    - The violation report, typically in JSON format, is decoded and appended to a log file
+      ('embedder-violations.txt'). This logging is vital for tracking and addressing potential security
       breaches related to embedding third-party content.
 
     Responses:
-    - A 204 No Content response is sent back if the report is successfully logged. This informs the sender 
+    - A 204 No Content response is sent back if the report is successfully logged. This informs the sender
       (usually the browser) that the report was processed successfully.
-    - If no data is present in the request, a 400 Bad Request response is returned, indicating a potential 
+    - If no data is present in the request, a 400 Bad Request response is returned, indicating a potential
       error in the reporting process or an incorrectly configured policy.
 
     Importance:
-    - Monitoring embedder policy violations helps maintain the integrity of the website's content and 
-      protect against various web-based attacks. Regular analysis of these reports can aid in strengthening 
+    - Monitoring embedder policy violations helps maintain the integrity of the website's content and
+      protect against various web-based attacks. Regular analysis of these reports can aid in strengthening
       the site's security measures.
     """
     if request.data:
