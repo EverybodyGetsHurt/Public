@@ -1,11 +1,4 @@
-"""
-    TODO: It seems to add the protected_channel_id for the last account in the menu selection to many database entries.
-      The issue seems to be the fact that the last selected account (when more then 1 s selected) is added to some
-       accounts. We dont know why it takes the last one when multiple accounts are selected, but it is tested to be
-       always the last one of the multiple or all selection.
-       UPDATE: IT HAPPENS FOR THE ONES WHERE THE ACCOUNT NAME CHANGED
-
-"""
+""" Pretty-Much Perfected"""
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, JSON, func
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
 from datetime import datetime, timezone, timedelta
@@ -273,46 +266,48 @@ def create_new_account(user_data, session):
     """
     Creates a new account or updates an existing one in the database based on the given user data.
 
-    :param user_data: The data for the user account.
+    :param user_data: The data for the user account, expected to be a dictionary.
     :param session: The database session.
     :return: None
     """
-    # Query for an existing account by twitter_id or a case-insensitive match for username
+    logging.debug(f"Received user_data: {user_data}")
+
+    # Extract the twitter_id from user_data
+    twitter_id = user_data.get('id')
+    protected_channel_id = user_data.get('protected_channel_id')
+
+    if not twitter_id:
+        logging.error("No twitter_id found in user_data.")
+        return
+
+    # Check for an existing account with the twitter_id or username
     existing_account = session.query(TwitterAccount).filter(
-        (TwitterAccount.twitter_id == user_data.get("id")) |
-        (func.lower(TwitterAccount.username) == func.lower(user_data.get("username")))
+        (TwitterAccount.twitter_id == twitter_id) |
+        (func.lower(TwitterAccount.username) == func.lower(user_data.get('username')))
     ).first()
 
     if existing_account:
-        # Update the existing account with the new data
+        # Update the existing account
+        logging.debug(f"Updating existing account for twitter_id: {twitter_id}")
+        existing_account.twitter_id = twitter_id  # Ensure twitter_id is updated
+        existing_account.protected_channel_id = protected_channel_id  # Update protected_channel_id
         for key, value in user_data.items():
             if hasattr(existing_account, key):
                 setattr(existing_account, key, value)
-
-        # Special handling for 'created_at' to ensure it's a datetime object
-        if 'created_at' in user_data and user_data['created_at']:
-            existing_account.created_at = datetime.strptime(user_data['created_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
-
-        # Handle the protected_channel_id if it's provided in user_data
-        if 'protected_channel_id' in user_data:
-            existing_account.protected_channel_id = user_data['protected_channel_id']
-
     else:
-        # Create a new account if no existing account is found
-        # Correctly map 'id' from user_data to 'twitter_id' in the new account
-        user_data['twitter_id'] = user_data.pop('id', None)
-
-        # Handle the protected_channel_id if it's not provided in user_data
-        if 'protected_channel_id' not in user_data:
-            user_data['protected_channel_id'] = None
-
-        new_account = TwitterAccount(**user_data)
+        # Create a new account
+        logging.debug(f"Creating new account for twitter_id: {twitter_id}")
+        new_account_data = user_data.copy()
+        new_account_data['twitter_id'] = twitter_id  # Set the twitter_id explicitly
+        new_account_data['protected_channel_id'] = protected_channel_id  # Set the protected_channel_id explicitly
+        new_account = TwitterAccount(**new_account_data)
         session.add(new_account)
-        logging.info(f"Added new account {user_data.get('username', 'unknown')}")
 
-    # Commit the changes to the database
-    if not commit_session(session):
-        print("An error occurred while committing to the database.")
+    # Commit the session
+    if commit_session(session):
+        logging.info("Account committed to the database successfully.")
+    else:
+        logging.error("Error committing to the database.")
 
 
 # Function to create headers for the API request
@@ -359,18 +354,19 @@ def get_account_by_twitter_id(twitter_id, session):
     return session.query(TwitterAccount).filter_by(twitter_id=twitter_id).first()
 
 
-# Function to extract the protected channel name from the filename
-def get_protected_channel_from_filename(filename):
+# Function to extract the protected channel name and id from the filename
+def get_protected_channel_name_and_id_from_filename(filename):
     """
+    Extracts the protected channel name and ID from the filename.
 
-    :param filename:
-    :return:
+    :param filename: The filename from which to extract the information.
+    :return: A tuple containing the protected channel name and ID.
     """
-    # Extract the channel name and ID from the new filename format 'Username(Twitter_ID).txt'
+    # Extract the channel name and ID from the filename format 'ChannelName(ChannelID).txt'
     base_name = os.path.basename(filename).replace(".txt", "")
-    protected_channel, twitter_id = base_name.split("(")
-    twitter_id = twitter_id.replace(")", "")
-    return protected_channel, twitter_id
+    protected_channel, protected_channel_id = base_name.split("(")
+    protected_channel_id = protected_channel_id.replace(")", "")
+    return protected_channel, protected_channel_id
 
 
 # Function to extract the username from the Twitter URL
@@ -422,8 +418,10 @@ def process_suspended_user(account, username, error, protected_channel, protecte
         process_suspended_user.header_printed = False
 
     if not process_suspended_user.header_printed:
-        print(f"\n_____________________________________________\nProcess API response... for {protected_channel}:\n____"
-              "_________________________________________")
+        time.sleep(0)  # To avoid hitting rate limits
+
+        # Output processed information
+        print(f"\n{'_' * 80}\n     Process API response... for {protected_channel}:\n{'_' * 80}")
         process_suspended_user.header_printed = True
 
     if account:
@@ -546,6 +544,9 @@ def process_active_user(account, user_data, protected_channel, protected_channel
     :return: None
     """
     user_data['protected_channel'] = protected_channel
+    user_data['protected_channel_id'] = protected_channel_id  # Set protected_channel_id
+    user_data['api_response'] = json.dumps(user_data, cls=SafeEncoder)
+
     # Set protected_channel_id only if it's empty
     if account and account.protected_channel_id is None:
         user_data['protected_channel_id'] = protected_channel_id
@@ -566,6 +567,13 @@ def process_active_user(account, user_data, protected_channel, protected_channel
 
 # Function to connect to the Twitter API endpoint with enhanced error handling and token rotation
 def connect_to_endpoint(url, headers, max_retries=1):
+    """
+
+    :param url:
+    :param headers:
+    :param max_retries:
+    :return:
+    """
     retries = 0
     while retries <= max_retries:
         try:
@@ -688,9 +696,7 @@ def process_api_response(response, session, protected_channel, protected_channel
     not_found_users = []
 
     if first_call:
-        print(f"\n_____________________________________________\nProcess API response... "
-              f"for {protected_channel}:\n_____________________________________________")
-
+        print(f"\n{'_' * 80}\n     Process API response... for {protected_channel}:\n{'_' * 80}")
     if 'errors' in response:
         for error in response['errors']:
             detail = error.get('detail', 'No detail provided')
@@ -745,6 +751,7 @@ def process_api_response(response, session, protected_channel, protected_channel
                 continue  # Skip this iteration
             user_data['protected_channel'] = protected_channel
             user_data['api_response'] = json.dumps(user_data, cls=SafeEncoder)
+            user_data['protected_channel_id'] = protected_channel_id  # Add this line
 
             # Perform a case-insensitive search for the existing account
             account = session.query(TwitterAccount).filter(
@@ -874,7 +881,8 @@ def process_user_choice(choice, txt_files):
         try:
             choice_number = int(inner_choice)
             selected_file = txt_files[choice_number - 1]
-            local_protected_channel, local_protected_channel_id = get_protected_channel_from_filename(selected_file)
+            local_protected_channel, local_protected_channel_id = get_protected_channel_name_and_id_from_filename(
+                selected_file)
             with open(selected_file, 'r') as chosen_file:
                 urls = [line.strip() for line in chosen_file if line.strip()]
 
@@ -946,8 +954,7 @@ def process_user_choice(choice, txt_files):
                 time.sleep(0)  # To avoid hitting rate limits
 
                 # Output processed information
-                print(f"\n_____________________________________________\nAll information processed for "
-                      f"{local_protected_channel}:\n_____________________________________________")
+                print(f"\n{'_' * 80}\n     All information processed for {local_protected_channel}:\n{'_' * 80}")
                 if all_active_impersonators:
                     print("\n".join(all_active_impersonators))
                 if all_not_found_users:
@@ -1076,11 +1083,11 @@ def main():
         if not txt_files:
             print("No protected channels found.")
             return
-
-        print("\nSelect a protected channel to process:")
+        print(f"\n{'=' * 150}\n                                      SELECT THE PROTECTED CHANNEL(S) TO UPDATE THE "
+              f"DATABASE INFORMATION\n{'=' * 150}")
         for index, txt_file in enumerate(txt_files, start=1):
             # Extract the protected channel and Twitter ID from the filename
-            protected_channel, _ = get_protected_channel_from_filename(os.path.basename(txt_file))
+            protected_channel, _ = get_protected_channel_name_and_id_from_filename(os.path.basename(txt_file))
             print(f"{index}. {protected_channel}")
 
         user_choice = input("\nMake a choice by entering Number(s) or Name(s) comma separated. Or type ALL: ").strip()
