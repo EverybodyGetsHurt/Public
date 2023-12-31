@@ -1,5 +1,7 @@
 """
-    Placeholder
+
+    TODO: the username_changed column isnt increased by 1 after a username change was detected.
+
 """
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, JSON, func, exc
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
